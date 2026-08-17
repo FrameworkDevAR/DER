@@ -1,12 +1,21 @@
 import Selection from "./Selection.js";
 import Storage   from "./Storage.js";
+import Aside     from "./Aside.js";
 import Canvas    from "./Canvas.js";
 import Mode      from "./Mode.js";
 import Grouper   from "./Grouper.js";
 import Group     from "./Group.js";
 import Schema    from "./Schema.js";
+import Table     from "./Table.js";
+import Welcome   from "./Welcome.js";
 import Utils     from "./Utils.js";
 
+
+// The Schema of the Framework, to try the app without one of your own
+const testSchema = {
+    name : "Framework",
+    url  : "https://frameworkphp.com.ar/assets/schema.json",
+};
 
 // The Variables
 let timer     = null;
@@ -15,8 +24,10 @@ let storage   = new Storage();
 let canvas    = new Canvas();
 let mode      = new Mode();
 let grouper   = new Grouper();
+let welcome   = new Welcome();
+let aside     = new Aside();
 
-/** @type {Schema} */
+/** @type {?Schema} */
 let schema    = null;
 
 
@@ -29,10 +40,30 @@ async function main() {
     if (storage.hasSchema) {
         const data = await storage.getSchema();
         setSchema(data);
-    } else {
+    } else if (storage.hasSchemas) {
         selection.open(storage.getSchemas());
+    } else {
+        welcome.open();
     }
     mode.restore(storage.getMode());
+    updateBoard();
+}
+
+/**
+ * Adds the Schema of the Framework, to see the app work without one at hand
+ * @returns {Promise}
+ */
+async function addTestSchema() {
+    const data = {
+        name     : testSchema.name,
+        useUrl   : true,
+        url      : testSchema.url,
+        position : storage.getSchemas().length + 1,
+    };
+
+    await storage.setSchema(data);
+    welcome.close();
+    selectSchema(data.schemaID);
 }
 
 /**
@@ -48,8 +79,10 @@ function setSchema(data) {
     storage.updateGroups(groups);
 
     schema.createList();
+    canvas.setSchemaTables(schema.tables);
     schema.setInitialFilter(storage.getFilter());
-    schema.setInitialWidth(storage.getWidth());
+    aside.setInitialWidth(storage.getWidth());
+    aside.setInitialCollapsed(storage.isCollapsed);
 
     for (const table of Object.values(schema.tables)) {
         const data = storage.getTable(table);
@@ -63,6 +96,139 @@ function setSchema(data) {
 
     canvas.zoom.setInitialValue(storage.getZoom());
     canvas.setInitialScroll(storage.getScroll());
+    updateBoard();
+}
+
+/**
+ * Opens or closes the given Table in the List, leaving the others as they are
+ * @param {Table} table
+ * @returns {Void}
+ */
+function expandTable(table) {
+    table.toggleExpand();
+    storage.setTable(table);
+
+    // A Table inside a Group is only on screen once the Group is open
+    if (table.isExpanded) {
+        openGroupOf(table);
+    }
+}
+
+/**
+ * Opens or closes the given Group in the List
+ * @param {Group} group
+ * @returns {Void}
+ */
+function toggleGroup(group) {
+    group.toggleExpand();
+    storage.setGroup(group);
+}
+
+/**
+ * Opens the given Group in the List, leaving an open one alone
+ * @param {Group} group
+ * @returns {Void}
+ */
+function expandGroup(group) {
+    if (!group.isExpanded) {
+        toggleGroup(group);
+    }
+}
+
+/**
+ * Opens the Group of the given Table, so the row the List marks as selected
+ * is one that can be seen. It is the only thing selecting opens on its own
+ * @param {Table} table
+ * @returns {Void}
+ */
+function openGroupOf(table) {
+    if (table.group) {
+        expandGroup(table.group);
+    }
+}
+
+/**
+ * Shows how much of the Schema is on the board, in the Aside and the Canvas
+ * @returns {Void}
+ */
+function updateBoard() {
+    aside.setStatus(canvas.tableCount, schema ? schema.tableCount : 0);
+    canvas.setEmpty(Boolean(schema));
+}
+
+/**
+ * Puts every Table of the Schema on the board
+ * @returns {Void}
+ */
+function addAllTables() {
+    if (!schema) {
+        return;
+    }
+
+    canvas.unselect();
+    const added = [];
+    for (const table of Object.values(schema.tables)) {
+        if (!table.onCanvas) {
+            canvas.addTable(table);
+            added.push(table);
+        }
+    }
+
+    layoutTables(added);
+    for (const table of added) {
+        storage.setTable(table);
+    }
+    updateBoard();
+}
+
+/**
+ * Takes every Table off the board
+ * @returns {Void}
+ */
+function clearBoard() {
+    if (!schema) {
+        return;
+    }
+
+    canvas.unselect();
+    for (const table of Object.values(schema.tables)) {
+        if (table.onCanvas) {
+            canvas.removeTable(table);
+            storage.setTable(table);
+        }
+    }
+    updateBoard();
+}
+
+/**
+ * Lays the given Tables out in as square a grid as their amount allows, each
+ * one under the last of its column, so a tall Table does not land on another
+ * @param {Table[]} tables
+ * @returns {Void}
+ */
+function layoutTables(tables) {
+    if (!tables.length) {
+        return;
+    }
+
+    const gap     = 40;
+    const columns = Math.ceil(Math.sqrt(tables.length));
+    const width   = Math.max(...tables.map((table) => table.width)) + gap;
+    const bottoms = new Array(columns).fill(0);
+    const top     = tables[0].top;
+    const left    = tables[0].left - Math.floor(columns / 2) * width;
+
+    for (const [ index, table ] of tables.entries()) {
+        const column = index % columns;
+        table.translate({
+            top  : top  + bottoms[column],
+            left : left + column * width,
+        });
+        bottoms[column] += table.height + gap;
+    }
+
+    // The links were drawn where the Tables were dropped, before the layout
+    canvas.reconnectAll();
 }
 
 /**
@@ -96,6 +262,7 @@ async function editSchema() {
     }
 
     await storage.setSchema(data);
+    welcome.close();
     selection.open(storage.getSchemas());
     if (schema && data && schema.schemaID === data.schemaID) {
         selectSchema(data.schemaID);
@@ -104,17 +271,19 @@ async function editSchema() {
 }
 
 /**
- * Deletes the given Schema
+ * Removes the given Schema
  * @param {Number} schemaID
  * @returns {Void}
  */
-function deleteSchema(schemaID) {
+function removeSchema(schemaID) {
     if (schema && schema.schemaID === schemaID) {
         canvas.destroy();
         schema.destroy();
+        schema = null;
+        updateBoard();
     }
     storage.removeSchema(schemaID);
-    selection.closeDelete();
+    selection.closeRemove();
     selection.open(storage.getSchemas());
 }
 
@@ -123,7 +292,7 @@ function deleteSchema(schemaID) {
  * @param {Group?} group
  * @returns {Void}
  */
-function openGroup(group) {
+function openGroupDialog(group) {
     if (group) {
         canvas.stopUnselect();
         grouper.openDialog(storage.nextGroup, group, canvas.selectedTables);
@@ -145,6 +314,14 @@ document.addEventListener("click", (e) => {
     let   dontStop   = false;
 
     switch (action) {
+    // Welcome Actions
+    case "welcome-add":
+        selection.openEdit({});
+        break;
+    case "welcome-test":
+        addTestSchema();
+        break;
+
     // Selection Actions
     case "open-select":
         selection.open(storage.getSchemas());
@@ -184,14 +361,14 @@ document.addEventListener("click", (e) => {
     case "edit-schema":
         editSchema();
         break;
-    case "open-delete":
-        selection.openDelete(schemaID);
+    case "open-remove-schema":
+        selection.openRemove(schemaID);
         break;
-    case "close-delete":
-        selection.closeDelete();
+    case "close-remove-schema":
+        selection.closeRemove();
         break;
-    case "delete-schema":
-        deleteSchema(selection.schemaID);
+    case "remove-schema":
+        removeSchema(selection.schemaID);
         break;
 
     // Group Actions
@@ -230,14 +407,23 @@ document.addEventListener("click", (e) => {
         }
         break;
 
-    // Aside Actions
+    // Aside Actions. The panel is there before a Schema is, so only the
+    // filter, which is a filter of its list, has to ask for one
+    case "add-all-tables":
+        addAllTables();
+        break;
+    case "clear-board":
+        clearBoard();
+        break;
     case "toggle-aside":
-        schema.toggleMinimize();
-        storage.setWidth(schema.width);
+        aside.toggleCollapse();
+        storage.setCollapsed(aside.isCollapsed);
         break;
     case "clear-filter":
-        schema.clearFilter();
-        storage.removeFilter();
+        if (schema) {
+            schema.clearFilter();
+            storage.removeFilter();
+        }
         break;
 
     // Mode Actions
@@ -252,20 +438,15 @@ document.addEventListener("click", (e) => {
 
     // Zoom Actions
     case "zoom-in":
-        const zoomIn = canvas.zoom.increase();
-        canvas.reCenter();
-        storage.setZoom(zoomIn);
+        storage.setZoom(canvas.setZoom("in"));
         Utils.unselect();
         break;
     case "zoom-out":
-        const zoomOut = canvas.zoom.decrease();
-        canvas.reCenter();
-        storage.setZoom(zoomOut);
+        storage.setZoom(canvas.setZoom("out"));
         Utils.unselect();
         break;
     case "reset-zoom":
-        canvas.zoom.reset();
-        canvas.reCenter();
+        canvas.setZoom("reset");
         storage.removeZoom();
         Utils.unselect();
         break;
@@ -276,14 +457,20 @@ document.addEventListener("click", (e) => {
     if (group) {
         switch (action) {
         case "expand-group":
-            group.toggleExpand();
-            storage.setGroup(group);
+            toggleGroup(group);
             break;
         case "show-group":
+            // Picking a Group opens it, and only the click that finds it
+            // already picked is the one that closes it again
+            if (canvas.isGroupSelected(group)) {
+                toggleGroup(group);
+            } else {
+                expandGroup(group);
+            }
             canvas.showGroup(group);
             break;
         case "edit-group":
-            openGroup(group);
+            openGroupDialog(group);
             break;
         default:
         }
@@ -293,29 +480,45 @@ document.addEventListener("click", (e) => {
     if (table) {
         switch (action) {
         case "expand-table":
-            table.toggleExpand();
-            storage.setTable(table);
+            expandTable(table);
             break;
         case "select-list-table":
-            canvas.selectTableFromList(table);
+            // A Table that is not on the board has nothing to show there, so
+            // picking it only opens it, the way a Group off the board does
+            if (!table.onCanvas) {
+                expandTable(table);
+            } else if (specialKey) {
+                canvas.selectTableFromList(table, true);
+            } else {
+                canvas.selectTableFromList(table);
+            }
+            break;
+        case "toggle-list-fields":
+            table.toggleListFields();
             break;
         case "select-canvas-table":
             Utils.unselect();
             canvas.selectTableFromCanvas(table, specialKey);
+            if (canvas.isSelected(table)) {
+                openGroupOf(table);
+                canvas.scrollToList(table);
+            }
             break;
         case "add-table":
             canvas.addTable(table);
             canvas.selectTableFromList(table);
             storage.setTable(table);
+            updateBoard();
             break;
         case "remove-table":
-            canvas.unselect();
             canvas.removeTable(table);
+            canvas.selectTableOffCanvas(table);
             storage.setTable(table);
+            updateBoard();
             break;
         case "toggle-fields":
             table.toggleFields();
-            canvas.reconnect(table);
+            canvas.resizeTable(table);
             canvas.selectTableFromCanvas(table, specialKey);
             storage.setTable(table);
             break;
@@ -341,11 +544,11 @@ document.addEventListener("dblclick", (e) => {
 
     switch (action) {
     case "resize-aside":
-        schema.toggleMinimize();
-        storage.setWidth(schema.width);
+        aside.resetWidth();
+        storage.setWidth(aside.width);
         break;
     case "drag-group":
-        openGroup(group);
+        openGroupDialog(group);
         break;
     }
 });
@@ -354,6 +557,9 @@ document.addEventListener("dblclick", (e) => {
  * The Filter Event Handler
  */
 document.querySelector(".schema-filter input").addEventListener("input", () => {
+    if (!schema) {
+        return;
+    }
     const value = schema.filterList();
     storage.setFilter(value);
 });
@@ -368,7 +574,6 @@ document.querySelector("main").addEventListener("scroll", () => {
     timer = window.setTimeout(() => {
         storage.setScroll(canvas.scroll);
     }, 500);
-    canvas.setCenter();
 });
 
 /**
@@ -387,6 +592,10 @@ document.addEventListener("mousedown", (e) => {
         const table = schema.getTable(target);
         if (table) {
             canvas.pickTable(e, table, specialKey);
+            if (canvas.isSelected(table)) {
+                openGroupOf(table);
+                canvas.scrollToList(table);
+            }
             e.preventDefault();
         }
         break;
@@ -394,11 +603,12 @@ document.addEventListener("mousedown", (e) => {
         const group = schema.getGroup(target);
         if (group) {
             canvas.pickGroup(e, group);
+            expandGroup(group);
             e.preventDefault();
         }
         break;
     case "resize-aside":
-        schema.pickResizer(e);
+        aside.pickResizer(e);
         e.preventDefault();
         break;
     default:
@@ -434,7 +644,7 @@ document.addEventListener("mousemove", (e) => {
             e.preventDefault();
         }
     }
-    if (schema && schema.dragResizer(e)) {
+    if (aside.dragResizer(e)) {
         e.preventDefault();
     }
 });
@@ -455,8 +665,8 @@ document.addEventListener("mouseup", (e) => {
             e.preventDefault();
         }
     }
-    if (schema && schema.dropResizer()) {
-        storage.setWidth(schema.width);
+    if (aside.dropResizer()) {
+        storage.setWidth(aside.width);
         e.preventDefault();
     }
 });

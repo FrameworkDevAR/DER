@@ -202,6 +202,7 @@ export default class Group {
         this.#listArrow.dataset.action  = "expand-group";
         this.#listArrow.dataset.group   = String(this.id);
 
+        this.#listText.className        = "schema-text";
         this.#listText.innerHTML        = this.name;
 
         this.#listButton.innerHTML      = "Edit";
@@ -288,13 +289,6 @@ export default class Group {
         this.#canvasHeader.dataset.action = "drag-group";
         this.#canvasHeader.dataset.group  = String(this.id);
         this.#canvasElem.appendChild(this.#canvasHeader);
-
-        const remove = document.createElement("a");
-        remove.href           = "#";
-        remove.className      = "close";
-        remove.dataset.action = "open-remove";
-        remove.dataset.group  = String(this.id);
-        this.#canvasElem.appendChild(remove);
     }
 
     /**
@@ -322,7 +316,7 @@ export default class Group {
             }
         }
 
-        this.top    -= this.padding * 2;
+        this.top    -= this.padding;
         this.left   -= this.padding;
         this.right  += this.padding;
         this.bottom += this.padding;
@@ -344,7 +338,7 @@ export default class Group {
         this.#listElem.scrollIntoView({
             behavior : "smooth",
             block    : "center",
-            inline   : "center",
+            inline   : "nearest",
         });
     }
 

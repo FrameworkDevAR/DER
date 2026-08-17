@@ -18,6 +18,9 @@ export default class Canvas {
     /** @type {Object.<String, Table>} */
     #tables = {};
 
+    /** @type {Object.<String, Table>} */
+    #schemaTables = {};
+
     /** @type {Link[]} */
     #links = [];
 
@@ -28,8 +31,6 @@ export default class Canvas {
     #canvas;
     /** @type {HTMLElement} */
     #container;
-    /** @type {HTMLElement} */
-    #center;
 
     /** @type {DOMRect} */
     #bounds;
@@ -59,14 +60,79 @@ export default class Canvas {
         // Selection
         this.selection     = {};
         this.selectedGroup = null;
+        this.listTable     = null;
         this.isSelecting   = false;
         this.isDragging    = false;
         this.isMoving      = false;
+    }
 
-        // Center
-        this.#center = document.createElement("div");
-        this.#center.className = "center";
-        this.#canvas.appendChild(this.#center);
+    /**
+     * Keeps the Tables of the Schema, to fade in the list the ones the
+     * selection does not reach, placed on the board or not
+     * @param {Object.<String, Table>} tables
+     * @returns {Void}
+     */
+    setSchemaTables(tables) {
+        this.#schemaTables = tables;
+    }
+
+    /**
+     * Fades in the list every Table that the selection does not touch
+     * @returns {Void}
+     */
+    markListSelection() {
+        const selected = this.listTable ? [ this.listTable ] : this.selectedTables;
+
+        for (const table of Object.values(this.#schemaTables)) {
+            const isLinked = !selected.length || selected.some((one) => one.isLinkedTo(table));
+            table.dimInList(!isLinked);
+        }
+    }
+
+    /**
+     * Returns how much of the window the Aside is taking
+     * @returns {Number}
+     */
+    get asideWidth() {
+        return parseFloat(getComputedStyle(document.body).getPropertyValue("--aside-current")) || 0;
+    }
+
+    /**
+     * Returns true if the Aside is out of the way: it publishes no width when
+     * it is collapsed, and then there is no list on screen to scroll
+     * @returns {Boolean}
+     */
+    get isAsideHidden() {
+        return this.asideWidth === 0;
+    }
+
+    /**
+     * Scrolls the List to the given Table or Group, unless the Aside is
+     * collapsed, where it would only move a list nobody can see
+     * @param {Table|Group} item
+     * @returns {Void}
+     */
+    scrollToList(item) {
+        if (!this.isAsideHidden) {
+            item.scrollListIntoView();
+        }
+    }
+
+    /**
+     * Returns the amount of Tables on the Canvas
+     * @returns {Number}
+     */
+    get tableCount() {
+        return Object.keys(this.#tables).length;
+    }
+
+    /**
+     * Shows or hides the message of the empty board
+     * @param {Boolean} hasSchema
+     * @returns {Void}
+     */
+    setEmpty(hasSchema) {
+        document.body.classList.toggle("canvas-is-empty", hasSchema && !this.tableCount);
     }
 
     /**
@@ -108,7 +174,7 @@ export default class Canvas {
      */
     addTable(table) {
         this.#tables[table.name] = table;
-        table.addToCanvas(this.#canvas, this.#container, this.zoom.percent);
+        table.addToCanvas(this.#canvas, this.#container, this.zoom.percent, this.asideWidth);
 
         // Adds links to/from the given Table
         for (const toTable of Object.values(this.#tables)) {
@@ -198,6 +264,29 @@ export default class Canvas {
         }
     }
 
+    /**
+     * Re-draws what a Table changes by growing or shrinking: the Links that
+     * reach it, and the Group that has to keep holding it
+     * @param {Table} table
+     * @returns {Void}
+     */
+    resizeTable(table) {
+        this.reconnect(table);
+        if (table.group && table.group.onCanvas) {
+            table.group.position();
+        }
+    }
+
+    /**
+     * Joins every Link again, after moving a set of Tables at once
+     * @returns {Void}
+     */
+    reconnectAll() {
+        for (const link of this.#links) {
+            link.connect();
+        }
+    }
+
 
 
     /**
@@ -212,52 +301,73 @@ export default class Canvas {
     }
 
     /**
-     * Sets the Initial scroll
-     * @param {{top: Number, left: Number}} scroll
+     * Sets the Initial scroll, going back to the middle when there is none
+     * @param {?{top: Number, left: Number}} scroll
      * @returns {Void}
      */
     setInitialScroll(scroll) {
-        // if (scroll) {
-        //     this.#container.scrollTo(scroll.left, scroll.top);
-        // } else {
-        //     this.center();
-        // }
-        // console.log(scroll);
-        this.center();
+        if (scroll && (scroll.top || scroll.left)) {
+            this.#container.scrollTo(scroll.left, scroll.top);
+        } else {
+            this.center();
+        }
     }
 
     /**
-     * Centers the Canvas
+     * Scrolls to the middle of the Canvas
      * @returns {Void}
      */
     center() {
-        // this.#center.style.translate = "500vw 500vh";
-        this.#center.style.transform = "translate(500vw, 500vh)";
-        this.#center.scrollIntoView({ block : "center", inline : "center" });
+        const scale = this.zoom.scale;
+        this.#container.scrollTo(
+            (this.#canvas.offsetWidth  * scale - this.#container.clientWidth)  / 2,
+            (this.#canvas.offsetHeight * scale - this.#container.clientHeight) / 2,
+        );
     }
 
-    reCenter() {
-        this.#center.scrollIntoView({ block : "center", inline : "center" });
+    /**
+     * Zooms the Canvas in, out, or back to where it started
+     * @param {"in"|"out"|"reset"} action
+     * @returns {Number}
+     */
+    setZoom(action) {
+        const oldScale = this.zoom.scale;
+        let   value    = 0;
+
+        switch (action) {
+        case "in":
+            value = this.zoom.increase();
+            break;
+        case "out":
+            value = this.zoom.decrease();
+            break;
+        default:
+            value = this.zoom.reset();
+        }
+
+        this.keepCenter(oldScale);
+        return value;
     }
 
-    setCenter() {
-        const scrollTop  = this.#container.scrollTop  + this.#bounds.height / 2;
-        const scrollLeft = this.#container.scrollLeft + this.#bounds.width  / 2;
+    /**
+     * Scrolls so that what was at the center of the view is still there. The
+     * Canvas grows from its top left corner, so a point of it sits at its own
+     * place times the scale, and the scroll has to follow by the same amount
+     * @param {Number} oldScale
+     * @returns {Void}
+     */
+    keepCenter(oldScale) {
+        const ratio = this.zoom.scale / oldScale;
+        if (ratio === 1) {
+            return;
+        }
 
-        const percentTop  = scrollTop  / this.#canvas.clientHeight;
-        const percentLeft = scrollLeft / this.#canvas.clientWidth;
-
-        // console.log(this.#canvas.clientWidth, scrollLeft, percentLeft);
-        // this.#center.style.translate = `calc(1000vw * ${percentLeft}) calc(1000vh * ${percentTop})`;
-        this.#center.style.transform = `scale(1) translate(calc(1000vw * ${percentLeft}), calc(1000vh * ${percentTop}))`;
-
-        // console.log(this.#bounds);
-        // console.log(this.#container.scrollTop / this.zoom.scale);
-        // const scale = 1;//this.zoom.scale;
-        // const elem = this.#canvas.querySelector(".group.selected");
-        // if (elem) {
-        //     elem.scrollIntoView({ block : "center", inline : "center" });
-        // }
+        const width  = this.#container.clientWidth;
+        const height = this.#container.clientHeight;
+        this.#container.scrollTo(
+            (this.#container.scrollLeft + width  / 2) * ratio - width  / 2,
+            (this.#container.scrollTop  + height / 2) * ratio - height / 2,
+        );
     }
 
 
@@ -378,9 +488,72 @@ export default class Canvas {
      * @param {Table} table
      * @returns {Void}
      */
-    selectTableFromList(table) {
-        table.scrollCanvasIntoView();
-        this.#selectTable(table);
+    selectTableFromList(table, addToSelection = false) {
+        if (addToSelection && this.isSelected(table)) {
+            this.#unselectTable(table);
+            return;
+        }
+        this.scrollToTable(table);
+        this.#selectTable(table, addToSelection);
+    }
+
+    /**
+     * Returns true if the given Table is part of the selection
+     * @param {Table} table
+     * @returns {Boolean}
+     */
+    isSelected(table) {
+        return Boolean(this.selection[table.name]);
+    }
+
+    /**
+     * Returns true if the given Group is the selected one
+     * @param {Group} group
+     * @returns {Boolean}
+     */
+    isGroupSelected(group) {
+        return Boolean(this.selectedGroup) && this.selectedGroup.isEqual(group);
+    }
+
+    /**
+     * Selects a Table that is not on the Canvas: nothing to select there, so
+     * the board only dims what the Table does not reach
+     * @param {Table} table
+     * @returns {Void}
+     */
+    selectTableOffCanvas(table) {
+        this.unselect();
+        this.stopUnselect();
+
+        for (const other of Object.values(this.#tables)) {
+            if (!table.isLinkedTo(other)) {
+                other.disable();
+            }
+        }
+        table.selectInList();
+        this.listTable = table;
+        this.markListSelection();
+    }
+
+    /**
+     * Scrolls the Canvas to the given Table, centered on what the Aside
+     * leaves free rather than on the whole window
+     * @param {Table} table
+     * @returns {Void}
+     */
+    scrollToTable(table) {
+        if (this.isAsideHidden) {
+            return;
+        }
+
+        const scale     = this.zoom.scale;
+        const freeWidth = this.#container.clientWidth - this.asideWidth;
+
+        this.#container.scrollTo({
+            left     : (table.left + table.width  / 2) * scale - this.asideWidth - freeWidth / 2,
+            top      : (table.top  + table.height / 2) * scale - this.#container.clientHeight / 2,
+            behavior : "smooth",
+        });
     }
 
     /**
@@ -390,13 +563,15 @@ export default class Canvas {
      * @returns {Void}
      */
     selectTableFromCanvas(table, addToSelection = false) {
-        table.scrollListIntoView();
-        this.#selectTable(table, addToSelection);
-
-        if (table.group && !table.group.isExpanded) {
-            this.selectedGroup = table.group.select();
-            table.group.scrollListIntoView();
+        if (addToSelection && this.isSelected(table)) {
+            this.#unselectTable(table);
+            return;
         }
+
+        // The Group it belongs to is opened by whoever asked for the selection,
+        // so the row is on screen and there is no need to mark the Group instead
+        this.scrollToList(table);
+        this.#selectTable(table, addToSelection);
     }
 
     /**
@@ -411,6 +586,28 @@ export default class Canvas {
             this.unselect();
         }
         this.selection[table.name] = table;
+        this.trySelectGroup();
+        this.markSelection();
+    }
+
+    /**
+     * Takes the given Table out of the selection, leaving the rest of it alone
+     * @param {Table} table
+     * @returns {Void}
+     */
+    #unselectTable(table) {
+        this.stopUnselect();
+
+        // The last one out takes the whole selection with it, so that nothing
+        // is left dimmed with no Table selected
+        if (this.selectedTables.length <= 1) {
+            this.unselect();
+            return;
+        }
+
+        delete this.selection[table.name];
+        table.unselect();
+        table.removeColors();
         this.trySelectGroup();
         this.markSelection();
     }
@@ -504,6 +701,7 @@ export default class Canvas {
         for (const selectedTable of this.selectedTables) {
             selectedTable.select();
         }
+        this.markListSelection();
     }
 
     /**
@@ -511,7 +709,15 @@ export default class Canvas {
      * @returns {Void}
      */
     unselect() {
+        if (this.listTable) {
+            this.listTable.unselect();
+            this.listTable = null;
+            for (const table of Object.values(this.#tables)) {
+                table.unselect();
+            }
+        }
         if (!this.hasSelection) {
+            this.markListSelection();
             return;
         }
         for (const table of Object.values(this.#tables)) {
@@ -523,6 +729,7 @@ export default class Canvas {
         }
         this.selection = {};
         this.unselectGroup();
+        this.markListSelection();
     }
 
     /**
@@ -623,8 +830,14 @@ export default class Canvas {
         if (this.isScrolling || this.isSelecting || this.isDragging) {
             return;
         }
-        if (!this.selection[table.name]) {
-            table.scrollListIntoView();
+        if (addToSelection && this.isSelected(table)) {
+            this.#unselectTable(table);
+            return;
+        }
+        // Picking one Table of a selected Group narrows the selection down to
+        // it, the whole Group being what its own header is there to pick
+        if (!this.isSelected(table) || this.selectedGroup) {
+            this.scrollToList(table);
             this.#selectTable(table, addToSelection);
         }
         this.startDrag(event);
@@ -641,7 +854,7 @@ export default class Canvas {
             return;
         }
         group.pick();
-        group.scrollListIntoView();
+        this.scrollToList(group);
         this.selectGroup(group);
         this.startDrag(event);
     }

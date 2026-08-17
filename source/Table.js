@@ -31,12 +31,16 @@ export default class Table {
     /** @type {HTMLElement} */
     #listText;
     /** @type {HTMLElement} */
+    #listCount;
+    /** @type {HTMLElement} */
     #listButton;
 
     /** @type {HTMLElement} */
     #canvasElem;
     /** @type {HTMLElement} */
     #hiddenElem;
+    /** @type {HTMLElement} */
+    #listHiddenElem;
     /** @type {Number} */
     #hiddenFields;
 
@@ -58,8 +62,9 @@ export default class Table {
         this.onCanvas   = false;
         this.top        = 0;
         this.left       = 0;
-        this.maxFields  = 15;
-        this.showAll    = false;
+        this.maxFields   = 15;
+        this.showAll     = false;
+        this.showAllList = false;
 
         this.setFields();
         this.setLinks();
@@ -83,8 +88,9 @@ export default class Table {
         this.onCanvas  = false;
         this.top       = 0;
         this.left      = 0;
-        this.maxFields = 15;
-        this.showAll   = false;
+        this.maxFields   = 15;
+        this.showAll     = false;
+        this.showAllList = false;
     }
 
     /**
@@ -93,16 +99,10 @@ export default class Table {
      * @returns {Void}
      */
     restore(data) {
-        this.onCanvas   = data.onCanvas;
-        this.isExpanded = data.isExpanded;
-        this.top        = data.top;
-        this.left       = data.left;
-        this.showAll    = data.showAll;
-
-        if (this.isExpanded) {
-            this.createExpandElem();
-            this.#listElem.classList.add("expanded");
-        }
+        this.onCanvas = data.onCanvas;
+        this.top      = data.top;
+        this.left     = data.left;
+        this.showAll  = data.showAll;
     }
 
 
@@ -153,60 +153,23 @@ export default class Table {
             return;
         }
 
+        // The Schema writes every column, the timestamps and the deletion
+        // among them, so there is nothing left to add here
         let index = 0;
         for (const { name, type, length, isPrimary, isKey } of this.data.fields) {
             this.#fields.push(new Field(index, name, type, length, isPrimary, isKey));
             index++;
         }
-        if (this.data.hasStatus) {
-            this.#fields.push(new Field(index, "status", "string"));
-            index++;
-        }
-        if (this.data.hasPositions) {
-            this.#fields.push(new Field(index, "position", "number"));
-            index++;
-        }
-        if (this.data.canCreate && this.data.hasTimestamps) {
-            this.#fields.push(new Field(index, "createdTime", "date"));
-            index++;
-        }
-        if (this.data.canCreate && this.data.hasUsers) {
-            this.#fields.push(new Field(index, "createdUser", "number"));
-            index++;
-        }
-        if (this.data.canEdit && this.data.hasTimestamps) {
-            this.#fields.push(new Field(index, "modifiedTime", "date"));
-            index++;
-        }
-        if (this.data.canEdit && this.data.hasUsers) {
-            this.#fields.push(new Field(index, "modifiedUser", "number"));
-            index++;
-        }
-        if (this.data.canDelete) {
-            this.#fields.push(new Field(index, "isDeleted", "boolean"));
-            index++;
-        }
     }
 
     /**
-     * Sets the Links using the Joins and Foreigns data
+     * Sets the Links using the Foreigns data, which is every relation the
+     * Schema has, the ones to the user that created a row included
      * @returns {Void}
      */
     setLinks() {
-        for (const { fromField, toTable, toField } of this.data.joins) {
+        for (const { fromField, toTable, toField } of this.data.foreigns || []) {
             this.links.push(new Link(this.name, fromField, toTable, toField));
-        }
-        for (const { fromField, toTable, toField } of this.data.foreigns) {
-            this.links.push(new Link(this.name, fromField, toTable, toField));
-        }
-
-        if (this.data.hasUsers) {
-            if (this.data.canCreate && (!this.data.joins || !this.data.joins.createdUser)) {
-                this.links.push(new Link(this.name, "createdUser", "credential", "CREDENTIAL_ID"));
-            }
-            if (this.data.canEdit && (!this.data.joins || !this.data.joins.modifiedUser)) {
-                this.links.push(new Link(this.name, "modifiedUser", "credential", "CREDENTIAL_ID"));
-            }
         }
 
         for (const link of this.links) {
@@ -260,6 +223,7 @@ export default class Table {
         this.#listInner  = document.createElement("div");
         this.#listArrow  = document.createElement("a");
         this.#listText   = document.createElement("span");
+        this.#listCount  = document.createElement("span");
         this.#listButton = document.createElement("button");
 
         this.#listElem.className        = "schema-table";
@@ -271,23 +235,36 @@ export default class Table {
         this.#listArrow.dataset.action  = "expand-table";
         this.#listArrow.dataset.table   = this.name;
 
+        this.#listText.className        = "schema-text";
         this.#listText.innerHTML        = this.name;
 
-        this.#listButton.innerHTML      = "Add";
+        this.#listCount.className       = "schema-count";
+        this.#listCount.innerHTML       = String(this.#fields.length);
+
         this.#listButton.className      = "btn btn-small";
-        this.#listButton.dataset.action = "add-table";
         this.#listButton.dataset.table  = this.name;
 
-        if (this.onCanvas) {
-            this.#listInner.classList.add("selectable");
-            this.#listInner.dataset.action = "select-list-table";
-            this.#listButton.style.display = "none";
-        }
+        this.#listInner.dataset.action = "select-list-table";
+        this.setListButton();
 
         this.#listElem.appendChild(this.#listInner);
         this.#listInner.appendChild(this.#listArrow);
         this.#listInner.appendChild(this.#listText);
+        this.#listInner.appendChild(this.#listCount);
         this.#listInner.appendChild(this.#listButton);
+    }
+
+    /**
+     * Sets the List button to add the Table or to take it off the Canvas
+     * @returns {Void}
+     */
+    setListButton() {
+        const title = this.onCanvas ? "Remove from board" : "Add to board";
+
+        this.#listButton.title          = title;
+        this.#listButton.ariaLabel      = title;
+        this.#listButton.dataset.action = this.onCanvas ? "remove-table" : "add-table";
+        this.#listButton.classList.toggle("btn-placed", this.onCanvas);
     }
 
     /**
@@ -340,10 +317,64 @@ export default class Table {
     createExpandElem() {
         this.expandElem = document.createElement("ol");
 
-        for (const field of this.#fields) {
-            this.expandElem.appendChild(field.createListElem());
+        // The list shows as much of the Table as the board does, and hides
+        // the rest behind the same line
+        for (const [ index, field ] of this.#fields.entries()) {
+            const isHidden = !this.showAllList && index >= this.maxFields;
+            this.expandElem.appendChild(field.createListElem(isHidden));
         }
+
+        if (this.#fields.length > this.maxFields) {
+            this.#listHiddenElem = this.createHiddenButton("toggle-list-fields", this.listHiddenText);
+            this.expandElem.appendChild(this.#listHiddenElem.parentElement);
+        }
+
         this.#listElem.appendChild(this.expandElem);
+    }
+
+    /**
+     * Creates the button that opens and closes the fields the Table hides,
+     * inside the row it takes so it keeps the rhythm of the ones above it
+     * @param {String} action
+     * @param {String} text
+     * @returns {HTMLElement}
+     */
+    createHiddenButton(action, text) {
+        const elem = document.createElement("li");
+        elem.className = "schema-hidden";
+
+        const button = document.createElement("button");
+        button.className      = "btn btn-tiny btn-hidden";
+        button.innerHTML      = text;
+        button.dataset.action = action;
+        button.dataset.table  = this.name;
+
+        elem.appendChild(button);
+        return button;
+    }
+
+    /**
+     * Returns the text of the line that hides the rest of the fields
+     * @returns {String}
+     */
+    get listHiddenText() {
+        const amount = this.#fields.length - this.maxFields;
+        return this.showAllList ? "Hide fields" : `+${amount} hidden fields`;
+    }
+
+    /**
+     * Toggles the fields the List hides
+     * @returns {Void}
+     */
+    toggleListFields() {
+        this.showAllList = !this.showAllList;
+
+        for (const [ index, field ] of this.#fields.entries()) {
+            if (index >= this.maxFields) {
+                field.toggleListVisibility(!this.showAllList);
+            }
+        }
+        this.#listHiddenElem.innerHTML = this.listHiddenText;
     }
 
 
@@ -353,13 +384,12 @@ export default class Table {
      * @param {HTMLElement} canvas
      * @param {HTMLElement} container
      * @param {Number}      mult
+     * @param {Number=}     asideWidth
      * @returns {Void}
      */
-    addToCanvas(canvas, container, mult) {
+    addToCanvas(canvas, container, mult, asideWidth = 0) {
         this.onCanvas = true;
-        this.#listInner.classList.add("selectable");
-        this.#listInner.dataset.action = "select-list-table";
-        this.#listButton.style.display = "none";
+        this.setListButton();
 
         if (!this.#canvasElem) {
             this.createCanvasElem();
@@ -375,11 +405,15 @@ export default class Table {
                 });
                 this.scrollCanvasIntoView();
             } else {
+                // Centered on what the Aside leaves free, not on the window,
+                // or half of the Table lands under the panel
                 const canvasBounds = canvas.getBoundingClientRect();
                 const contBounds   = container.getBoundingClientRect();
+                const freeWidth    = contBounds.width - asideWidth;
+
                 this.translate({
                     top  : (-canvasBounds.top  + contBounds.height / 2 - this.height / 2) / mult,
-                    left : (-canvasBounds.left + contBounds.width  / 2 - this.width  / 2 + contBounds.left) / mult,
+                    left : (-canvasBounds.left + asideWidth + freeWidth / 2 - this.width / 2) / mult,
                 });
             }
         }
@@ -395,9 +429,7 @@ export default class Table {
         }
 
         this.onCanvas = false;
-        this.#listInner.classList.remove("selectable");
-        this.#listInner.dataset.action = "";
-        this.#listButton.style.display = "block";
+        this.setListButton();
 
         Utils.removeElement(this.#canvasElem);
         this.#canvasElem = null;
@@ -416,16 +448,18 @@ export default class Table {
         this.#canvasElem.style.transform = `translate(${this.left}px, ${this.top}px)`;
 
         const header = document.createElement("header");
-        header.innerHTML      = this.name;
         header.dataset.action = "drag-table";
         header.dataset.table  = this.name;
 
-        const remove = document.createElement("a");
-        remove.href           = "#";
-        remove.className      = "close";
-        remove.dataset.action = "remove-table";
-        remove.dataset.table  = this.name;
-        header.appendChild(remove);
+        const name = document.createElement("span");
+        name.className = "table-name";
+        name.innerHTML = this.name;
+        header.appendChild(name);
+
+        const count = document.createElement("span");
+        count.className = "table-count";
+        count.innerHTML = `${this.#fields.length} cols`;
+        header.appendChild(count);
 
         const list = document.createElement("ol");
         for (const [ index, field ] of this.#fields.entries()) {
@@ -435,13 +469,9 @@ export default class Table {
         if (this.#fields.length > this.maxFields) {
             this.#hiddenFields = this.#fields.length - this.maxFields;
 
-            this.#hiddenElem = document.createElement("li");
-            this.#hiddenElem.className      = "schema-hidden";
-            this.#hiddenElem.innerHTML      = this.showAll ? "Hide fields" : `+${this.#hiddenFields} hidden fields`;
-            this.#hiddenElem.dataset.action = "toggle-fields";
-            this.#hiddenElem.dataset.table  = this.name;
-
-            list.appendChild(this.#hiddenElem);
+            const text = this.showAll ? "Hide fields" : `+${this.#hiddenFields} hidden fields`;
+            this.#hiddenElem = this.createHiddenButton("toggle-fields", text);
+            list.appendChild(this.#hiddenElem.parentElement);
         }
 
         this.#canvasElem.appendChild(header);
@@ -478,10 +508,12 @@ export default class Table {
      * @returns {Void}
      */
     scrollListIntoView() {
+        // The List only scrolls up and down, and centering sideways drags the
+        // whole panel along with a Table that is indented into a Group
         this.#listElem.scrollIntoView({
             behavior : "smooth",
             block    : "center",
-            inline   : "center",
+            inline   : "nearest",
         });
     }
 
@@ -498,13 +530,47 @@ export default class Table {
     }
 
     /**
+     * Returns true if a link joins this Table with the given one
+     * @param {Table} table
+     * @returns {Boolean}
+     */
+    isLinkedTo(table) {
+        if (this.name === table.name) {
+            return true;
+        }
+        for (const link of [ ...this.links, ...table.links ]) {
+            if (link.isLinkedTo(this) && link.isLinkedTo(table)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Selects the Table
      * @returns {Void}
      */
     select() {
         this.unselect();
         this.#canvasElem.classList.add("selected");
-        this.#listInner.classList.add("selected");
+        this.#listElem.classList.add("selected");
+    }
+
+    /**
+     * Marks the Table in the List, for the ones that are not on the board
+     * @returns {Void}
+     */
+    selectInList() {
+        this.#listElem.classList.add("selected");
+    }
+
+    /**
+     * Fades the Table in the List, for the ones the selection does not touch
+     * @param {Boolean} isDimmed
+     * @returns {Void}
+     */
+    dimInList(isDimmed) {
+        this.#listElem.classList.toggle("faded", isDimmed);
     }
 
     /**
@@ -513,7 +579,9 @@ export default class Table {
      */
     disable() {
         this.unselect();
-        this.#canvasElem.classList.add("disabled");
+        if (this.#canvasElem) {
+            this.#canvasElem.classList.add("disabled");
+        }
     }
 
     /**
@@ -521,9 +589,11 @@ export default class Table {
      * @returns {Void}
      */
     unselect() {
-        this.#canvasElem.classList.remove("selected");
-        this.#canvasElem.classList.remove("disabled");
-        this.#listInner.classList.remove("selected");
+        if (this.#canvasElem) {
+            this.#canvasElem.classList.remove("selected");
+            this.#canvasElem.classList.remove("disabled");
+        }
+        this.#listElem.classList.remove("selected");
     }
 
     /**

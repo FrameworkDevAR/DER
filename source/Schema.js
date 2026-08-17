@@ -1,6 +1,5 @@
-import Table   from "./Table.js";
-import Group   from "./Group.js";
-import Options from "./Options.js";
+import Table from "./Table.js";
+import Group from "./Group.js";
 
 
 
@@ -10,8 +9,6 @@ import Options from "./Options.js";
  */
 export default class Schema {
 
-    /** @type {HTMLElement} */
-    #aside;
     /** @type {HTMLInputElement} */
     #input;
     /** @type {HTMLElement} */
@@ -34,19 +31,15 @@ export default class Schema {
     constructor(data) {
         this.schemaID = data.schemaID;
         this.data     = data.schema;
-        this.width    = Options.INITIAL_WIDTH;
-        this.oldWidth = Options.INITIAL_WIDTH;
-
         this.tables   = {};
         this.groups   = {};
 
-        this.#aside   = document.querySelector("aside");
         this.#input   = document.querySelector(".schema-filter input");
         this.#clear   = document.querySelector(".schema-filter .close");
         this.#total   = document.querySelector(".schema-total");
         this.#list    = document.querySelector(".schema-list ol");
 
-        const title = document.querySelector("header h1");
+        const title = document.querySelector(".aside-title");
         title.innerHTML = data.name;
 
         this.createTables();
@@ -78,6 +71,14 @@ export default class Schema {
             groups.push(group);
         }
         return groups;
+    }
+
+    /**
+     * Returns the amount of Tables of the Schema
+     * @returns {Number}
+     */
+    get tableCount() {
+        return Object.keys(this.tables).length;
     }
 
     /**
@@ -217,7 +218,7 @@ export default class Schema {
         }
 
         this.#clear.style.display = value ? "block" : "none";
-        this.#total.innerHTML     = `${count} table${count !== 1 ? "s" : ""}`;
+        this.#total.innerHTML     = `${count}/${this.tableCount}`;
 
         return value;
     }
@@ -241,94 +242,5 @@ export default class Schema {
     clearFilter() {
         this.#input.value = "";
         this.filterList();
-    }
-
-
-
-    /**
-     * Picks the Resizer
-     * @param {MouseEvent} event
-     * @returns {Void}
-     */
-    pickResizer(event) {
-        this.isResizing = true;
-        this.startLeft  = event.pageX;
-        this.startWidth = this.width;
-        this.#aside.classList.add("aside-dragging");
-    }
-
-    /**
-     * Drags the Resizer
-     * @param {MouseEvent} event
-     * @returns {Boolean}
-     */
-    dragResizer(event) {
-        if (!this.isResizing) {
-            return false;
-        }
-        this.setWidth(this.startWidth + (event.pageX - this.startLeft));
-        return true;
-    }
-
-    /**
-     * Drops the Resizer
-     * @returns {Boolean}
-     */
-    dropResizer() {
-        if (!this.isResizing) {
-            return false;
-        }
-        this.isResizing = false;
-        if (this.width < Options.MIN_WIDTH) {
-            this.setWidth(Options.SHRINK_WIDTH);
-        }
-        window.setTimeout(() => {
-            this.#aside.classList.remove("aside-dragging");
-        }, 50);
-        return true;
-    }
-
-    /**
-     * Sets the initial Width
-     * @param {Number} width
-     * @returns {Void}
-     */
-    setInitialWidth(width) {
-        const initialWidth = width || Options.INITIAL_WIDTH;
-        if (this.width !== initialWidth) {
-            this.setWidth(initialWidth);
-        }
-    }
-
-    /**
-     * Toggles the minimize of the aside
-     * @returns {Void}
-     */
-    toggleMinimize() {
-        if (this.width === Options.SHRINK_WIDTH) {
-            const newWidth = this.oldWidth === Options.SHRINK_WIDTH ? Options.INITIAL_WIDTH : this.oldWidth;
-            this.setWidth(newWidth);
-        } else {
-            this.oldWidth = this.width;
-            this.setWidth(Options.SHRINK_WIDTH);
-        }
-    }
-
-    /**
-     * Sets the Aside width
-     * @param {Number} width
-     * @returns {Void}
-     */
-    setWidth(width) {
-        this.width    = width;
-        this.oldWidth = width;
-
-        this.#aside.style.width = `${width}px`;
-
-        if (width < Options.MIN_WIDTH) {
-            this.#aside.classList.add("aside-small");
-        } else {
-            this.#aside.classList.remove("aside-small");
-        }
     }
 }
