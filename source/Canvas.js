@@ -144,9 +144,15 @@ export default class Canvas {
             link.destroy();
         }
 
-        this.#tables = {};
-        this.#links  = [];
-        this.#groups = {};
+        this.#tables       = {};
+        this.#links        = [];
+        this.#groups       = {};
+
+        // What was selected belongs to the board being thrown away, and its
+        // Tables are gone from the list by the time anything unselects them
+        this.selection     = {};
+        this.selectedGroup = null;
+        this.listTable     = null;
         this.center();
     }
 

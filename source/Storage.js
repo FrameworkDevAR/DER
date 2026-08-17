@@ -11,6 +11,9 @@ export default class Storage {
 
     #currentID = 0;
     #nextID    = 1;
+    #viewID    = 0;
+
+    /** @type {Number[]} */
     #schemas   = [];
 
 
@@ -21,6 +24,10 @@ export default class Storage {
         this.#currentID = this.getNumber("currentID", 0);
         this.#nextID    = this.getNumber("nextID", 1);
         this.#schemas   = this.getData("schemas") || [];
+
+        if (this.#currentID) {
+            this.selectSchema(this.#currentID);
+        }
     }
 
     /**
@@ -189,6 +196,17 @@ export default class Storage {
     selectSchema(schemaID) {
         this.#currentID = schemaID;
         this.setNumber("currentID", this.#currentID);
+
+        this.createViews();
+        this.#viewID = this.getNumber(this.#currentID, "viewID", 0) || this.getViewIDs()[0] || 0;
+    }
+
+    /**
+     * Returns the current Schema ID
+     * @returns {Number}
+     */
+    get schemaID() {
+        return this.#currentID;
     }
 
     /**
@@ -269,31 +287,13 @@ export default class Storage {
      * @returns {Void}
      */
     removeSchema(schemaID) {
-        const schema = this.getSchema(schemaID);
-        if (!schema) {
-            return;
-        }
-
-        // Remove the Data
-        this.removeItem(schemaID, "data");
-        this.removeItem(schemaID, "filter");
-        this.removeItem(schemaID, "scroll");
-        this.removeItem(schemaID, "zoom");
-
-        // Remove the Tables
-        for (const elem of Object.values(schema)) {
-            if (elem.table) {
-                this.removeItem(schemaID, "table", elem.table);
+        // Everything the Schema stored answers to its ID, its Views and the
+        // boards they hold among it, so the prefix is what there is to remove
+        const prefix = `${schemaID}-`;
+        for (const key of Object.keys(localStorage)) {
+            if (key.startsWith(prefix)) {
+                localStorage.removeItem(key);
             }
-        }
-
-        // Remove the Groups
-        const groupIDs = this.getData(schemaID, "groups");
-        if (groupIDs) {
-            for (const groupID of groupIDs) {
-                this.removeItem(schemaID, "group", groupID);
-            }
-            this.removeItem(schemaID, "groups");
         }
 
         // Save the order
@@ -302,8 +302,153 @@ export default class Storage {
 
         // Remove as the current Project
         if (this.#currentID === schemaID) {
-            this.setNumber("currentID", 0);
+            this.selectSchema(0);
         }
+    }
+
+
+
+    /**
+     * Gives the Schema its first View, since a Schema always has a board
+     * @returns {Void}
+     */
+    createViews() {
+        if (!this.#currentID || this.getViewIDs().length) {
+            return;
+        }
+        this.selectView(this.setView({ name : "Main" }));
+    }
+
+    /**
+     * Returns the IDs of the Views of the current Schema
+     * @returns {Number[]}
+     */
+    getViewIDs() {
+        return this.getData(this.#currentID, "views") || [];
+    }
+
+    /**
+     * Returns the Views of the current Schema
+     * @returns {Object[]}
+     */
+    getViews() {
+        const result = [];
+        for (const viewID of this.getViewIDs()) {
+            const data = this.getData(this.#currentID, "view", viewID);
+            if (data) {
+                result.push({
+                    ...data,
+                    count      : this.getViewCount(viewID),
+                    isSelected : data.id === this.#viewID,
+                });
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns the amount of Tables the board of a View holds. A Table taken
+     * off the board is still stored, with where it sat, so only the ones on
+     * it are counted
+     * @param {Number} viewID
+     * @returns {Number}
+     */
+    getViewCount(viewID) {
+        const prefix = `${this.#currentID}-${viewID}-table-`;
+        let   count  = 0;
+
+        for (const key of Object.keys(localStorage)) {
+            if (key.startsWith(prefix)) {
+                const data = this.getData(key);
+                if (data && data.onCanvas) {
+                    count += 1;
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Returns the current View ID
+     * @returns {Number}
+     */
+    get viewID() {
+        return this.#viewID;
+    }
+
+    /**
+     * Returns the ID the next View takes
+     * @returns {Number}
+     */
+    get nextView() {
+        return this.getNumber(this.#currentID, "nextView", 1);
+    }
+
+    /**
+     * Selects a View
+     * @param {Number} viewID
+     * @returns {Void}
+     */
+    selectView(viewID) {
+        this.#viewID = viewID;
+        this.setNumber(this.#currentID, "viewID", viewID);
+    }
+
+    /**
+     * Saves a View, adding it at the end when it is a new one
+     * @param {Object} data
+     * @returns {Number}
+     */
+    setView(data) {
+        const viewID = data.id || this.nextView;
+        this.setData(this.#currentID, "view", viewID, { id : viewID, name : data.name });
+
+        if (!data.id) {
+            this.setData(this.#currentID, "views", [ ...this.getViewIDs(), viewID ]);
+            this.setNumber(this.#currentID, "nextView", viewID + 1);
+        }
+        return viewID;
+    }
+
+    /**
+     * Copies a View, board and all, and returns the one it made
+     * @param {Number} viewID
+     * @param {String} name
+     * @returns {Number}
+     */
+    copyView(viewID, name) {
+        const data = this.getData(this.#currentID, "view", viewID);
+        if (!data) {
+            return 0;
+        }
+
+        // Every key of the board answers to the View it belongs to, so the
+        // copy is the same set of keys under the ID of the new one
+        const newID  = this.setView({ name });
+        const prefix = `${this.#currentID}-${viewID}-`;
+        for (const key of Object.keys(localStorage)) {
+            if (key.startsWith(prefix)) {
+                localStorage.setItem(`${this.#currentID}-${newID}-${key.slice(prefix.length)}`, localStorage.getItem(key));
+            }
+        }
+        return newID;
+    }
+
+    /**
+     * Removes a View and the board it holds
+     * @param {Number} viewID
+     * @returns {Void}
+     */
+    removeView(viewID) {
+        const prefix = `${this.#currentID}-${viewID}-`;
+        for (const key of Object.keys(localStorage)) {
+            if (key.startsWith(prefix)) {
+                localStorage.removeItem(key);
+            }
+        }
+
+        this.removeItem(this.#currentID, "view", viewID);
+        this.setData(this.#currentID, "views", this.getViewIDs().filter((id) => id !== viewID));
     }
 
 
@@ -384,7 +529,7 @@ export default class Storage {
      * @returns {Object}
      */
     getScroll() {
-        return this.getData(this.#currentID, "scroll");
+        return this.getData(this.#currentID, this.#viewID, "scroll");
     }
 
     /**
@@ -394,7 +539,7 @@ export default class Storage {
      */
     setScroll(value) {
         if (value && this.#currentID) {
-            this.setData(this.#currentID, "scroll", value);
+            this.setData(this.#currentID, this.#viewID, "scroll", value);
         }
     }
 
@@ -431,7 +576,7 @@ export default class Storage {
      * @returns {Number}
      */
     getZoom() {
-        return this.getNumber(this.#currentID, "zoom", 100);
+        return this.getNumber(this.#currentID, this.#viewID, "zoom", 100);
     }
 
     /**
@@ -440,7 +585,7 @@ export default class Storage {
      * @returns {Void}
      */
     setZoom(value) {
-        this.setNumber(this.#currentID, "zoom", value);
+        this.setNumber(this.#currentID, this.#viewID, "zoom", value);
     }
 
     /**
@@ -448,7 +593,7 @@ export default class Storage {
      * @returns {Void}
      */
     removeZoom() {
-        this.removeItem(this.#currentID, "zoom");
+        this.removeItem(this.#currentID, this.#viewID, "zoom");
     }
 
 
@@ -459,7 +604,7 @@ export default class Storage {
      * @returns {(Object|null)}
      */
     getTable(table) {
-        return this.getData(this.#currentID, "table", table.name);
+        return this.getData(this.#currentID, this.#viewID, "table", table.name);
     }
 
     /**
@@ -470,7 +615,7 @@ export default class Storage {
     setTable(table) {
         // The open Table of the list is not stored: only one is open at a
         // time and it is not worth keeping between visits
-        this.setData(this.#currentID, "table", table.name, {
+        this.setData(this.#currentID, this.#viewID, "table", table.name, {
             onCanvas : table.onCanvas,
             top      : table.top,
             left     : table.left,
@@ -484,7 +629,7 @@ export default class Storage {
      * @returns {Void}
      */
     removeTable(table) {
-        this.removeItem(this.#currentID, "table", table.name);
+        this.removeItem(this.#currentID, this.#viewID, "table", table.name);
     }
 
 
@@ -494,7 +639,7 @@ export default class Storage {
      * @returns {Number}
      */
     get nextGroup() {
-        return this.getNumber(this.#currentID, "nextGroup", 1);
+        return this.getNumber(this.#currentID, this.#viewID, "nextGroup", 1);
     }
 
     /**
@@ -502,7 +647,7 @@ export default class Storage {
      * @returns {Number[]}
      */
     get groupIDs() {
-        const groups = this.getData(this.#currentID, "groups");
+        const groups = this.getData(this.#currentID, this.#viewID, "groups");
         return groups || [];
     }
 
@@ -513,7 +658,7 @@ export default class Storage {
     getGroups() {
         const result = [];
         for (const groupID of this.groupIDs) {
-            const group = this.getData(this.#currentID, "group", groupID);
+            const group = this.getData(this.#currentID, this.#viewID, "group", groupID);
             result.push(group);
         }
         return result;
@@ -525,7 +670,7 @@ export default class Storage {
      * @returns {Void}
      */
     setGroup(group) {
-        this.setData(this.#currentID, "group", group.id, {
+        this.setData(this.#currentID, this.#viewID, "group", group.id, {
             id         : group.id,
             name       : group.name,
             tables     : group.tableNames,
@@ -541,8 +686,8 @@ export default class Storage {
     addGroup(group) {
         const groups = this.groupIDs;
         groups.push(group.id);
-        this.setData(this.#currentID, "groups", groups);
-        this.setNumber(this.#currentID, "nextGroup", group.id + 1);
+        this.setData(this.#currentID, this.#viewID, "groups", groups);
+        this.setNumber(this.#currentID, this.#viewID, "nextGroup", group.id + 1);
     }
 
     /**
@@ -553,8 +698,8 @@ export default class Storage {
     removeGroup(groupID) {
         const groups = this.groupIDs;
         groups.splice(groups.indexOf(groupID), 1);
-        this.setData(this.#currentID, "groups", groups);
-        this.removeItem(this.#currentID, "group", groupID);
+        this.setData(this.#currentID, this.#viewID, "groups", groups);
+        this.removeItem(this.#currentID, this.#viewID, "group", groupID);
     }
 
     /**

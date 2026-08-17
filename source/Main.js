@@ -7,6 +7,7 @@ import Grouper   from "./Grouper.js";
 import Group     from "./Group.js";
 import Schema    from "./Schema.js";
 import Table     from "./Table.js";
+import Views     from "./Views.js";
 import Welcome   from "./Welcome.js";
 import Utils     from "./Utils.js";
 
@@ -26,6 +27,7 @@ let mode      = new Mode();
 let grouper   = new Grouper();
 let welcome   = new Welcome();
 let aside     = new Aside();
+let views     = new Views();
 
 /** @type {?Schema} */
 let schema    = null;
@@ -96,7 +98,78 @@ function setSchema(data) {
 
     canvas.zoom.setInitialValue(storage.getZoom());
     canvas.setInitialScroll(storage.getScroll());
+    views.create(storage.getViews());
     updateBoard();
+}
+
+/**
+ * Shows the given View of the current Schema, which is a board of its own
+ * @param {Number} viewID
+ * @returns {Promise}
+ */
+async function selectView(viewID) {
+    if (!schema || !viewID || viewID === storage.viewID) {
+        return;
+    }
+
+    // The Tables are the same, so only what the board is made of is read
+    // again: where each one sits, the Groups around them and the scroll
+    const data = await storage.getSchema(storage.schemaID, false);
+    schema.destroy();
+    canvas.destroy();
+    storage.selectView(viewID);
+    setSchema(data);
+}
+
+/**
+ * Opens the Dialog of the given View
+ * @param {Number} viewID
+ * @returns {Void}
+ */
+function openViewDialog(viewID) {
+    const view = storage.getViews().find((one) => one.id === viewID);
+    if (view) {
+        views.openDialog(view);
+    }
+}
+
+/**
+ * Adds or edits a View
+ * @returns {Promise}
+ */
+async function editView() {
+    const data = views.updateView();
+    if (!data) {
+        return;
+    }
+
+    // A copy is a new View with the board of the one it is made from, so it
+    // takes the name that was typed and the other one is left as it was
+    const viewID = data.isCopy ? storage.copyView(data.id, data.name) : storage.setView(data);
+    if (!data.id || data.isCopy) {
+        await selectView(viewID);
+    }
+    views.create(storage.getViews());
+}
+
+/**
+ * Removes the View being edited, falling back to the first one left
+ * @returns {Promise}
+ */
+async function removeView() {
+    const viewID = views.viewID;
+    views.closeRemove();
+    if (!viewID) {
+        return;
+    }
+
+    const wasCurrent = viewID === storage.viewID;
+    storage.removeView(viewID);
+    if (wasCurrent) {
+        storage.selectView(0);
+        await selectView(storage.getViewIDs()[0]);
+    }
+    views.create(storage.getViews());
 }
 
 /**
@@ -153,6 +226,7 @@ function openGroupOf(table) {
  */
 function updateBoard() {
     aside.setStatus(canvas.tableCount, schema ? schema.tableCount : 0);
+    views.setCount(storage.viewID, canvas.tableCount);
     canvas.setEmpty(Boolean(schema));
 }
 
@@ -283,6 +357,7 @@ function removeSchema(schemaID) {
         updateBoard();
     }
     storage.removeSchema(schemaID);
+    views.create(storage.getViews());
     selection.closeRemove();
     selection.open(storage.getSchemas());
 }
@@ -369,6 +444,37 @@ document.addEventListener("click", (e) => {
         break;
     case "remove-schema":
         removeSchema(selection.schemaID);
+        break;
+
+    // View Actions
+    case "select-view":
+        selectView(Number(target.dataset.view));
+        break;
+    case "edit-view":
+        openViewDialog(Number(target.dataset.view));
+        break;
+    case "open-view":
+        views.openDialog(null);
+        break;
+    case "close-view":
+        views.closeDialog();
+        break;
+    case "update-view":
+        editView();
+        break;
+    case "copy-view":
+        // @ts-ignore
+        views.setCopy(target.checked);
+        dontStop = true;
+        break;
+    case "open-remove-view":
+        views.openRemove();
+        break;
+    case "close-remove-view":
+        views.closeRemove();
+        break;
+    case "remove-view":
+        removeView();
         break;
 
     // Group Actions
@@ -549,6 +655,9 @@ document.addEventListener("dblclick", (e) => {
         break;
     case "drag-group":
         openGroupDialog(group);
+        break;
+    case "select-view":
+        openViewDialog(Number(target.dataset.view));
         break;
     }
 });

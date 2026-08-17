@@ -593,7 +593,9 @@ export default class Table {
             this.#canvasElem.classList.remove("selected");
             this.#canvasElem.classList.remove("disabled");
         }
-        this.#listElem.classList.remove("selected");
+        if (this.#listElem) {
+            this.#listElem.classList.remove("selected");
+        }
     }
 
     /**

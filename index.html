@@ -81,6 +81,12 @@
                 </div>
             </div>
         </aside>
+
+        <aside class="views">
+            <ol></ol>
+            <button class="btn btn-small views-add" data-action="open-view" title="Add a View">+</button>
+        </aside>
+
         <div class="selector"></div>
 
 
@@ -199,6 +205,7 @@
                         <footer>
                             <button class="btn btn-fill dialog-btn" data-action="update-group">Group</button>
                             <button class="btn group-remove" data-action="open-remove">Remove Group</button>
+                            <button class="btn" data-action="close-group">Cancel</button>
                         </footer>
                     </form>
                     <a href="#" class="close" data-action="close-group"></a>
@@ -215,6 +222,43 @@
                         <button class="btn" data-action="close-remove">Cancel</button>
                     </footer>
                     <a href="#" class="close" data-action="close-remove"></a>
+                </dialog>
+            </div>
+
+
+            <div class="backdrop" data-dialog="view">
+                <dialog open>
+                    <h2>View</h2>
+                    <form>
+                        <label class="toggle-input view-copy" data-field="copy">
+                            <input type="checkbox" role="switch" name="copy" value="1" data-action="copy-view"></input>
+                            <div>Copy the view</div>
+                        </label>
+                        <div class="field" data-field="name">
+                            <label>View Name</label>
+                            <input type="text" name="name" />
+                            <div class="error" data-error="name">You must complete the name of the view.</div>
+                        </div>
+                        <footer>
+                            <button class="btn btn-fill dialog-btn" data-action="update-view">View</button>
+                            <button class="btn view-remove" data-action="open-remove-view">Remove View</button>
+                            <button class="btn" data-action="close-view">Cancel</button>
+                        </footer>
+                    </form>
+                    <a href="#" class="close" data-action="close-view"></a>
+                </dialog>
+            </div>
+
+
+            <div class="backdrop" data-dialog="remove-view">
+                <dialog open>
+                    <h2>Remove View</h2>
+                    <p>Do you really want to remove the selected View and its board?</p>
+                    <footer>
+                        <button class="btn btn-fill" data-action="remove-view">Remove View</button>
+                        <button class="btn" data-action="close-remove-view">Cancel</button>
+                    </footer>
+                    <a href="#" class="close" data-action="close-remove-view"></a>
                 </dialog>
             </div>
         </section>

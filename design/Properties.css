@@ -25,6 +25,7 @@
     --light-icon: url("../icons/light.svg");
     --dark-icon: url("../icons/dark.svg");
     --group-icon: url("../icons/group.svg");
+    --edit-icon: url("../icons/edit.svg");
 
     --aside-width: 288px;
     --header-height: 70px;
@@ -33,7 +34,7 @@
 
     --menu-position: 16px;
     --menu-size: 28px;
-    --menu-padding: 5px;
+    --menu-padding: 6px;
     --mode-height: 42px;
 
     --row-height: 32px;
@@ -46,6 +47,8 @@
     --table-width: 234px;
     --table-header: 34px;
     --table-row: 25px;
+
+    --dialog-close: 0.2s;
 
     --border-radius: 16px;
     --dialog-radius: 32px;

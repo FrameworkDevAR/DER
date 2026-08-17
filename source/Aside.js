@@ -91,13 +91,14 @@ export default class Aside {
     }
 
     /**
-     * Tells the rest of the app how much of the window the Aside is taking,
-     * so the empty board can center itself on what is left
+     * Tells the rest of the app where the Aside ends, its own offset from the
+     * edge included, so whatever sits beside it only adds the gap it wants
      * @returns {Void}
      */
     setCenter() {
-        const width = this.isCollapsed ? 0 : this.width;
-        document.body.style.setProperty("--aside-current", `${width}px`);
+        const offset = parseFloat(getComputedStyle(document.body).getPropertyValue("--menu-position")) || 0;
+        const edge   = this.isCollapsed ? 0 : offset + this.width;
+        document.body.style.setProperty("--aside-current", `${edge}px`);
     }
 
     /**

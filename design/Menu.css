@@ -163,3 +163,121 @@
     width: 100%;
     height: 100%;
 }
+
+
+
+/**
+ * Views
+ */
+.views {
+    box-sizing: border-box;
+    position: fixed;
+    bottom: var(--menu-position);
+    left: calc(var(--aside-current, 0px) + var(--menu-position));
+    display: none;
+    align-items: center;
+    gap: var(--menu-padding);
+    max-width: calc(100% - var(--aside-current, 0px) - var(--menu-position) * 2);
+    padding: calc(var(--menu-padding) + 2px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--pill-radius);
+    background-color: var(--card-color);
+    box-shadow: var(--pill-shadow);
+    z-index: var(--z-menu);
+    transition: left 0.28s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.views ol {
+    display: flex;
+    align-items: center;
+    gap: var(--menu-padding);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+}
+.views li {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 180px;
+    height: var(--btn-small-height);
+    padding: 0 6px 0 12px;
+    border: 1px solid transparent;
+    border-radius: var(--pill-radius);
+    color: var(--dark-color);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: calc(var(--btn-small-height) - 2px);
+    text-transform: lowercase;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.views-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.views-count {
+    flex-shrink: 0;
+    color: var(--lighter-color);
+    font-family: var(--mono-font);
+    font-size: 10px;
+    font-weight: 400;
+}
+.views li.selected .views-count {
+    color: var(--accent-color);
+}
+.views-edit {
+    box-sizing: border-box;
+    position: relative;
+    flex-shrink: 0;
+    display: block;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.views-edit::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--accent-color);
+    mask-image: var(--edit-icon);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: 11px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+.views-edit:hover {
+    background-color: var(--card-color);
+}
+.views-edit:hover::after {
+    opacity: 1;
+}
+.views li:hover {
+    background-color: var(--accent-soft);
+    color: var(--accent-color);
+}
+.views li.selected,
+.views li.selected:hover {
+    border-color: var(--accent-color);
+    background-color: var(--accent-soft);
+    color: var(--accent-color);
+}
+
+.views-add {
+    flex-shrink: 0;
+    width: var(--btn-small-height);
+    padding: 0;
+    border-style: dashed;
+    font-size: 15px;
+}
