@@ -15,6 +15,8 @@ import Table  from "./Table.js";
     #content;
     /** @type {HTMLElement} */
     #checks;
+    /** @type {HTMLElement} */
+    #remove;
 
     /** @type {Dialog} */
     #removeDialog;
@@ -30,6 +32,7 @@ import Table  from "./Table.js";
         this.#empty        = this.groupDialog.getElement(".group-empty");
         this.#content      = this.groupDialog.getElement(".group-content");
         this.#checks       = this.groupDialog.getElement(".group-tables");
+        this.#remove       = this.groupDialog.getElement(".group-remove");
 
         // Remove
         this.#removeDialog = new Dialog("remove");
@@ -53,7 +56,10 @@ import Table  from "./Table.js";
 
         const showEmpty = !this.isEdit && !selectedTables.length;
         this.#empty.style.display   = showEmpty  ? "block" : "none";
-        this.#content.style.display = !showEmpty ? "block" : "none";
+        this.#content.style.display = !showEmpty ? "flex" : "none";
+
+        // There is nothing to remove until the Group exists
+        this.#remove.style.display  = this.isEdit ? "block" : "none";
 
         const tables = {};
         this.inputs  = [];

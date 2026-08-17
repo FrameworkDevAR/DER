@@ -177,8 +177,8 @@ export default class Dialog {
     hideErrors() {
         this.#hasError = false;
         const errors = this.#container.querySelectorAll(".error");
-        // @ts-ignore
         for (const error of errors) {
+            // @ts-ignore
             error.style.display = "none";
         }
     }

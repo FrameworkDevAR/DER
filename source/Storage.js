@@ -103,6 +103,14 @@ export default class Storage {
 
 
     /**
+     * Returns true if there is at least one Schema
+     * @returns {Boolean}
+     */
+    get hasSchemas() {
+        return this.#schemas.length > 0;
+    }
+
+    /**
      * Returns true if there a Schema selected
      * @returns {Boolean}
      */
@@ -224,11 +232,15 @@ export default class Storage {
         // Save the Schema data
         this.setData(data.schemaID, "data", data);
 
-        // Save the Schema ID in the correct order
-        const index = Math.min(Math.max(data.position - 1, 0), this.#schemas.length);
+        // Save the Schema ID in the correct order, taking the one being edited
+        // out first so the position is read against the list it lands in
         if (isEdit) {
             this.#schemas = this.#schemas.filter((id) => id !== data.schemaID);
         }
+
+        // Without a position given, the Schema goes last
+        const position = Number(data.position) || this.#schemas.length + 1;
+        const index    = Math.min(Math.max(position - 1, 0), this.#schemas.length);
         this.#schemas.splice(index, 0, data.schemaID);
         this.setData("schemas", this.#schemas);
     }
@@ -239,7 +251,9 @@ export default class Storage {
      * @returns {Promise}
      */
     async fetchSchema(data) {
-        if (!data.useUrls) {
+        // The flag is the one the Schema is saved with, in the singular, or a
+        // Schema from a url would never be fetched and would read as undefined
+        if (!data.useUrl) {
             return Utils.clone(data.schema);
         }
 
@@ -346,6 +360,23 @@ export default class Storage {
         this.removeItem(this.#currentID, "width");
     }
 
+    /**
+     * Returns true if the Aside is collapsed
+     * @returns {Boolean}
+     */
+    get isCollapsed() {
+        return this.getNumber(this.#currentID, "collapsed", 0) === 1;
+    }
+
+    /**
+     * Saves whether the Aside is collapsed
+     * @param {Boolean} value
+     * @returns {Void}
+     */
+    setCollapsed(value) {
+        this.setNumber(this.#currentID, "collapsed", value ? 1 : 0);
+    }
+
 
 
     /**
@@ -437,12 +468,13 @@ export default class Storage {
      * @returns {Void}
      */
     setTable(table) {
+        // The open Table of the list is not stored: only one is open at a
+        // time and it is not worth keeping between visits
         this.setData(this.#currentID, "table", table.name, {
-            isExpanded : table.isExpanded,
-            onCanvas   : table.onCanvas,
-            top        : table.top,
-            left       : table.left,
-            showAll    : table.showAll,
+            onCanvas : table.onCanvas,
+            top      : table.top,
+            left     : table.left,
+            showAll  : table.showAll,
         });
     }
 

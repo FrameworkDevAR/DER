@@ -13,16 +13,20 @@ export default class Selection {
     #selectEmpty;
     /** @type {HTMLElement} */
     #selectList;
+    /** @type {HTMLElement} */
+    #selectClose;
 
     /** @type {Dialog} */
     #schemaDialog;
     /** @type {HTMLElement} */
     #fileField;
     /** @type {HTMLElement} */
+    #fileClose;
+    /** @type {HTMLElement} */
     #urlField;
 
     /** @type {Dialog} */
-    #deleteDialog;
+    #removeDialog;
 
 
     /**
@@ -33,14 +37,17 @@ export default class Selection {
         this.#selectDialog = new Dialog("select");
         this.#selectEmpty  = document.querySelector(".select-empty");
         this.#selectList   = document.querySelector(".select-list");
+        this.#selectClose  = this.#selectDialog.getElement(".close");
+        this.canClose      = true;
 
         // Add/Edit
         this.#schemaDialog = new Dialog("schema");
         this.#fileField    = document.querySelector(".schema-file");
+        this.#fileClose    = this.#fileField.querySelector(".close");
         this.#urlField     = document.querySelector(".schema-url");
 
-        // Delete
-        this.#deleteDialog = new Dialog("delete");
+        // Remove
+        this.#removeDialog = new Dialog("remove-schema");
     }
 
     /**
@@ -52,6 +59,11 @@ export default class Selection {
         this.#selectDialog.open();
         this.#selectEmpty.style.display = schemas.length ? "none" : "block";
         this.#selectList.innerHTML = "";
+
+        // With nothing to select there is nowhere to go back to, so the
+        // Dialog stays until a Schema is added
+        this.canClose = Boolean(schemas.length);
+        this.#selectClose.style.display = this.canClose ? "block" : "none";
 
         for (const schema of schemas) {
             const li = document.createElement("li");
@@ -71,17 +83,17 @@ export default class Selection {
 
             const editBtn = document.createElement("button");
             editBtn.innerHTML      = "Edit";
-            editBtn.className      = "btn";
+            editBtn.className      = "btn btn-small";
             editBtn.dataset.action = "open-edit";
             editBtn.dataset.schema = schema.schemaID;
             buttons.appendChild(editBtn);
 
-            const deleteBtn = document.createElement("button");
-            deleteBtn.innerHTML      = "Delete";
-            deleteBtn.className      = "btn";
-            deleteBtn.dataset.action = "open-delete";
-            deleteBtn.dataset.schema = schema.schemaID;
-            buttons.appendChild(deleteBtn);
+            const removeBtn = document.createElement("button");
+            removeBtn.innerHTML      = "Remove";
+            removeBtn.className      = "btn btn-small";
+            removeBtn.dataset.action = "open-remove-schema";
+            removeBtn.dataset.schema = schema.schemaID;
+            buttons.appendChild(removeBtn);
 
             this.#selectList.appendChild(li);
         }
@@ -92,7 +104,9 @@ export default class Selection {
      * @returns {Void}
      */
     close() {
-        this.#selectDialog.close();
+        if (this.canClose) {
+            this.#selectDialog.close();
+        }
     }
 
 
@@ -115,11 +129,11 @@ export default class Selection {
         this.#schemaDialog.setTitle(isEdit ? "Edit the Schema" : "Add a Schema");
         this.#schemaDialog.setButton(isEdit ? "Edit" : "Add");
 
-        this.#schemaDialog.setInput("url",      useUrl);
+        this.#schemaDialog.setInput("useUrl",   useUrl);
         this.#schemaDialog.setInput("name",     isEdit ? data.name : "");
-        this.#schemaDialog.setInput("file",     isEdit && !useUrl ? data.file || "" : "");
         this.#schemaDialog.setInput("url",      isEdit && useUrl  ? data.url  || "" : "");
         this.#schemaDialog.setInput("position", isEdit ? data.position : "");
+        this.setFileName(isEdit && !useUrl ? data.file || "" : "");
     }
 
     /**
@@ -138,6 +152,7 @@ export default class Selection {
         this.#schemaDialog.selectFile("file", (file) => {
             this.file      = file;
             this.data.file = file.name;
+            this.setFileName(file.name);
         });
     }
 
@@ -149,7 +164,17 @@ export default class Selection {
         this.file        = null;
         this.data.file   = "";
         this.data.schema = null;
-        this.#schemaDialog.setInput("file", "");
+        this.setFileName("");
+    }
+
+    /**
+     * Shows the name of the chosen File, with the button that takes it off
+     * @param {String} name
+     * @returns {Void}
+     */
+    setFileName(name) {
+        this.#schemaDialog.setInput("file", name);
+        this.#fileClose.style.display = name ? "block" : "none";
     }
 
     /**
@@ -169,7 +194,7 @@ export default class Selection {
     editSchema() {
         return new Promise((resolve) => {
             const isEdit = Boolean(this.schemaID);
-            this.data.useUrl  = this.#schemaDialog.getInput("url");
+            this.data.useUrl  = this.#schemaDialog.getInput("useUrl");
             this.data.name     = this.#schemaDialog.getInput("name");
             this.data.url      = this.#schemaDialog.getInput("url");
             this.data.position = this.#schemaDialog.getInput("position");
@@ -222,21 +247,21 @@ export default class Selection {
 
 
     /**
-     * Opens the Delete Dialog
+     * Opens the Remove Dialog
      * @param {Number} schemaID
      * @returns {Void}
      */
-    openDelete(schemaID) {
+    openRemove(schemaID) {
         this.schemaID = schemaID;
-        this.#deleteDialog.open();
+        this.#removeDialog.open();
     }
 
     /**
-     * Closes the Delete Dialog
+     * Closes the Remove Dialog
      * @returns {Void}
      */
-    closeDelete() {
+    closeRemove() {
         this.schemaID = 0;
-        this.#deleteDialog.close();
+        this.#removeDialog.close();
     }
 }
