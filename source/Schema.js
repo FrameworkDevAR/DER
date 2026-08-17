@@ -271,4 +271,12 @@ export default class Schema {
         this.#input.value = "";
         this.filterList();
     }
+
+    /**
+     * Takes the caret out of the Filter, for whoever went on to the board
+     * @returns {Void}
+     */
+    blurFilter() {
+        this.#input.blur();
+    }
 }

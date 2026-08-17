@@ -468,6 +468,11 @@ document.addEventListener("click", (e) => {
     const specialKey = e.ctrlKey || e.metaKey || e.shiftKey;
     let   dontStop   = false;
 
+    // Whoever moved on to the board is done typing in the panel
+    if (schema && e.target instanceof HTMLElement && e.target.closest(".main")) {
+        schema.blurFilter();
+    }
+
     switch (action) {
     // Welcome Actions
     case "welcome-add":
