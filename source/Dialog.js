@@ -5,6 +5,7 @@ export default class Dialog {
 
     #isOpen   = false;
     #hasError = false;
+    #timer    = 0;
 
     /** @type {HTMLElement} */
     #container;
@@ -42,6 +43,7 @@ export default class Dialog {
      */
     open() {
         this.#isOpen = true;
+        this.#stopClosing();
         this.#container.style.display = "block";
         this.hideErrors();
 
@@ -58,8 +60,38 @@ export default class Dialog {
      */
     close() {
         this.#isOpen = false;
-        this.#container.style.display = "none";
         this.hideErrors();
+
+        // Nothing to take away from a Dialog that is not on screen, and one
+        // already on its way out is left to finish
+        if (getComputedStyle(this.#container).display === "none") {
+            this.#stopClosing();
+            return;
+        }
+        if (this.#timer) {
+            return;
+        }
+
+        // It only goes once it has finished leaving, for as long as the
+        // stylesheet animates it
+        const time = parseFloat(getComputedStyle(document.body).getPropertyValue("--dialog-close")) || 0;
+        this.#container.classList.add("closing");
+        this.#timer = window.setTimeout(() => {
+            this.#stopClosing();
+            this.#container.style.display = "none";
+        }, time * 1000);
+    }
+
+    /**
+     * Stops the Dialog from leaving, for when it is opened again on the way out
+     * @returns {Void}
+     */
+    #stopClosing() {
+        if (this.#timer) {
+            window.clearTimeout(this.#timer);
+            this.#timer = 0;
+        }
+        this.#container.classList.remove("closing");
     }
 
 
