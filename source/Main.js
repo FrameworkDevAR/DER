@@ -256,6 +256,62 @@ function addAllTables() {
 }
 
 /**
+ * Puts every Table of the given Group on the board
+ * @param {Group} group
+ * @returns {Void}
+ */
+function addGroupTables(group) {
+    const isPlaced = group.onCanvas;
+    const top      = isPlaced ? group.bottom + 40 : 0;
+    const left     = isPlaced ? group.left + group.width / 2 : 0;
+    const added    = [];
+
+    for (const table of group.tables) {
+        if (!table.onCanvas) {
+            canvas.addTable(table);
+            added.push(table);
+        }
+    }
+    if (!added.length) {
+        return;
+    }
+
+    // The Tables already on the board keep their place, so the layout of the
+    // ones arriving starts under the Group instead of on top of them
+    if (isPlaced) {
+        added[0].translate({ top, left });
+    }
+
+    // The Links inside a Group need more room between the columns than the
+    // ones spread over the whole board do
+    layoutTables(added, 100);
+    group.position();
+
+    for (const table of added) {
+        storage.setTable(table);
+    }
+    expandGroup(group);
+    canvas.showGroup(group);
+    updateBoard();
+}
+
+/**
+ * Takes every Table of the given Group off the board
+ * @param {Group} group
+ * @returns {Void}
+ */
+function removeGroupTables(group) {
+    canvas.unselect();
+    for (const table of group.tables) {
+        if (table.onCanvas) {
+            canvas.removeTable(table);
+            storage.setTable(table);
+        }
+    }
+    updateBoard();
+}
+
+/**
  * Takes every Table off the board
  * @returns {Void}
  */
@@ -278,16 +334,17 @@ function clearBoard() {
  * Lays the given Tables out in as square a grid as their amount allows, each
  * one under the last of its column, so a tall Table does not land on another
  * @param {Table[]} tables
+ * @param {Number=} columnGap
  * @returns {Void}
  */
-function layoutTables(tables) {
+function layoutTables(tables, columnGap = 40) {
     if (!tables.length) {
         return;
     }
 
     const gap     = 40;
     const columns = Math.ceil(Math.sqrt(tables.length));
-    const width   = Math.max(...tables.map((table) => table.width)) + gap;
+    const width   = Math.max(...tables.map((table) => table.width)) + columnGap;
     const bottoms = new Array(columns).fill(0);
     const top     = tables[0].top;
     const left    = tables[0].left - Math.floor(columns / 2) * width;
@@ -566,17 +623,21 @@ document.addEventListener("click", (e) => {
             toggleGroup(group);
             break;
         case "show-group":
-            // Picking a Group opens it, and only the click that finds it
-            // already picked is the one that closes it again
+            // Picking a Group only shows it on the board, and the click that
+            // finds it already picked is the one that opens or closes it
             if (canvas.isGroupSelected(group)) {
                 toggleGroup(group);
-            } else {
-                expandGroup(group);
             }
             canvas.showGroup(group);
             break;
         case "edit-group":
             openGroupDialog(group);
+            break;
+        case "add-group-tables":
+            addGroupTables(group);
+            break;
+        case "remove-group-tables":
+            removeGroupTables(group);
             break;
         default:
         }

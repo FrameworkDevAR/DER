@@ -20,6 +20,10 @@ export default class Group {
     /** @type {HTMLElement} */
     #listText;
     /** @type {HTMLElement} */
+    #listCount;
+    /** @type {HTMLAnchorElement} */
+    #listEdit;
+    /** @type {HTMLElement} */
     #listButton;
     /** @type {HTMLElement} */
     #listTables;
@@ -64,6 +68,8 @@ export default class Group {
         this.tables = tables;
 
         this.setGroup(this);
+        this.setListButton();
+        this.setListCount();
         if (!this.isEmptyInCanvas) {
             this.#canvasHeader.innerText = this.name;
             this.position();
@@ -116,6 +122,14 @@ export default class Group {
      */
     get isEmptyInCanvas() {
         return this.canvasTables.length === 0;
+    }
+
+    /**
+     * Returns true if every table of the group is in the canvas
+     * @return {Boolean}
+     */
+    get isFullInCanvas() {
+        return !this.isEmpty && this.canvasTables.length === this.tables.length;
     }
 
     /**
@@ -190,6 +204,8 @@ export default class Group {
         this.#listInner  = document.createElement("div");
         this.#listArrow  = document.createElement("a");
         this.#listText   = document.createElement("span");
+        this.#listCount  = document.createElement("span");
+        this.#listEdit   = document.createElement("a");
         this.#listButton = document.createElement("button");
         this.#listTables = document.createElement("ol");
 
@@ -205,22 +221,68 @@ export default class Group {
         this.#listText.className        = "schema-text";
         this.#listText.innerHTML        = this.name;
 
-        this.#listButton.innerHTML      = "Edit";
+        this.#listCount.className       = "schema-count";
+
+        this.#listEdit.href             = "#";
+        this.#listEdit.className        = "btn btn-small schema-edit";
+        this.#listEdit.title            = "Edit the group";
+        this.#listEdit.dataset.action   = "edit-group";
+        this.#listEdit.dataset.group    = String(this.id);
+
         this.#listButton.className      = "btn btn-small";
-        this.#listButton.dataset.action = "edit-group";
         this.#listButton.dataset.group  = String(this.id);
 
-        if (this.onCanvas) {
-            this.#listInner.classList.add("selectable");
-            this.#listInner.dataset.action = "show-group";
-        }
+        this.setListAction();
+        this.setListButton();
+        this.setListCount();
 
         this.#listElem.appendChild(this.#listInner);
         this.#listElem.appendChild(this.#listTables);
 
         this.#listInner.appendChild(this.#listArrow);
         this.#listInner.appendChild(this.#listText);
+        this.#listInner.appendChild(this.#listCount);
+        this.#listInner.appendChild(this.#listEdit);
         this.#listInner.appendChild(this.#listButton);
+    }
+
+    /**
+     * Sets how many Tables the Group gathers
+     * @returns {Void}
+     */
+    setListCount() {
+        if (this.#listCount) {
+            this.#listCount.innerHTML = String(this.tables.length);
+        }
+    }
+
+    /**
+     * Sets what a click on the row does, since a Group that is not on the
+     * board has nothing to show there and just opens to let its Tables be seen
+     * @returns {Void}
+     */
+    setListAction() {
+        if (this.#listInner) {
+            this.#listInner.dataset.action = this.onCanvas ? "show-group" : "expand-group";
+        }
+    }
+
+    /**
+     * Sets the List button to put the whole Group on the board or take it off
+     * @returns {Void}
+     */
+    setListButton() {
+        if (!this.#listButton) {
+            return;
+        }
+
+        const isPlaced = this.isFullInCanvas;
+        const title    = isPlaced ? "Remove the group from the board" : "Add the group to the board";
+
+        this.#listButton.title          = title;
+        this.#listButton.ariaLabel      = title;
+        this.#listButton.dataset.action = isPlaced ? "remove-group-tables" : "add-group-tables";
+        this.#listButton.classList.toggle("btn-placed", isPlaced);
     }
 
     /**
@@ -250,8 +312,7 @@ export default class Group {
      */
     addToCanvas(container) {
         this.onCanvas = true;
-        this.#listInner.classList.add("selectable");
-        this.#listInner.dataset.action = "show-group";
+        this.setListAction();
 
         if (!this.#canvasElem) {
             this.createCanvasElem();
@@ -269,8 +330,7 @@ export default class Group {
             return;
         }
         this.onCanvas = false;
-        this.#listInner.classList.remove("selectable");
-        this.#listInner.dataset.action = "";
+        this.setListAction();
 
         Utils.removeElement(this.#canvasElem);
         this.#canvasElem = null;
@@ -346,14 +406,6 @@ export default class Group {
      * Scrolls the Canvas into view
      * @returns {Void}
      */
-    scrollCanvasIntoView() {
-        this.#canvasElem.scrollIntoView({
-            behavior : "smooth",
-            block    : "center",
-            inline   : "center",
-        });
-    }
-
     /**
      * Selects the Canvas Element
      * @returns {Group}

@@ -624,8 +624,36 @@ export default class Canvas {
      * @returns {Void}
      */
     showGroup(group) {
-        group.scrollCanvasIntoView();
+        this.scrollToGroup(group);
         this.selectGroup(group);
+    }
+
+    /**
+     * Scrolls the Canvas to the given Group, centered on what the Aside leaves
+     * free, and on its top left corner when it is too big to be centered
+     * @param {Group} group
+     * @returns {Void}
+     */
+    scrollToGroup(group) {
+        if (this.isAsideHidden) {
+            return;
+        }
+
+        const gap       = 40;
+        const scale     = this.zoom.scale;
+        const freeWidth = this.#container.clientWidth - this.asideWidth;
+        const height    = this.#container.clientHeight;
+
+        // Centering a Group that does not fit hides both of its ends, and the
+        // corner is the one that says which Group it is
+        const left = group.width * scale > freeWidth
+            ? group.left * scale - this.asideWidth - gap
+            : (group.left + group.width / 2) * scale - this.asideWidth - freeWidth / 2;
+        const top = group.height * scale > height
+            ? group.top * scale - gap
+            : (group.top + group.height / 2) * scale - height / 2;
+
+        this.#container.scrollTo({ left, top, behavior : "smooth" });
     }
 
     /**

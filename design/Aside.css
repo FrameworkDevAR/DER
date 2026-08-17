@@ -301,6 +301,17 @@
     color: var(--accent-color);
 }
 
+.schema-item .schema-edit::after {
+    content: "";
+    width: 11px;
+    height: 11px;
+    background-color: currentColor;
+    mask-image: var(--edit-icon);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+}
+
 .schema-item .btn-placed {
     border-color: transparent;
     background-color: var(--accent-color);

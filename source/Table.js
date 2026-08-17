@@ -390,6 +390,9 @@ export default class Table {
     addToCanvas(canvas, container, mult, asideWidth = 0) {
         this.onCanvas = true;
         this.setListButton();
+        if (this.group) {
+            this.group.setListButton();
+        }
 
         if (!this.#canvasElem) {
             this.createCanvasElem();
@@ -430,6 +433,9 @@ export default class Table {
 
         this.onCanvas = false;
         this.setListButton();
+        if (this.group) {
+            this.group.setListButton();
+        }
 
         Utils.removeElement(this.#canvasElem);
         this.#canvasElem = null;
