@@ -17,6 +17,8 @@ import Table  from "./Table.js";
     #checks;
     /** @type {HTMLElement} */
     #remove;
+    /** @type {HTMLButtonElement} */
+    #prefix;
 
     /** @type {Dialog} */
     #removeDialog;
@@ -33,6 +35,7 @@ import Table  from "./Table.js";
         this.#content      = this.groupDialog.getElement(".group-content");
         this.#checks       = this.groupDialog.getElement(".group-tables");
         this.#remove       = this.groupDialog.getElement(".group-remove");
+        this.#prefix       = this.groupDialog.getElement(".group-prefix");
 
         // Remove
         this.#removeDialog = new Dialog("remove");
@@ -43,20 +46,25 @@ import Table  from "./Table.js";
      * @param {Number}  groupID
      * @param {Group?}  group
      * @param {Table[]} selectedTables
+     * @param {Number=} prefixAmount
      * @returns {Void}
      */
-    openDialog(groupID, group, selectedTables) {
+    openDialog(groupID, group, selectedTables, prefixAmount = 0) {
         this.isEdit  = Boolean(group);
         this.group   = this.isEdit ? group    : null;
         this.groupID = this.isEdit ? group.id : groupID;
 
         this.groupDialog.setTitle(this.isEdit ? "Edit the Group" : "Create a Group");
-        this.groupDialog.setButton(this.isEdit ? "Edit Group" : "Create Group");
+        this.groupDialog.setButton(this.isEdit ? "Edit group" : "Create group");
         this.groupDialog.setInput("name", this.isEdit ? group.name : this.getGroupName(selectedTables));
 
         const showEmpty = !this.isEdit && !selectedTables.length;
-        this.#empty.style.display   = showEmpty  ? "block" : "none";
+        this.#empty.style.display   = showEmpty  ? "flex" : "none";
         this.#content.style.display = !showEmpty ? "flex" : "none";
+
+        // With every Table already in a Group there is nothing left to gather
+        this.#prefix.style.display = prefixAmount ? "block" : "none";
+        this.#prefix.innerHTML     = `Group by prefix (${prefixAmount})`;
 
         // There is nothing to remove until the Group exists
         this.#remove.style.display  = this.isEdit ? "block" : "none";

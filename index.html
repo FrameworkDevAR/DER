@@ -99,7 +99,7 @@
                         <a href="https://frameworkphp.com.ar" target="_blank" rel="noopener noreferrer">Framework</a>
                         generates.
                     </p>
-                    <ol class="welcome-steps">
+                    <ol class="dialog-steps">
                         <li><div><b>Add a schema</b> from a json file, or from the url it is published at.</div></li>
                         <li><div><b>Pick the tables</b> in the list at the left and they show up on the canvas.</div></li>
                         <li><div><b>Move them around</b>, and gather the ones that belong together into a group.</div></li>
@@ -189,7 +189,17 @@
             <div class="backdrop" data-dialog="group">
                 <dialog open>
                     <h2>Group</h2>
-                    <p class="group-empty">You must first select tables to create a group or select a group to edit it.</p>
+                    <div class="group-empty">
+                        <p>A group gathers the tables that belong together, and none are selected yet.</p>
+                        <ol class="dialog-steps">
+                            <li><div><b>Pick the tables</b> on the board, holding ctrl to add each one to the selection.</div></li>
+                            <li><div><b>Open this again</b> and the group takes the tables that are picked.</div></li>
+                        </ol>
+                        <footer>
+                            <button class="btn btn-fill group-prefix" data-action="group-by-prefix">Group by prefix</button>
+                            <button class="btn" data-action="close-group">Close</button>
+                        </footer>
+                    </div>
                     <form class="group-content">
                         <div class="field" data-field="name">
                             <label>Group Name</label>

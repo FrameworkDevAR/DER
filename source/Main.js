@@ -420,6 +420,29 @@ function removeSchema(schemaID) {
 }
 
 /**
+ * Gathers the Tables that are in no Group by the prefix of their name, one
+ * Group each, leaving the ones already gathered where they are
+ * @returns {Void}
+ */
+function groupByPrefix() {
+    if (!schema) {
+        return;
+    }
+
+    for (const data of schema.getPrefixGroups()) {
+        const group = schema.setGroup({ id : storage.nextGroup, name : data.name, tables : data.tables });
+        storage.setGroup(group);
+        storage.addGroup(group);
+
+        // A Group with nothing on the board has no rectangle to draw yet
+        if (group.canvasTables.length) {
+            canvas.addGroup(group);
+        }
+    }
+    grouper.closeDialog();
+}
+
+/**
  * Opens the Group Dialog
  * @param {Group?} group
  * @returns {Void}
@@ -537,7 +560,15 @@ document.addEventListener("click", (e) => {
     // Group Actions
     case "open-group":
         canvas.stopUnselect();
-        grouper.openDialog(storage.nextGroup, canvas.currentGroup, canvas.selectedTables);
+        grouper.openDialog(
+            storage.nextGroup,
+            canvas.currentGroup,
+            canvas.selectedTables,
+            schema ? schema.getPrefixGroups().length : 0,
+        );
+        break;
+    case "group-by-prefix":
+        groupByPrefix();
         break;
     case "close-group":
         grouper.closeDialog();

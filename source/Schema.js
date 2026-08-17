@@ -74,6 +74,34 @@ export default class Schema {
     }
 
     /**
+     * Gathers the Tables no Group holds yet by the first part of their name,
+     * which is what tells a credential_device from a log_device. A prefix only
+     * one Table answers to is no grouping at all, so it is left out
+     * @returns {Object[]}
+     */
+    getPrefixGroups() {
+        const prefixes = {};
+        for (const table of Object.values(this.tables)) {
+            if (table.group) {
+                continue;
+            }
+            const prefix = table.name.split("_")[0];
+            if (!prefixes[prefix]) {
+                prefixes[prefix] = [];
+            }
+            prefixes[prefix].push(table.name);
+        }
+
+        const result = [];
+        for (const [ name, tables ] of Object.entries(prefixes)) {
+            if (tables.length > 1) {
+                result.push({ name, tables });
+            }
+        }
+        return result;
+    }
+
+    /**
      * Returns the amount of Tables of the Schema
      * @returns {Number}
      */

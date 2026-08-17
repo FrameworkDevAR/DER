@@ -78,6 +78,49 @@ dialog footer {
     gap: 12px;
 }
 
+.dialog-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    list-style: none;
+    counter-reset: counter;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+.dialog-steps li {
+    counter-increment: counter;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.dialog-steps li::before {
+    content: counter(counter);
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    color: var(--white-color);
+    background-color: var(--main-color);
+    border-radius: 9999px;
+    font-family: var(--title-font);
+    font-size: 15px;
+    line-height: 26px;
+    text-align: center;
+}
+
+.group-empty {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.group-empty p {
+    margin: 0;
+    color: var(--lighter-color);
+}
+.group-empty footer {
+    margin-top: 8px;
+}
+
 dialog > form {
     display: flex;
     flex-direction: column;
@@ -107,35 +150,6 @@ dialog > form > footer {
     text-decoration-color: var(--main-color);
 }
 
-.welcome-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    list-style: none;
-    counter-reset: counter;
-    margin: 0;
-    padding: 0;
-    text-align: left;
-}
-.welcome-steps li {
-    counter-increment: counter;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.welcome-steps li::before {
-    content: counter(counter);
-    flex-shrink: 0;
-    width: 26px;
-    height: 26px;
-    color: var(--white-color);
-    background-color: var(--main-color);
-    border-radius: 9999px;
-    font-family: var(--title-font);
-    font-size: 15px;
-    line-height: 26px;
-    text-align: center;
-}
 .welcome-note {
     margin: 0;
     color: var(--dark-color);
