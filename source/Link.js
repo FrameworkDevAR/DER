@@ -46,11 +46,18 @@ export default class Link {
         this.element.setAttribute("width", "100%");
         this.element.setAttribute("height", "100%");
 
-        this.path  = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        this.arrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        this.path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        this.from = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        this.to   = document.createElementNS("http://www.w3.org/2000/svg", "circle");
 
-        this.element.appendChild(this.arrow);
+        this.from.classList.add("link-from");
+        this.from.setAttribute("r", "3");
+        this.to.classList.add("link-to");
+        this.to.setAttribute("r", "3.5");
+
         this.element.appendChild(this.path);
+        this.element.appendChild(this.from);
+        this.element.appendChild(this.to);
 
         this.connect();
     }
@@ -205,7 +212,7 @@ export default class Link {
         const width  = Options.LINK_SIZE;
 
         const startX = 0;
-        const endX   = Options.ARROW_SIZE;
+        const endX   = 0;
 
         const BX = width * 0.05 + startX;
         const BY = startY;
@@ -218,7 +225,7 @@ export default class Link {
 
         this.setBounds(left, top, width, height);
         this.setPath(startX, startY, BX, BY, CX, CY, DX, DY, EX, EY, endX, endY);
-        this.setArrow(startX, startY, endX, endY, true, false);
+        this.setEnds(startX, startY, endX, endY, true);
     }
 
     /**
@@ -236,8 +243,8 @@ export default class Link {
         const left   = leftTable.left - Options.LINK_SIZE;
         const width  = rightTable.left - left;
 
-        const startX = leftTable.left - left - (!toEnd ? Options.ARROW_SIZE : 0);
-        const endX   = width - (toEnd ? Options.ARROW_SIZE : 0);
+        const startX = leftTable.left - left;
+        const endX   = width;
 
         const BX = - Options.LINK_SIZE * 0.05 + startX;
         const BY = startY;
@@ -250,7 +257,7 @@ export default class Link {
 
         this.setBounds(left, top, width, height);
         this.setPath(startX, startY, BX, BY, CX, CY, DX, DY, EX, EY, endX, endY);
-        this.setArrow(startX, startY, endX, endY, toEnd, true);
+        this.setEnds(startX, startY, endX, endY, toEnd);
     }
 
     /**
@@ -268,8 +275,8 @@ export default class Link {
         const left   = Math.min(leftTable.right, rightTable.right);
         const width  = Math.abs(leftTable.right - rightTable.right) + Options.LINK_SIZE;
 
-        const startX = leftTable.right - left + (!toEnd ? Options.ARROW_SIZE : 0);
-        const endX   = rightTable.right - left + (toEnd ? Options.ARROW_SIZE : 0);
+        const startX = leftTable.right - left;
+        const endX   = rightTable.right - left;
 
         const BX = Options.LINK_SIZE * 0.05 + startX;
         const BY = startY;
@@ -282,7 +289,7 @@ export default class Link {
 
         this.setBounds(left, top, width, height);
         this.setPath(startX, startY, BX, BY, CX, CY, DX, DY, EX, EY, endX, endY);
-        this.setArrow(startX, startY, endX, endY, toEnd, false);
+        this.setEnds(startX, startY, endX, endY, toEnd);
     }
 
     /**
@@ -300,8 +307,8 @@ export default class Link {
         const left   = leftTable.right;
         const width  = rightTable.left - left;
 
-        const startX = !toEnd ? Options.ARROW_SIZE : 0;
-        const endX   = width - (toEnd ? Options.ARROW_SIZE : 0);
+        const startX = 0;
+        const endX   = width;
 
         const BX = width * 0.05 + startX;
         const BY = startY;
@@ -314,7 +321,7 @@ export default class Link {
 
         this.setBounds(left, top, width, height);
         this.setPath(startX, startY, BX, BY, CX, CY, DX, DY, EX, EY, endX, endY);
-        this.setArrow(startX, startY, endX, endY, toEnd, toEnd);
+        this.setEnds(startX, startY, endX, endY, toEnd);
     }
 
 
@@ -364,21 +371,22 @@ export default class Link {
     }
 
     /**
-     * Sets the Arrow
+     * Sets the Ends of the Link: a dot where it starts and a ring where it
+     * lands, which is the mark the design uses instead of an arrow
      * @param {Number}  startX
      * @param {Number}  startY
      * @param {Number}  endX
      * @param {Number}  endY
      * @param {Boolean} toEnd
-     * @param {Boolean} toRight
      * @returns {Void}
      */
-    setArrow(startX, startY, endX, endY, toEnd, toRight) {
-        const AX     = toEnd ? endX : startX;
-        const AY     = toEnd ? endY : startY;
-        const width  = toRight ? Options.ARROW_SIZE : -Options.ARROW_SIZE;
-        const half   = Options.ARROW_SIZE / 2;
-        const points = `${AX} ${AY - half}, ${AX + width} ${AY}, ${AX} ${AY + half}`;
-        this.arrow.setAttribute("points", points);
+    setEnds(startX, startY, endX, endY, toEnd) {
+        const from = toEnd ? { x : startX, y : startY } : { x : endX,   y : endY   };
+        const to   = toEnd ? { x : endX,   y : endY   } : { x : startX, y : startY };
+
+        this.from.setAttribute("cx", String(from.x));
+        this.from.setAttribute("cy", String(from.y));
+        this.to.setAttribute("cx", String(to.x));
+        this.to.setAttribute("cy", String(to.y));
     }
 }

@@ -41,20 +41,63 @@ export default class Field {
     }
 
     /**
+     * Returns the class of the Element depending on the Properties
+     * @returns {String}
+     */
+    get elementClass() {
+        if (this.isPrimary) {
+            return "field-primary";
+        }
+        return this.isKey ? "field-foreign" : "";
+    }
+
+    /**
+     * Creates the Elements of a Field: the badge that names a key, the name
+     * and the type. The badge is always there, so the names line up
+     * @returns {HTMLElement[]}
+     */
+    createElems() {
+        const badge = document.createElement("em");
+        const name  = document.createElement(this.elementTag);
+        const type  = document.createElement("span");
+
+        badge.className = "field-badge";
+        badge.innerHTML = this.isPrimary ? "PK" : (this.isKey ? "FK" : "·");
+
+        name.className  = "field-name";
+        name.innerHTML  = this.name;
+        type.innerHTML  = this.type;
+
+        return [ badge, name, type ];
+    }
+
+    /**
      * Creates the List Element
+     * @param {Boolean} isHidden
      * @returns {HTMLElement}
      */
-    createListElem() {
+    createListElem(isHidden) {
         this.#listElem = document.createElement("li");
-        const name = document.createElement(this.elementTag);
-        const type = document.createElement("span");
+        this.#listElem.className = this.elementClass;
 
-        name.innerHTML = this.name + (this.isKey ? "*" : "");
-        type.innerHTML = this.type;
+        for (const elem of this.createElems()) {
+            this.#listElem.appendChild(elem);
+        }
 
-        this.#listElem.appendChild(name);
-        this.#listElem.appendChild(type);
+        this.#listElem.classList.toggle("schema-hide", isHidden);
+        this.isListHidden = isHidden;
+
         return this.#listElem;
+    }
+
+    /**
+     * Toggles the visibility of the Field in the List
+     * @param {Boolean} isHidden
+     * @returns {Void}
+     */
+    toggleListVisibility(isHidden) {
+        this.isListHidden = isHidden;
+        this.#listElem.classList.toggle("schema-hide", isHidden);
     }
 
     /**
@@ -65,18 +108,13 @@ export default class Field {
      */
     createCanvasElem(container, isHidden) {
         this.#canvasElem = document.createElement("li");
-        const name = document.createElement(this.elementTag);
-        const type = document.createElement("span");
+        this.#canvasElem.className = this.elementClass;
 
-        name.innerHTML = this.name + (this.isKey ? "*" : "");
-        type.innerHTML = this.type;
-
-        this.#canvasElem.appendChild(name);
-        this.#canvasElem.appendChild(type);
-
-        if (isHidden) {
-            this.#canvasElem.className = "schema-hide";
+        for (const elem of this.createElems()) {
+            this.#canvasElem.appendChild(elem);
         }
+
+        this.#canvasElem.classList.toggle("schema-hide", isHidden);
         this.isHidden = isHidden;
 
         container.appendChild(this.#canvasElem);

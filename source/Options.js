@@ -5,11 +5,10 @@ const SHRINK_WIDTH  = 60;
 
 // Tables
 const COLOR_AMOUNT  = 8;
-const HEADER_HEIGHT = 31;
-const ROW_HEIGHT    = 24;
+const HEADER_HEIGHT = 41;
+const ROW_HEIGHT    = 25;
 
 // Links
-const ARROW_SIZE    = 10;
 const LINK_SIZE     = 70;
 
 // Zoom
@@ -31,7 +30,6 @@ export default {
     HEADER_HEIGHT,
     ROW_HEIGHT,
 
-    ARROW_SIZE,
     LINK_SIZE,
 
     MIN_ZOOM,
