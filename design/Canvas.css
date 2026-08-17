@@ -60,6 +60,10 @@ main {
     cursor: grab;
     transition: color 0.15s, border-color 0.15s;
 }
+.canvas-table header:has(+ .table-description) {
+    margin-bottom: 0;
+    border-bottom: none;
+}
 .canvas-table header .table-name {
     flex: 1;
     min-width: 0;
@@ -73,6 +77,19 @@ main {
     font-weight: 400;
     opacity: 0.55;
 }
+.canvas-table .table-description {
+    box-sizing: border-box;
+    width: var(--table-width);
+    min-width: 100%;
+    margin: 0 0 5px;
+    padding: 0 11px 7px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--lighter-color);
+    font-size: 11px;
+    line-height: 1.4;
+    text-wrap: pretty;
+}
+
 .canvas-table ol {
     list-style: none;
     margin: 0;

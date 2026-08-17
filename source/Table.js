@@ -1,7 +1,8 @@
-import Field from "./Field.js";
-import Link  from "./Link.js";
-import Group from "./Group.js";
-import Utils from "./Utils.js";
+import Field   from "./Field.js";
+import Link    from "./Link.js";
+import Group   from "./Group.js";
+import Options from "./Options.js";
+import Utils   from "./Utils.js";
 
 
 
@@ -38,6 +39,8 @@ export default class Table {
     /** @type {HTMLElement} */
     #canvasElem;
     /** @type {HTMLElement} */
+    #canvasList;
+    /** @type {HTMLElement} */
     #hiddenElem;
     /** @type {HTMLElement} */
     #listHiddenElem;
@@ -52,8 +55,9 @@ export default class Table {
      * @param {Object} data
      */
     constructor(name, data) {
-        this.name       = name;
-        this.data       = data;
+        this.name        = name;
+        this.data        = data;
+        this.description = data.description || "";
 
         this.#onList    = false;
         this.showOnList = false;
@@ -65,6 +69,7 @@ export default class Table {
         this.maxFields   = 15;
         this.showAll     = false;
         this.showAllList = false;
+        this.fieldsTop   = Options.HEADER_HEIGHT;
 
         this.setFields();
         this.setLinks();
@@ -91,6 +96,7 @@ export default class Table {
         this.maxFields   = 15;
         this.showAll     = false;
         this.showAllList = false;
+        this.fieldsTop   = Options.HEADER_HEIGHT;
     }
 
     /**
@@ -229,6 +235,7 @@ export default class Table {
         this.#listElem.className        = "schema-table";
         this.#listInner.className       = "schema-item";
         this.#listInner.dataset.table   = this.name;
+        this.#listInner.title           = this.description;
 
         this.#listArrow.href            = "#";
         this.#listArrow.className       = "arrow";
@@ -439,6 +446,7 @@ export default class Table {
 
         Utils.removeElement(this.#canvasElem);
         this.#canvasElem = null;
+        this.#canvasList = null;
         this.reset();
     }
 
@@ -467,7 +475,18 @@ export default class Table {
         count.innerHTML = `${this.#fields.length} cols`;
         header.appendChild(count);
 
+        this.#canvasElem.appendChild(header);
+
+        // What the Table is for, which the Schema only gives for some of them
+        if (this.description) {
+            const description = document.createElement("p");
+            description.className = "table-description";
+            description.innerText = this.description;
+            this.#canvasElem.appendChild(description);
+        }
+
         const list = document.createElement("ol");
+        this.#canvasList = list;
         for (const [ index, field ] of this.#fields.entries()) {
             field.createCanvasElem(list, !this.showAll && index >= this.maxFields);
         }
@@ -480,7 +499,6 @@ export default class Table {
             list.appendChild(this.#hiddenElem.parentElement);
         }
 
-        this.#canvasElem.appendChild(header);
         this.#canvasElem.appendChild(list);
     }
 
@@ -641,6 +659,10 @@ export default class Table {
         this.height = this.#canvasElem.offsetHeight;
         this.right  = this.left + this.width;
         this.bottom = this.top  + this.height;
+
+        // A Link meets the row of its Field, and a description pushes the
+        // first row further down than the header alone would
+        this.fieldsTop = this.#canvasList ? this.#canvasList.offsetTop : Options.HEADER_HEIGHT;
     }
 
     /**

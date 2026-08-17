@@ -181,8 +181,8 @@ export default class Link {
 
         const top    = Math.min(this.fromTable.top, this.toTable.top);
         const height = Math.max(this.toTable.bottom, this.fromTable.bottom) - top;
-        const startY = leftTable.top  - top + leftPosition  * Options.ROW_HEIGHT + Options.HEADER_HEIGHT + Options.ROW_HEIGHT / 2;
-        const endY   = rightTable.top - top + rightPosition * Options.ROW_HEIGHT + Options.HEADER_HEIGHT + Options.ROW_HEIGHT / 2;
+        const startY = leftTable.top  - top + leftPosition  * Options.ROW_HEIGHT + leftTable.fieldsTop  + Options.ROW_HEIGHT / 2;
+        const endY   = rightTable.top - top + rightPosition * Options.ROW_HEIGHT + rightTable.fieldsTop + Options.ROW_HEIGHT / 2;
 
         if (this.fromTable.name === this.toTable.name) {
             this.connectToSelf(top, height, startY, endY);
