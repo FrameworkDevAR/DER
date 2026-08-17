@@ -14,23 +14,44 @@
     --selected-color7: rgb(153, 102, 255);
     --selected-color8: rgb(75, 192, 192);
 
-    --main-font: Lato, "Helvetica Nueue", Helvetica, Arial, sans-serif;
-    --title-font: Means, Georgia, serif;
+    --main-font: Geist, "Helvetica Nueue", Helvetica, Arial, sans-serif;
+    --title-font: Geist, "Helvetica Nueue", Helvetica, Arial, sans-serif;
+    --mono-font: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-    --aside-width: 320px;
+    --close-icon: url("../icons/close.svg");
+    --chevron-icon: url("../icons/chevron.svg");
+    --logo-icon: url("../icons/logo.svg");
+    --search-icon: url("../icons/search.svg");
+    --light-icon: url("../icons/light.svg");
+    --dark-icon: url("../icons/dark.svg");
+    --group-icon: url("../icons/group.svg");
+
+    --aside-width: 288px;
     --header-height: 70px;
     --title-height: 46px;
     --filter-height: 33px;
 
-    --menu-position: 24px;
+    --menu-position: 16px;
     --menu-size: 28px;
     --menu-padding: 5px;
     --mode-height: 42px;
 
-    --border-radius: 12px;
-    --dialog-radius: 24px;
-    --input-radius: 4px;
-    --grid-size: 8px;
+    --row-height: 32px;
+    --field-height: 22px;
+
+    --btn-height: 38px;
+    --btn-small-height: 24px;
+    --btn-tiny-height: 22px;
+
+    --table-width: 234px;
+    --table-header: 34px;
+    --table-row: 25px;
+
+    --border-radius: 16px;
+    --dialog-radius: 32px;
+    --input-radius: 16px;
+    --pill-radius: 9999px;
+    --grid-size: 22px;
 
     --z-group: 2;
     --z-link-disabled: 3;
@@ -49,35 +70,51 @@
 }
 
 body {
-    --box-shadow: 0 14px 28px var(--light-color);
+    --box-shadow: 0 10px 26px -20px rgba(0, 0, 0, 0.5);
+    --panel-shadow: 0 10px 30px -20px rgba(0, 0, 0, 0.45);
+    --pill-shadow: 0 6px 20px -14px rgba(0, 0, 0, 0.5);
+    --card-shadow: 0 10px 26px -20px rgba(0, 0, 0, 0.5);
+    --card-shadow-on: 0 0 0 3px var(--accent-soft), 0 18px 36px -20px rgba(0, 0, 0, 0.55);
+    --dialog-shadow: 0 40px 80px -32px rgba(0, 0, 0, 0.5);
 }
+
 .light-mode {
     --black-color: black;
     --white-color: white;
-    --main-color: rgb(14, 16, 18);
-    --background-color: rgb(246, 246, 249);
-    --backdrop-color: rgba(232, 232, 237, 0.8);
-    --card-color: white;
+    --main-color: #18181b;
+    --background-color: #f2f2f3;
+    --backdrop-color: rgba(9, 9, 11, 0.42);
+    --card-color: #ffffff;
+    --sunk-color: #fafafa;
     --hover-color: rgb(233, 234, 245);
-    --border-color: rgb(224, 224, 224);
-    --grid-color: rgb(236, 236, 236);
+    --border-color: #e5e5e8;
+    --input-color: #e5e5e8;
+    --grid-color: #dedee2;
 
-    --dark-color: rgb(50, 50, 50);
-    --light-color: rgba(132, 139, 200, 0.18);
-    --lighter-color: rgb(118, 130, 139);
+    --accent-color: oklch(0.55 0.16 276);
+    --accent-soft: oklch(0.55 0.16 276 / 0.09);
+
+    --dark-color: hsl(240, 5%, 26%);
+    --light-color: hsl(240, 5%, 38%);
+    --lighter-color: hsl(240, 4%, 57%);
 }
 .dark-mode {
     --black-color: white;
     --white-color: black;
-    --main-color: rgb(237, 239, 253);
-    --card-color: rgb(32, 37, 40);
-    --background-color: rgb(24, 26, 30);
-    --backdrop-color: rgba(24, 26, 30, 0.8);
-    --hover-color: rgb(22, 26, 28);
-    --border-color: rgb(2, 2, 2);
-    --grid-color: rgb(22, 22, 22);
+    --main-color: #f2f2f4;
+    --background-color: #101012;
+    --backdrop-color: rgba(9, 9, 11, 0.62);
+    --card-color: #18181b;
+    --sunk-color: #1f1f23;
+    --hover-color: #26262c;
+    --border-color: #2a2a30;
+    --input-color: #2a2a30;
+    --grid-color: #232329;
 
-    --dark-color: rgb(200, 200, 200);
-    --light-color: rgba(0, 0, 0, 0.3);
-    --lighter-color: rgb(58, 70, 79);
+    --accent-color: oklch(0.72 0.15 276);
+    --accent-soft: oklch(0.72 0.15 276 / 0.13);
+
+    --dark-color: hsl(240, 7%, 78%);
+    --light-color: hsl(240, 7%, 60%);
+    --lighter-color: hsl(240, 5%, 51%);
 }

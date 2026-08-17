@@ -3,46 +3,136 @@
  */
 .backdrop {
     display: none;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: var(--z-dialog);
     background-color: var(--backdrop-color);
+    backdrop-filter: blur(3px);
 }
 dialog {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 400px;
-    max-width: calc(100% - 24px);
+    width: 460px;
+    max-width: 92vw;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
     margin: 0;
     padding: 32px;
     transform: translate(-50%, -50%);
     color: var(--main-color);
     background-color: var(--card-color);
+    border: 1px solid var(--border-color);
     border-radius: var(--dialog-radius);
-    border: none;
-    box-shadow: var(--box-shadow);
-    font-size: 16px;
+    box-shadow: var(--dialog-shadow);
+    font-size: 14px;
+    line-height: 1.5;
     text-align: center;
+    animation: der-pop 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) both;
 }
 dialog h2 {
-    margin-top: 0;
+    margin: 0;
     color: var(--main-color);
     font-family: var(--title-font);
-    font-size: 28px;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+dialog > p {
+    margin: 0;
+    color: var(--lighter-color);
 }
 dialog > .close {
     --close-color: var(--main-color);
-    --close-size: 20px;
-    --close-width: 20px;
-    --close-height: 2px;
+    --close-size: 26px;
+    --close-width: 11px;
 
     position: absolute;
     top: 24px;
     right: 24px;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    background-color: var(--card-color);
+}
+dialog > .close:hover {
+    --close-color: var(--accent-color);
+    border-color: var(--accent-color);
+    background-color: var(--accent-soft);
+}
+
+dialog footer {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+dialog > form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+dialog > form > footer {
+    margin-top: 8px;
+}
+
+
+
+/**
+ * Welcome Dialog
+ */
+.welcome-dialog dialog {
+    width: 480px;
+}
+.welcome-dialog p a {
+    color: var(--main-color);
+    text-decoration: underline;
+    text-decoration-color: var(--input-color);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: all 0.2s;
+}
+.welcome-dialog p a:hover {
+    text-decoration-color: var(--main-color);
+}
+
+.welcome-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    list-style: none;
+    counter-reset: counter;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+.welcome-steps li {
+    counter-increment: counter;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.welcome-steps li::before {
+    content: counter(counter);
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    color: var(--white-color);
+    background-color: var(--main-color);
+    border-radius: 9999px;
+    font-family: var(--title-font);
+    font-size: 15px;
+    line-height: 26px;
+    text-align: center;
+}
+.welcome-note {
+    margin: 0;
+    color: var(--dark-color);
+    font-size: 13px;
 }
 
 
@@ -56,16 +146,25 @@ dialog > .close {
 .select-list {
     list-style: none;
     counter-reset: counter;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
     padding: 0;
-    border-top: 1px solid rgb(--border-color);
 }
+.select-list:empty {
+    display: none;
+}
+
 .select-list li {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
     counter-increment: counter;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border-color);
+    height: 36px;
+    padding: 0 12px;
+    border-radius: var(--input-radius);
     text-align: left;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -74,16 +173,30 @@ dialog > .close {
     background-color: var(--hover-color);
 }
 
+.select-list .select-name {
+    font-size: 13px;
+    font-weight: 500;
+}
 .select-list .select-name::before {
-    content: counter(counter) ".";
-    margin-right: 8px;
-    color: var(--main-color);
-    font-family: var(--title-font);
-    font-weight: bold;
-    font-size: 18px;
+    content: counter(counter);
+    margin-right: 10px;
+    color: var(--lighter-color);
+    font-family: var(--mono-font);
+    font-size: 10px;
+    font-weight: 500;
 }
 .select-list .selected {
-    background-color: var(--hover-color);
+    color: var(--accent-color);
+    background-color: var(--accent-soft);
+}
+
+.select-list li > div:last-child {
+    flex-shrink: 0;
+    display: flex;
+    gap: 6px;
+}
+.select-list .btn + .btn {
+    margin-left: 0;
 }
 
 
@@ -91,9 +204,6 @@ dialog > .close {
 /**
  * Schema Dialog
  */
-.schema-dialog .toggle-input {
-    justify-content: center;
-}
 .schema-url {
     display: none;
 }

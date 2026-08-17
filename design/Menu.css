@@ -12,11 +12,16 @@
     padding: var(--menu-padding);
     background-color: var(--card-color);
     border: 1px solid var(--border-color);
-    border-radius: 9999px;
-    box-shadow: var(--box-shadow);
+    border-radius: var(--pill-radius);
+    box-shadow: var(--pill-shadow);
     font-size: 16px;
     z-index: var(--z-mode);
+    transition: all 300ms ease;
 }
+.mode:hover {
+    border-color: var(--accent-color);
+}
+
 .mode li {
     box-sizing: border-box;
     flex-shrink: 0;
@@ -30,17 +35,25 @@
     cursor: pointer;
     transition: all 300ms ease;
 }
-.mode li:hover {
-    background-color: var(--hover-color);
-}
-.mode li svg {
+.mode li .svg-icon {
     width: 100%;
+    height: 100%;
+    transition: background-color 300ms ease;
 }
-.mode li.selected {
-    background-color: var(--black-color);
+.mode-light .svg-icon {
+    --icon-image: var(--light-icon);
 }
-.mode li.selected svg {
-    fill: var(--white-color);
+.mode-dark .svg-icon {
+    --icon-image: var(--dark-icon);
+}
+.mode li:hover {
+    background-color: var(--accent-soft);
+    color: var(--accent-color);
+}
+.mode li.selected,
+.mode li.selected:hover {
+    background-color: var(--main-color);
+    color: var(--card-color);
 }
 
 
@@ -70,9 +83,14 @@
     padding: var(--menu-padding);
     border: 1px solid var(--border-color);
     background-color: var(--card-color);
-    box-shadow: var(--box-shadow);
-    border-radius: 9999px;
+    box-shadow: var(--pill-shadow);
+    border-radius: var(--pill-radius);
+    transition: all 300ms ease;
 }
+.zoom:hover {
+    border-color: var(--accent-color);
+}
+
 .zoom li {
     display: flex;
     align-items: center;
@@ -87,7 +105,8 @@
     cursor: pointer;
 }
 .zoom li:hover {
-    background-color: var(--hover-color);
+    background-color: var(--accent-soft);
+    color: var(--accent-color);
 }
 .zoom-disabled.zoom-disabled {
     color: rgb(200, 200, 200);
@@ -96,6 +115,8 @@
 
 .zoom-percent.zoom-percent {
     height: auto;
+    padding: 3px 0;
+    font-family: var(--mono-font);
     font-size: 11px;
     font-weight: normal;
     line-height: 2;
@@ -112,9 +133,18 @@
     padding: var(--menu-padding);
     background-color: var(--card-color);
     border: 1px solid var(--border-color);
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--pill-shadow);
     border-radius: 50%;
+    color: var(--main-color);
     cursor: pointer;
+    transition: all 300ms ease;
+}
+.icon:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+.icon:hover div {
+    background-color: var(--accent-soft);
 }
 .icon div {
     box-sizing: border-box;
@@ -127,9 +157,9 @@
     border-radius: 50%;
     transition: background-color 0.2s;
 }
-.icon div:hover {
-    background-color: var(--hover-color);
-}
-.icon svg {
+.icon .svg-icon {
+    --icon-image: var(--group-icon);
+
     width: 100%;
+    height: 100%;
 }

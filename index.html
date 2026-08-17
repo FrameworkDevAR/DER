@@ -3,6 +3,11 @@
     <head>
         <meta charset="utf-8" />
         <title>DER</title>
+        <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="icons/favicon.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="design/Main.css" />
         <script type="module" src="source/Main.js"></script>
     </head>
@@ -10,16 +15,18 @@
         <aside class="aside">
             <div class="aside-content">
                 <header>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
-                        <path d="M480-520q150 0 255-47t105-113q0-66-105-113t-255-47q-150 0-255 47T120-680q0 66 105 113t255 47Zm0 100q41 0 102.5-8.5T701-456q57-19 98-49.5t41-74.5v100q0 44-41 74.5T701-356q-57 19-118.5 27.5T480-320q-41 0-102.5-8.5T259-356q-57-19-98-49.5T120-480v-100q0 44 41 74.5t98 49.5q57 19 118.5 27.5T480-420Zm0 200q41 0 102.5-8.5T701-256q57-19 98-49.5t41-74.5v100q0 44-41 74.5T701-156q-57 19-118.5 27.5T480-120q-41 0-102.5-8.5T259-156q-57-19-98-49.5T120-280v-100q0 44 41 74.5t98 49.5q57 19 118.5 27.5T480-220Z"/>
-                    </svg>
-                    <h1 data-action="open-select">DER</h1>
+                    <div class="aside-logo">
+                        <i class="svg-icon"></i>
+                    </div>
+                    <h1 data-action="open-select">
+                        <span class="aside-title">DER</span>
+                        <i class="aside-caret arrow"></i>
+                    </h1>
+                    <div class="aside-arrow arrow" data-action="toggle-aside" title="Collapse the panel"></div>
                 </header>
 
                 <section class="schema-filter">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" height="24px" width="24px">
-                        <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/>
-                    </svg>
+                    <i class="svg-icon"></i>
                     <input type="text" name="filter" placeholder="Filter tables" />
                     <a href="#" class="close" data-action="clear-filter"></a>
                     <div class="schema-total"></div>
@@ -28,25 +35,37 @@
                 <section class="schema-list">
                     <ol></ol>
                 </section>
+
+                <footer class="aside-footer">
+                    <div class="aside-status"></div>
+                    <div class="aside-actions">
+                        <button class="btn btn-tiny" data-action="add-all-tables">Add all</button>
+                        <button class="btn btn-tiny" data-action="clear-board">Clear</button>
+                    </div>
+                </footer>
             </div>
             <div class="aside-resizer" data-action="resize-aside"></div>
-            <div class="aside-arrow arrow" data-action="toggle-aside"></div>
         </aside>
 
         <main class="main">
             <section class="canvas"></section>
         </main>
 
+        <div class="canvas-empty">
+            <div class="canvas-empty-box"></div>
+            <div>
+                <h2>The board is empty</h2>
+                <p>Add tables from the sidebar to start building the diagram.</p>
+            </div>
+            <button class="btn" data-action="add-all-tables">Add all tables</button>
+        </div>
+
         <ol class="mode">
             <li class="mode-light selected" data-action="mode-light">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
-                    <path d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM80-440q-17 0-28.5-11.5T40-480q0-17 11.5-28.5T80-520h80q17 0 28.5 11.5T200-480q0 17-11.5 28.5T160-440H80Zm720 0q-17 0-28.5-11.5T760-480q0-17 11.5-28.5T800-520h80q17 0 28.5 11.5T920-480q0 17-11.5 28.5T880-440h-80ZM480-760q-17 0-28.5-11.5T440-800v-80q0-17 11.5-28.5T480-920q17 0 28.5 11.5T520-880v80q0 17-11.5 28.5T480-760Zm0 720q-17 0-28.5-11.5T440-80v-80q0-17 11.5-28.5T480-200q17 0 28.5 11.5T520-160v80q0 17-11.5 28.5T480-40ZM226-678l-43-42q-12-11-11.5-28t11.5-29q12-12 29-12t28 12l42 43q11 12 11 28t-11 28q-11 12-27.5 11.5T226-678Zm494 495-42-43q-11-12-11-28.5t11-27.5q11-12 27.5-11.5T734-282l43 42q12 11 11.5 28T777-183q-12 12-29 12t-28-12Zm-42-495q-12-11-11.5-27.5T678-734l42-43q11-12 28-11.5t29 11.5q12 12 12 29t-12 28l-43 42q-12 11-28 11t-28-11ZM183-183q-12-12-12-29t12-28l43-42q12-11 28.5-11t27.5 11q12 11 11.5 27.5T282-226l-42 43q-11 12-28 11.5T183-183Z"/>
-                </svg>
+                <i class="svg-icon"></i>
             </li>
             <li class="mode-dark" data-action="mode-dark">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
-                    <path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z"/>
-                </svg>
+                <i class="svg-icon"></i>
             </li>
         </ol>
 
@@ -54,14 +73,11 @@
             <ol class="zoom">
                 <li class="zoom-in" data-action="zoom-in">+</li>
                 <li class="zoom-percent" data-action="reset-zoom">100%</li>
-                <li class="zoom-out" data-action="zoom-out">-</li>
+                <li class="zoom-out" data-action="zoom-out">−</li>
             </ol>
             <div class="icon" data-action="open-group">
                 <div>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-                        <path d="M10 4H6c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm12 8h4c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2zm0-6h4v4h-4V6zM10 20H6c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zm0 6H6v-4h4v4zm16-6h-4c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2z" />
-                        <path d="M28 16h-2c-2.671 0-5.182-1.04-7.071-2.929S16 8.671 16 6V4c0-2.2-1.8-4-4-4H4C1.8 0 0 1.8 0 4v8c0 2.2 1.8 4 4 4h2c2.671 0 5.182 1.04 7.071 2.929S16 23.329 16 26v2c0 2.2 1.8 4 4 4h8c2.2 0 4-1.8 4-4v-8c0-2.2-1.8-4-4-4zm2 12c0 .53-.209 1.031-.589 1.411S28.53 30 28 30h-8c-.53 0-1.031-.209-1.411-.589S18 28.53 18 28v-2c0-6.627-5.373-12-12-12H4c-.53 0-1.031-.209-1.411-.589S2 12.53 2 12V4c0-.53.209-1.031.589-1.411S3.47 2 4 2h8c.53 0 1.031.209 1.411.589S14 3.47 14 4v2c0 6.627 5.373 12 12 12h2c.53 0 1.031.209 1.411.589S30 19.47 30 20v8z" />
-                    </svg>
+                    <i class="svg-icon"></i>
                 </div>
             </div>
         </aside>
@@ -69,12 +85,36 @@
 
 
         <section>
+            <div class="welcome-dialog backdrop" data-dialog="welcome">
+                <dialog open>
+                    <h2>Welcome to DER</h2>
+                    <p>
+                        DER draws a database as a diagram, from the JSON schema that the
+                        <a href="https://frameworkphp.com.ar" target="_blank" rel="noopener noreferrer">Framework</a>
+                        generates.
+                    </p>
+                    <ol class="welcome-steps">
+                        <li><div><b>Add a schema</b> from a json file, or from the url it is published at.</div></li>
+                        <li><div><b>Pick the tables</b> in the list at the left and they show up on the canvas.</div></li>
+                        <li><div><b>Move them around</b>, and gather the ones that belong together into a group.</div></li>
+                    </ol>
+                    <p class="welcome-note">Everything stays in this browser, and comes back the way you left it.</p>
+                    <footer>
+                        <button class="btn btn-fill" data-action="welcome-add">Add a Schema</button>
+                        <button class="btn" data-action="welcome-test">Try the Framework</button>
+                    </footer>
+                </dialog>
+            </div>
+
+
             <div class="select-dialog backdrop" data-dialog="select">
                 <dialog open>
                     <h2>Select a Schema</h2>
                     <p class="select-empty">Use the button bellow to add a new Schema.</p>
                     <ol class="select-list"></ol>
-                    <button class="btn btn-fill" data-action="open-add">Add Schema</button>
+                    <footer>
+                        <button class="btn btn-fill" data-action="open-add">Add Schema</button>
+                    </footer>
                     <a href="#" class="close" data-action="close-select"></a>
                 </dialog>
             </div>
@@ -85,7 +125,7 @@
                     <h2>Schema</h2>
                     <p>Name the Schema and select a json file or a schema url.</p>
                     <form>
-                        <label class="toggle-input" data-field="url">
+                        <label class="toggle-input" data-field="useUrl">
                             <input type="checkbox" role="switch" name="useUrl" value="1" data-action="schema-url"></input>
                             <div>Use url</div>
                         </label>
@@ -102,7 +142,7 @@
                                 </div>
                                 <div>
                                     <a href="#" class="close" data-action="remove-file"></a>
-                                    <a href="#" class="btn" data-action="upload-file">Upload File</a>
+                                    <a href="#" class="btn btn-small" data-action="upload-file">Upload File</a>
                                 </div>
                             </section>
                             <div class="error" data-error="file">You must complete the schema main file.</div>
@@ -117,21 +157,25 @@
                             <label>Position</label>
                             <input type="number" name="position" />
                         </div>
-                        <button class="btn btn-fill dialog-btn" data-action="edit-schema">Schema</button>
-                        <button class="btn" data-action="close-schema">Cancel</button>
+                        <footer>
+                            <button class="btn btn-fill dialog-btn" data-action="edit-schema">Schema</button>
+                            <button class="btn" data-action="close-schema">Cancel</button>
+                        </footer>
                     </form>
                     <a href="#" class="close" data-action="close-schema"></a>
                 </dialog>
             </div>
 
 
-            <div class="backdrop" data-dialog="delete">
+            <div class="backdrop" data-dialog="remove-schema">
                 <dialog open>
-                    <h2>Delete Schema</h2>
-                    <p class="select-empty">Do you really want to delete the selected Schema?</p>
-                    <button class="btn btn-fill" data-action="delete-schema">Delete Schema</button>
-                    <button class="btn" data-action="close-delete">Cancel</button>
-                    <a href="#" class="close" data-action="close-delete"></a>
+                    <h2>Remove Schema</h2>
+                    <p>Do you really want to remove the selected Schema?</p>
+                    <footer>
+                        <button class="btn btn-fill" data-action="remove-schema">Remove Schema</button>
+                        <button class="btn" data-action="close-remove-schema">Cancel</button>
+                    </footer>
+                    <a href="#" class="close" data-action="close-remove-schema"></a>
                 </dialog>
             </div>
 
@@ -152,8 +196,10 @@
                             <div class="error" data-error="table">You must indicate at least one table.</div>
                             <div class="error" data-error="repeated">Some tables are in another group.</div>
                         </div>
-                        <button class="btn btn-fill dialog-btn" data-action="update-group">Group</button>
-                        <button class="btn" data-action="open-remove">Remove Group</button>
+                        <footer>
+                            <button class="btn btn-fill dialog-btn" data-action="update-group">Group</button>
+                            <button class="btn group-remove" data-action="open-remove">Remove Group</button>
+                        </footer>
                     </form>
                     <a href="#" class="close" data-action="close-group"></a>
                 </dialog>
@@ -163,9 +209,11 @@
             <div class="backdrop" data-dialog="remove">
                 <dialog open>
                     <h2>Remove Group</h2>
-                    <p class="select-empty">Do you really want to remove the selected Group?</p>
-                    <button class="btn btn-fill" data-action="remove-group">Remove Group</button>
-                    <button class="btn" data-action="close-remove">Cancel</button>
+                    <p>Do you really want to remove the selected Group?</p>
+                    <footer>
+                        <button class="btn btn-fill" data-action="remove-group">Remove Group</button>
+                        <button class="btn" data-action="close-remove">Cancel</button>
+                    </footer>
                     <a href="#" class="close" data-action="close-remove"></a>
                 </dialog>
             </div>

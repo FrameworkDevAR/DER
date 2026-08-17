@@ -8,25 +8,17 @@ main {
     right: 0;
     bottom: 0;
     overflow: auto;
+
+    background-color: var(--background-color);
+    background-attachment: local;
+    background-image: radial-gradient(var(--grid-color) 1.1px, transparent 1.1px);
     background-size: var(--grid-size) var(--grid-size);
-    background-image:
-        linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
-        linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+    background-position: center center;
 }
 .canvas {
     width: 1000vw;
     height: 1000vh;
-    transform-origin: center center;
-}
-.center {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 6px;
-    height: 6px;
-    background-color: red;
-    /* translate: 500vw 500vh; */
-    z-index: 10000;
+    transform-origin: 0 0;
 }
 
 
@@ -35,106 +27,127 @@ main {
  * Table
  */
 .canvas-table {
-    --bg-color: var(--white-color);
+    --bg-color: var(--card-color);
+
     position: absolute;
     top: 0;
     left: 0;
-    min-width: 200px;
+    min-width: var(--table-width);
+    padding-bottom: 5px;
     font-size: 12px;
     background-color: var(--card-color);
-    box-shadow: var(--box-shadow);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
     overflow: hidden;
     z-index: var(--z-table-normal);
+    animation: der-pop 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    transition: box-shadow 0.15s, border-color 0.15s, filter 0.15s;
 }
 .canvas-table header {
-    position: relative;
-    background-color: black;
-    padding: 8px 24px;
-    text-align: center;
-    color: white;
-    font-weight: bold;
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: var(--table-header);
+    margin-bottom: 5px;
+    padding: 0 11px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--main-color);
+    font-family: var(--mono-font);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
     cursor: grab;
-    transition: all 0.1s;
+    transition: color 0.15s, border-color 0.15s;
+}
+.canvas-table header .table-name {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.canvas-table header .table-count {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 400;
+    opacity: 0.55;
 }
 .canvas-table ol {
     list-style: none;
     margin: 0;
     padding: 0;
-    border: 1px solid var(--border-color);
-    border-top: none;
-    border-bottom-left-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
-    transition: border-color 0.1s;
 }
 .canvas-table ol li {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
-    padding: 4px 8px;
-    border-bottom: 1px solid var(--border-color);
+    align-items: center;
+    gap: 8px;
+    height: var(--table-row);
+    padding: 0 11px;
     color: var(--dark-color);
+    font-family: var(--mono-font);
 }
-.canvas-table ol li:last-child {
-    border-bottom: none;
+.canvas-table ol li .field-name {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.canvas-table ol li b {
-    color: var(--black-color);
+.canvas-table ol li b,
+.canvas-table ol li i {
+    color: var(--dark-color);
+    font-style: normal;
+    font-weight: 600;
+}
+
+.field-badge {
+    flex: 0 0 17px;
+    width: 17px;
+    color: transparent;
+    font-family: var(--mono-font);
+    font-size: 8.5px;
+    font-style: normal;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+.field-primary .field-badge {
+    color: var(--light-color);
+}
+.field-foreign .field-badge {
+    color: var(--lighter-color);
 }
 .canvas-table ol li span:last-child {
-    color: var(--lighter-color);
     margin-left: 16px;
+    color: var(--lighter-color);
     font-size: 10px;
+    white-space: nowrap;
 }
 
 .schema-hide.schema-hide {
     display: none;
 }
-.schema-hidden.schema-hidden {
-    color: var(--lighter-color);
-    cursor: pointer;
+.canvas-table ol li.schema-hidden {
+    margin: 6px 0;
 }
-
-.canvas-table .close {
-    --close-color: white;
-    --close-size: 12px;
-    --close-width: 12px;
-    --close-height: 1px;
-    position: absolute;
-    top: calc(30px / 2 - var(--close-size) / 2);
-    right: 6px;
-}
-
 
 .canvas-table.selected {
+    border-color: var(--accent-color);
+    box-shadow: var(--card-shadow-on);
     z-index: var(--z-table-selected);
 }
-.canvas-table.selected ol {
-    border-color: var(--main-color);
+.canvas-table.selected header {
+    color: var(--accent-color);
 }
-.canvas-table.selected ol li {
-    border-color: var(--main-color);
-}
-
 .canvas-table.disabled {
+    filter: opacity(0.50);
     z-index: var(--z-table-disabled);
-}
-.canvas-table.disabled header {
-    background-color: var(--border-color);
-    color: var(--disabled-color);
-}
-.canvas-table.disabled ol li,
-.canvas-table.disabled ol li b {
-    color: var(--disabled-color);
-}
-.canvas-table.disabled .close {
-    --close-color: var(--disabled-color);
 }
 
 .canvas-table.dragging {
     z-index: var(--z-table-dragging);
+    transition: none;
 }
 .canvas-table.dragging header {
     cursor: grabbing;
@@ -152,17 +165,24 @@ main {
     left: 0;
     pointer-events: none;
     z-index: var(--z-link-normal);
+    animation: der-draw 0.3s ease 0.14s both;
 }
 .schema-link path {
     fill: none;
     stroke: var(--bg-color);
-    stroke-width: 2;
-    transition: stroke 0.1s;
+    stroke-width: 1.5;
+    transition: stroke 0.15s;
 }
-.schema-link polygon {
+.schema-link .link-from {
     fill: var(--bg-color);
     stroke: none;
-    transition: fill 0.1s;
+    transition: fill 0.15s;
+}
+.schema-link .link-to {
+    fill: var(--card-color);
+    stroke: var(--bg-color);
+    stroke-width: 1.5;
+    transition: stroke 0.15s;
 }
 
 .schema-link.disabled.disabled {
@@ -176,14 +196,16 @@ main {
  * Colors
  */
 .canvas-table li.colored {
-    color: black;
-    background-color: var(--bg-color);
+    padding-left: 9px;
+    border-left: 2px solid var(--bg-color);
+    background-color: var(--sunk-color);
 }
-.canvas-table li.colored b {
-    color: black;
-}
-.canvas-table li.colored span:last-child {
-    color: black;
+.canvas-table li.colored b,
+.canvas-table li.colored i,
+.canvas-table li.colored .field-badge,
+.canvas-table li.colored .field-name {
+    color: var(--bg-color);
+    font-weight: 600;
 }
 
 .color1.color1 {
@@ -218,31 +240,37 @@ main {
  */
 .group {
     position: absolute;
-    border: 2px solid var(--main-color);
+    border: 1px dashed var(--accent-color);
     border-radius: var(--border-radius);
+    background-color: var(--accent-soft);
     pointer-events: none;
     z-index: var(--z-group);
-    opacity: 0.5;
+    opacity: 0.9;
 }
 .group.selected {
+    border-style: solid;
+    box-shadow: 0 0 0 3px var(--accent-soft);
     opacity: 1;
 }
 .group header {
     position: absolute;
-    top: 4px;
-    left: 8px;
-    font-weight: bold;
+    top: -11px;
+    left: 14px;
+    padding: 2px 8px;
+    border: 1px solid var(--accent-color);
+    border-radius: var(--pill-radius);
+    background-color: var(--card-color);
+    color: var(--accent-color);
+    font-family: var(--mono-font);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
     pointer-events: all;
     cursor: grab;
 }
 .group.dragging header {
     cursor: grabbing;
-}
-.group .close {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    pointer-events: all;
 }
 
 
@@ -253,6 +281,61 @@ main {
 .selector {
     position: absolute;
     display: none;
-    border: 1px dashed black;
-    background-color: rgba(250, 250, 250, 0.3);
+    border: 1px solid var(--accent-color);
+    border-radius: 3px;
+    background-color: var(--accent-soft);
+}
+
+
+
+/**
+ * Empty Board
+ */
+.canvas-empty {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: var(--aside-current, 0px);
+    right: 0;
+    bottom: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    pointer-events: none;
+    animation: der-fade-in 0.3s ease both;
+}
+.canvas-is-empty .canvas-empty {
+    display: flex;
+}
+.canvas-empty-box {
+    width: 46px;
+    height: 46px;
+    border: 1.5px dashed var(--lighter-color);
+    border-radius: 12px;
+    opacity: 0.5;
+}
+.canvas-empty h2 {
+    margin: 0;
+    font-family: var(--title-font);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+.canvas-empty p {
+    margin: 6px 0 0;
+    color: var(--lighter-color);
+    font-size: 14px;
+    line-height: 1.55;
+}
+.canvas-empty div {
+    text-align: center;
+}
+.canvas-empty .btn {
+    height: var(--row-height);
+    line-height: calc(var(--row-height) - 2px);
+    font-size: 12px;
+    background-color: var(--card-color);
+    pointer-events: auto;
 }

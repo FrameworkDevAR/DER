@@ -1,23 +1,17 @@
 /**
- * Fonts
+ * Motion
  */
-@font-face {
-    font-family: "Lato";
-    font-style: normal;
-    font-weight: normal;
-    src: local("Lato"), url("../fonts/lato-regular.ttf") format("truetype");
+@keyframes der-pop {
+    from { opacity: 0; scale: 0.94; translate: 0 6px; }
+    to   { opacity: 1; scale: 1; translate: 0 0; }
 }
-@font-face {
-    font-family: "Lato";
-    font-style: normal;
-    font-weight: bold;
-    src: local("Lato"), url("../fonts/lato-bold.ttf") format("truetype");
+@keyframes der-draw {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
-@font-face {
-    font-family: "Means";
-    font-style: normal;
-    font-weight: normal;
-    src: local("Means"), url("../fonts/means-regular.woff2") format("woff2");
+@keyframes der-fade-in {
+    from { opacity: 0; translate: 0 -4px; }
+    to   { opacity: 1; translate: 0 0; }
 }
 
 
@@ -50,39 +44,68 @@ svg {
  */
 .btn {
     display: inline-block;
-    padding: 8px 16px;
+    height: var(--btn-height);
+    padding: 0 20px;
     background-color: var(--card-color);
-    border: 1px solid var(--main-color);
-    border-radius: 9999px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--pill-radius);
     color: var(--main-color);
     font-family: var(--main-font);
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: calc(var(--btn-height) - 2px);
     text-align: center;
     text-decoration: none;
     cursor: pointer;
     transition: all 0.2s;
 }
 .btn:hover {
-    color: var(--white-color);
-    background-color: var(--main-color);
+    border-color: var(--accent-color);
+    background-color: var(--accent-soft);
+    color: var(--accent-color);
 }
 
 .btn-fill {
-    color: white;
-    background-color: black;
-    border-color: black;
+    border-color: var(--main-color);
+    background-color: var(--main-color);
+    color: var(--card-color);
 }
 .btn-fill:hover {
-    color: black;
-    background-color: white;
+    border-color: var(--main-color);
+    background-color: var(--main-color);
+    color: var(--card-color);
+    opacity: 0.86;
 }
 
 .btn-small {
-    padding: 4px 8px;
-    font-size: 12px;
+    height: var(--btn-small-height);
+    padding: 0 10px;
+    font-size: 11px;
+    line-height: calc(var(--btn-small-height) - 2px);
 }
-.btn + .btn {
-    margin-left: 8px;
+.btn-tiny {
+    height: var(--btn-tiny-height);
+    padding: 0 10px;
+    font-size: 11px;
+    line-height: calc(var(--btn-tiny-height) - 2px);
+}
+.btn-tiny:hover {
+    background-color: transparent;
+}
+
+.btn-hidden {
+    color: var(--lighter-color);
+    font-family: var(--mono-font);
+}
+
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.btn:disabled:hover {
+    border-color: var(--border-color);
+    background-color: transparent;
+    color: var(--main-color);
 }
 
 
@@ -95,7 +118,7 @@ input {
 }
 input:focus {
     outline: none;
-    border-color: var(--main-color);
+    border-color: var(--accent-color);
 }
 
 .field {
@@ -106,10 +129,17 @@ input:focus {
     min-height: 50px;
     padding: 6px 12px;
     text-align: left;
-    margin-bottom: 16px;
     border: 1px solid var(--input-color);
-    border-radius: var(--border-radius);
+    border-radius: var(--input-radius);
+    transition: border-color 0.2s;
 }
+.field:hover {
+    border-color: var(--lighter-color);
+}
+.field:focus-within {
+    border-color: var(--accent-color);
+}
+
 .field > label,
 .file-input label {
     margin: 0;
@@ -151,15 +181,30 @@ input:focus {
     gap: 6px;
 }
 .file-input section > div:first-child > div {
-    min-height: 17px;
+    min-height: 18px;
     font-size: 14px;
+    line-height: 1;
 }
 .file-input section > div:last-child {
     display: flex;
     align-items: flex-end;
+    gap: 6px;
 }
-.file-input section > div:last-child .close {
-    margin: 0 6px 8px 0;
+.file-input .close {
+    --close-color: var(--main-color);
+    --close-size: var(--btn-small-height);
+    --close-width: 11px;
+
+    display: none;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    background-color: var(--card-color);
+}
+.file-input .close:hover {
+    --close-color: var(--accent-color);
+
+    border-color: var(--accent-color);
+    background-color: var(--accent-soft);
 }
 
 
@@ -175,14 +220,33 @@ input:focus {
 .checkbox-box {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-gap: 8px;
+    grid-gap: 6px;
 }
 .checkbox-input {
+    box-sizing: border-box;
     display: flex;
     align-items: center;
+    height: var(--row-height);
+    padding: 0 12px;
+    border: 1px solid var(--input-color);
+    border-radius: var(--pill-radius);
     color: var(--main-color);
-    font-size: 14px;
+    font-family: var(--mono-font);
+    font-size: 12px;
     overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.checkbox-input:hover {
+    border-color: var(--lighter-color);
+}
+.checkbox-input:has(input:checked) {
+    border-color: var(--accent-color);
+    background-color: var(--accent-soft);
+    color: var(--accent-color);
+}
+.checkbox-input:has(input:checked):hover {
+    opacity: 0.86;
 }
 .checkbox-input div {
     overflow: hidden;
@@ -192,18 +256,22 @@ input:focus {
     appearance: none;
     position: relative;
     flex-shrink: 0;
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
     margin: 0 8px 0 0;
     padding: 0;
     outline: 0;
     cursor: pointer;
-    border: 1px solid var(--input-color);
-    border-radius: var(--input-radius);
+    border: 1px solid var(--lighter-color);
+    border-radius: 4px;
     transition: all ease-in-out 0.2s;
 }
+.checkbox-input input[type="checkbox"]:checked {
+    border-color: var(--accent-color);
+    background-color: var(--accent-color);
+}
 .checkbox-input input[type="checkbox"]:checked:after {
-    content: "✕";
+    content: "";
     position: absolute;
     top: -1px;
     left: -1px;
@@ -212,12 +280,7 @@ input:focus {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
-    color: var(--primary-color);
-    background-color: var(--main-color);
-    color: var(--white-color);
-    border-radius: var(
-    --input-radius);
+    border-radius: 4px;
     animation: tick 0.4s cubic-bezier(0.175, 0.885, 0.320, 1.275);
 }
 .checkbox-input input[type="checkbox"]:disabled {
@@ -227,7 +290,7 @@ input:focus {
 
 .checkbox-input input[type="checkbox"]:not(:disabled):hover,
 .checkbox-input input[type="checkbox"]:focus {
-    border-color: var(--primary-color);
+    border-color: var(--accent-color);
     outline: none;
 }
 
@@ -242,7 +305,7 @@ input:focus {
 
     display: flex;
     align-items: center;
-    margin-bottom: 16px;
+    justify-content: center;
 }
 .toggle-input input[role="switch"] {
     margin-right: 12px;
@@ -276,15 +339,17 @@ input[role="switch"]:before {
     transition: transform .2s ease;
 }
 input[role="switch"]:checked {
-    background-color: black;
+    background-color: var(--accent-color);
 }
 input[role="switch"]:checked:before {
     transform: translateX(var(--toggle-size));
 }
-input[role="switch"]:not(:disabled):hover,
-input[role="switch"]:focus {
-    box-shadow: 0 0 5px var(--main-color);
-    outline: none;
+input[role="switch"]:not(:disabled):hover {
+    background-color: var(--light-color);
+}
+input[role="switch"]:not(:disabled):checked:hover {
+    background-color: var(--accent-color);
+    opacity: 0.86;
 }
 input[role="switch"]:disabled {
     background-color: var(--darker-gray);
@@ -299,40 +364,28 @@ input[role="switch"]:disabled {
     --arrow-color: var(--main-color);
     --arrow-size: 10px;
     --arrow-width: 10px;
-    --arrow-height: 1px;
-    --arrow-space: 0;
 
+    box-sizing: border-box;
     position: relative;
+    flex-shrink: 0;
     width: var(--arrow-size);
     height: var(--arrow-size);
     cursor: pointer;
-}
-.arrow:before,
-.arrow:after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: calc(50% - var(--arrow-height) / 2);
-    left: var(--arrow-space);
-    width: var(--arrow-width);
-    height: var(--arrow-height);
-    background-color: var(--arrow-color);
     transition: all 0.2s;
-    transform-origin: right center;
 }
-.arrow:before {
-    transform: rotate(35deg);
-}
-.arrow:after {
-    transform: rotate(-35deg);
-}
-.arrow:hover:before,
-.arrow:active:before {
-    transform: rotate(25deg);
-}
-.arrow:hover:after,
-.arrow:active:after {
-    transform: rotate(-25deg);
+.arrow::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--arrow-color);
+    mask-image: var(--chevron-icon);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: var(--arrow-width) var(--arrow-width);
+    transition: background-color 0.2s;
 }
 
 
@@ -344,36 +397,46 @@ input[role="switch"]:disabled {
     --close-color: var(--main-color);
     --close-size: 12px;
     --close-width: 12px;
-    --close-height: 1px;
 
+    box-sizing: border-box;
     position: relative;
+    flex-shrink: 0;
     width: var(--close-size);
     height: var(--close-size);
     cursor: pointer;
-}
-.close:before,
-.close:after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: calc(var(--close-size) / 2);
-    left: 0;
-    width: var(--close-width);
-    height: var(--close-height);
-    background-color: var(--close-color);
     transition: all 0.2s;
 }
-.close:before {
-    transform: rotate(45deg);
+.close::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--close-color);
+    mask-image: var(--close-icon);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: var(--close-width) var(--close-width);
+    transition: background-color 0.2s;
 }
-.close:after {
-    transform: rotate(-45deg);
-}
-.close:hover:before,
-.close:active:before {
-    transform: rotate(35deg);
-}
-.close:hover:after,
-.close:active:after {
-    transform: rotate(-35deg);
+
+
+
+/**
+ * Icon
+ */
+.svg-icon {
+    --icon-color: currentColor;
+    --icon-size: contain;
+
+    box-sizing: border-box;
+    display: block;
+    flex-shrink: 0;
+    background-color: var(--icon-color);
+    mask-image: var(--icon-image);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: var(--icon-size);
+    transition: background-color 0.2s;
 }
