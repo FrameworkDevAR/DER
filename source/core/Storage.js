@@ -1,5 +1,5 @@
-import Table from "./Table.js";
-import Group from "./Group.js";
+import Table from "../board/Table.js";
+import Group from "../board/Group.js";
 import Utils from "./Utils.js";
 
 

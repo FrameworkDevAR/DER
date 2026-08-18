@@ -2,8 +2,8 @@ import Table   from "./Table.js";
 import Link    from "./Link.js";
 import Group   from "./Group.js";
 import Zoom    from "./Zoom.js";
-import Options from "./Options.js";
-import Utils   from "./Utils.js";
+import Options from "../core/Options.js";
+import Utils   from "../core/Utils.js";
 
 
 

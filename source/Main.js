@@ -1,15 +1,15 @@
-import Selection from "./Selection.js";
-import Storage   from "./Storage.js";
-import Aside     from "./Aside.js";
-import Canvas    from "./Canvas.js";
-import Mode      from "./Mode.js";
-import Grouper   from "./Grouper.js";
-import Group     from "./Group.js";
-import Schema    from "./Schema.js";
-import Table     from "./Table.js";
-import Views     from "./Views.js";
-import Welcome   from "./Welcome.js";
-import Utils     from "./Utils.js";
+import Selection from "./dialogs/Selection.js";
+import Storage   from "./core/Storage.js";
+import Aside     from "./panel/Aside.js";
+import Canvas    from "./board/Canvas.js";
+import Mode      from "./core/Mode.js";
+import Grouper   from "./dialogs/Grouper.js";
+import Group     from "./board/Group.js";
+import Schema    from "./panel/Schema.js";
+import Table     from "./board/Table.js";
+import Views     from "./panel/Views.js";
+import Welcome   from "./dialogs/Welcome.js";
+import Utils     from "./core/Utils.js";
 
 
 // The Schema of the Framework, to try the app without one of your own

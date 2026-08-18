@@ -1,8 +1,8 @@
 import Field   from "./Field.js";
 import Link    from "./Link.js";
 import Group   from "./Group.js";
-import Options from "./Options.js";
-import Utils   from "./Utils.js";
+import Options from "../core/Options.js";
+import Utils   from "../core/Utils.js";
 
 
 

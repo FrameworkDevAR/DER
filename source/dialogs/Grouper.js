@@ -1,6 +1,6 @@
-import Group  from "./Group.js";
+import Group  from "../board/Group.js";
 import Dialog from "./Dialog.js";
-import Table  from "./Table.js";
+import Table  from "../board/Table.js";
 
 
 

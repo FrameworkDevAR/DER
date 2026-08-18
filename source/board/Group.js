@@ -1,5 +1,5 @@
 import Table from "./Table.js";
-import Utils from "./Utils.js";
+import Utils from "../core/Utils.js";
 
 
 
@@ -277,7 +277,7 @@ export default class Group {
         }
 
         const isPlaced = this.isFullInCanvas;
-        const title    = isPlaced ? "Remove the group from the board" : "Add the group to the board";
+        const title    = isPlaced ? "Remove from the board" : "Add to the board";
 
         this.#listButton.title          = title;
         this.#listButton.ariaLabel      = title;
