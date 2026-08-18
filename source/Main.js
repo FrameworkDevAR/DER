@@ -701,11 +701,12 @@ document.addEventListener("click", (e) => {
             break;
         case "show-group":
             // Picking a Group only shows it on the board, and the click that
-            // finds it already picked is the one that opens or closes it
-            if (canvas.isGroupSelected(group)) {
+            // finds it already picked is the one that opens or closes it. With
+            // a key held the Group joins the selection instead of taking it
+            if (!specialKey && canvas.isGroupSelected(group)) {
                 toggleGroup(group);
             }
-            canvas.showGroup(group);
+            canvas.showGroup(group, specialKey);
             break;
         case "edit-group":
             openGroupDialog(group);
@@ -849,7 +850,7 @@ document.addEventListener("mousedown", (e) => {
     case "drag-group":
         const group = schema.getGroup(target);
         if (group) {
-            canvas.pickGroup(e, group);
+            canvas.pickGroup(e, group, specialKey);
             expandGroup(group);
             e.preventDefault();
         }

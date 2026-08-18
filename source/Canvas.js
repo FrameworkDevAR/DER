@@ -615,12 +615,13 @@ export default class Canvas {
 
     /**
      * Shows the given Group
-     * @param {Group} group
+     * @param {Group}    group
+     * @param {Boolean=} addToSelection
      * @returns {Void}
      */
-    showGroup(group) {
+    showGroup(group, addToSelection = false) {
         this.scrollToGroup(group);
-        this.selectGroup(group);
+        this.selectGroup(group, addToSelection);
     }
 
     /**
@@ -652,12 +653,16 @@ export default class Canvas {
     }
 
     /**
-     * Selects the given Group
-     * @param {Group} group
+     * Selects the given Group, which is a way of picking every Table it
+     * gathers at once, and adds them to the selection when asked
+     * @param {Group}    group
+     * @param {Boolean=} addToSelection
      * @returns {Void}
      */
-    selectGroup(group) {
-        this.unselect();
+    selectGroup(group, addToSelection = false) {
+        if (!addToSelection) {
+            this.unselect();
+        }
         for (const table of group.tables) {
             if (table.onCanvas) {
                 this.selection[table.name] = table;
@@ -881,15 +886,16 @@ export default class Canvas {
      * Picks a Group
      * @param {MouseEvent} event
      * @param {Group}      group
+     * @param {Boolean=}   addToSelection
      * @returns {Void}
      */
-    pickGroup(event, group) {
+    pickGroup(event, group, addToSelection = false) {
         if (this.isScrolling || this.isSelecting || this.isDragging) {
             return;
         }
         group.pick();
         this.scrollToList(group);
-        this.selectGroup(group);
+        this.selectGroup(group, addToSelection);
         this.startDrag(event);
     }
 
