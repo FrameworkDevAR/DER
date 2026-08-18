@@ -1,9 +1,9 @@
 import Table   from "./Table.js";
 import Link    from "./Link.js";
 import Group   from "./Group.js";
+import Picker  from "./Picker.js";
+import Pointer from "./Pointer.js";
 import Zoom    from "./Zoom.js";
-import Options from "../core/Options.js";
-import Utils   from "../core/Utils.js";
 
 
 
@@ -15,11 +15,14 @@ export default class Canvas {
     /** @type {Zoom} */
     zoom;
 
-    /** @type {Object.<String, Table>} */
-    #tables = {};
+    /** @type {Picker} */
+    picker;
+
+    /** @type {Pointer} */
+    pointer;
 
     /** @type {Object.<String, Table>} */
-    #schemaTables = {};
+    #tables = {};
 
     /** @type {Link[]} */
     #links = [];
@@ -35,58 +38,50 @@ export default class Canvas {
     /** @type {DOMRect} */
     #bounds;
 
-    /** @type {HTMLElement} */
-    #selector;
-
-    /** @type {Object.<String, Table>} */
-    selection;
-
 
     /**
      * Canvas constructor
      */
     constructor() {
-        this.#canvas       = document.querySelector(".canvas");
-        this.#container    = this.#canvas.parentElement;
-        this.#bounds       = this.#container.getBoundingClientRect();
-        this.#selector     = document.querySelector(".selector");
+        this.#canvas    = document.querySelector(".canvas");
+        this.#container = this.#canvas.parentElement;
+        this.#bounds    = this.#container.getBoundingClientRect();
 
-        // Zoom
-        this.zoom          = new Zoom(this.#canvas);
-
-        // Scroll
-        this.isScrolling   = false;
-
-        // Selection
-        this.selection      = {};
-        this.selectedGroups = [];
-        this.listTable      = null;
-        this.isSelecting    = false;
-        this.isDragging     = false;
-        this.isMoving       = false;
+        this.zoom       = new Zoom(this.#canvas);
+        this.picker     = new Picker(this);
+        this.pointer    = new Pointer(this, this.picker);
     }
 
     /**
-     * Keeps the Tables of the Schema, to fade in the list the ones the
-     * selection does not reach, placed on the board or not
-     * @param {Object.<String, Table>} tables
-     * @returns {Void}
+     * Returns the Tables on the board, for whoever has to walk them
+     * @returns {Object.<String, Table>}
      */
-    setSchemaTables(tables) {
-        this.#schemaTables = tables;
+    get tables() {
+        return this.#tables;
     }
 
     /**
-     * Fades in the list every Table that the selection does not touch
-     * @returns {Void}
+     * Returns the Links drawn between them
+     * @returns {Link[]}
      */
-    markListSelection() {
-        const selected = this.listTable ? [ this.listTable ] : this.selectedTables;
+    get links() {
+        return this.#links;
+    }
 
-        for (const table of Object.values(this.#schemaTables)) {
-            const isLinked = !selected.length || selected.some((one) => one.isLinkedTo(table));
-            table.dimInList(!isLinked);
-        }
+    /**
+     * Returns the element the board is scrolled in
+     * @returns {HTMLElement}
+     */
+    get container() {
+        return this.#container;
+    }
+
+    /**
+     * Returns what the board takes up of the window
+     * @returns {DOMRect}
+     */
+    get bounds() {
+        return this.#bounds;
     }
 
     /**
@@ -148,15 +143,11 @@ export default class Canvas {
         this.#links        = [];
         this.#groups       = {};
 
-        // What was selected belongs to the board being thrown away, and its
+        // What was picked belongs to the board being thrown away, and its
         // Tables are gone from the list by the time anything unselects them
-        this.selection      = {};
-        this.selectedGroups = [];
-        this.listTable      = null;
+        this.picker.reset();
         this.center();
     }
-
-
 
     /**
      * Returns all the Tables with the given names
@@ -252,7 +243,7 @@ export default class Canvas {
     removeGroup(group) {
         group.removeFromCanvas();
         delete this.#groups[group.id];
-        this.selectedGroups = this.selectedGroups.filter((one) => !one.isEqual(group));
+        this.picker.forgetGroup(group);
     }
 
     /**
@@ -290,8 +281,6 @@ export default class Canvas {
             link.connect();
         }
     }
-
-
 
     /**
      * Returns the current scroll
@@ -374,168 +363,6 @@ export default class Canvas {
         );
     }
 
-
-
-    /**
-     * Picks the Scroll
-     * @param {MouseEvent} event
-     * @returns {Void}
-     */
-    pickScroll(event) {
-        if (this.isScrolling || this.isSelecting || this.isDragging) {
-            return;
-        }
-        this.isScrolling = true;
-        this.startMouse  = Utils.getMousePos(event);
-    }
-
-    /**
-     * Drags the Scroll
-     * @param {MouseEvent} event
-     * @returns {Boolean}
-     */
-    dragScroll(event) {
-        if (!this.isScrolling) {
-            return false;
-        }
-        const currMouse = Utils.getMousePos(event);
-        const top       = this.scroll.top  - (currMouse.top  - this.startMouse.top);
-        const left      = this.scroll.left - (currMouse.left - this.startMouse.left);
-        this.startMouse = Utils.getMousePos(event);
-        this.#container.scrollTo(left, top);
-        return true;
-    }
-
-    /**
-     * Drops the Scroll
-     * @returns {Boolean}
-     */
-    dropScroll() {
-        if (!this.isScrolling) {
-            return false;
-        }
-        this.isScrolling = false;
-        return true;
-    }
-
-
-
-    /**
-     * Returns true if there are Selected Tables
-     * @returns {Boolean}
-     */
-    get hasSelection() {
-        return Object.values(this.selection).length > 0;
-    }
-
-    /**
-     * Returns the Selected Tables
-     * @returns {Table[]}
-     */
-    get selectedTables() {
-        return Object.values(this.selection);
-    }
-
-    /**
-     * Returns the Selected Group, or the Group the selection starts in. The
-     * first one picked is the one being edited, and Tables from another Group
-     * are ones it is about to gain
-     * @returns {?Group}
-     */
-    get currentGroup() {
-        if (this.selectedGroups.length) {
-            return this.selectedGroups[0];
-        }
-        if (this.hasSelection) {
-            for (const table of this.selectedTables) {
-                if (table.group) {
-                    return table.group;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Stops the unselect
-     * @returns {Void}
-     */
-    stopUnselect() {
-        this.dontUnselect = true;
-    }
-
-    /**
-     * Returns true if the tables should unselect
-     * @param {MouseEvent} event
-     * @returns {Boolean}
-     */
-    shouldUnselect(event) {
-        if (this.dontUnselect) {
-            this.dontUnselect = false;
-            return false;
-        }
-
-        const target = Utils.getClosest(event, "aside", "backdrop", "zoom");
-        if (target) {
-            return false;
-        }
-
-        const mouse = Utils.getMousePos(event);
-        return Utils.inBounds(mouse, this.#bounds);
-    }
-
-    /**
-     * Selects the given Table from the List
-     * @param {Table} table
-     * @returns {Void}
-     */
-    selectTableFromList(table, addToSelection = false) {
-        if (addToSelection && this.isSelected(table)) {
-            this.#unselectTable(table);
-            return;
-        }
-        this.scrollToTable(table);
-        this.#selectTable(table, addToSelection);
-    }
-
-    /**
-     * Returns true if the given Table is part of the selection
-     * @param {Table} table
-     * @returns {Boolean}
-     */
-    isSelected(table) {
-        return Boolean(this.selection[table.name]);
-    }
-
-    /**
-     * Returns true if the given Group is the selected one
-     * @param {Group} group
-     * @returns {Boolean}
-     */
-    isGroupSelected(group) {
-        return this.selectedGroups.some((one) => one.isEqual(group));
-    }
-
-    /**
-     * Selects a Table that is not on the Canvas: nothing to select there, so
-     * the board only dims what the Table does not reach
-     * @param {Table} table
-     * @returns {Void}
-     */
-    selectTableOffCanvas(table) {
-        this.unselect();
-        this.stopUnselect();
-
-        for (const other of Object.values(this.#tables)) {
-            if (!table.isLinkedTo(other)) {
-                other.disable();
-            }
-        }
-        table.selectInList();
-        this.listTable = table;
-        this.markListSelection();
-    }
-
     /**
      * Scrolls the Canvas to the given Table, centered on what the Aside
      * leaves free rather than on the whole window
@@ -558,62 +385,6 @@ export default class Canvas {
     }
 
     /**
-     * Selects the given Table from the Canvas
-     * @param {Table}    table
-     * @param {Boolean=} addToSelection
-     * @returns {Void}
-     */
-    selectTableFromCanvas(table, addToSelection = false) {
-        if (addToSelection && this.isSelected(table)) {
-            this.#unselectTable(table);
-            return;
-        }
-
-        // The Group it belongs to is opened by whoever asked for the selection,
-        // so the row is on screen and there is no need to mark the Group instead
-        this.scrollToList(table);
-        this.#selectTable(table, addToSelection);
-    }
-
-    /**
-     * Selects the given Table internally
-     * @param {Table}    table
-     * @param {Boolean=} addToSelection
-     * @returns {Void}
-     */
-    #selectTable(table, addToSelection = false) {
-        this.stopUnselect();
-        if (!addToSelection) {
-            this.unselect();
-        }
-        this.selection[table.name] = table;
-        this.trySelectGroup();
-        this.markSelection();
-    }
-
-    /**
-     * Takes the given Table out of the selection, leaving the rest of it alone
-     * @param {Table} table
-     * @returns {Void}
-     */
-    #unselectTable(table) {
-        this.stopUnselect();
-
-        // The last one out takes the whole selection with it, so that nothing
-        // is left dimmed with no Table selected
-        if (this.selectedTables.length <= 1) {
-            this.unselect();
-            return;
-        }
-
-        delete this.selection[table.name];
-        table.unselect();
-        table.removeColors();
-        this.trySelectGroup();
-        this.markSelection();
-    }
-
-    /**
      * Shows the given Group
      * @param {Group}    group
      * @param {Boolean=} addToSelection
@@ -621,7 +392,7 @@ export default class Canvas {
      */
     showGroup(group, addToSelection = false) {
         this.scrollToGroup(group);
-        this.selectGroup(group, addToSelection);
+        this.picker.selectGroup(group, addToSelection);
     }
 
     /**
@@ -650,314 +421,5 @@ export default class Canvas {
             : (group.top + group.height / 2) * scale - height / 2;
 
         this.#container.scrollTo({ left, top, behavior : "smooth" });
-    }
-
-    /**
-     * Selects the given Group, which is a way of picking every Table it
-     * gathers at once, and adds them to the selection when asked
-     * @param {Group}    group
-     * @param {Boolean=} addToSelection
-     * @returns {Void}
-     */
-    selectGroup(group, addToSelection = false) {
-        if (!addToSelection) {
-            this.unselect();
-        }
-        for (const table of group.tables) {
-            if (table.onCanvas) {
-                this.selection[table.name] = table;
-            }
-        }
-
-        // This Group, and any other the selection already covered whole
-        this.trySelectGroup();
-        this.markSelection();
-        this.stopUnselect();
-    }
-
-    /**
-     * Selects every Group the selection covers whole, since a Group is picked
-     * by having every one of its Tables on the board picked
-     * @returns {Void}
-     */
-    trySelectGroup() {
-        this.unselectGroup();
-
-        // In the order they were picked, so the first one is the one a Dialog
-        // takes as the Group being edited
-        const groups = [];
-        for (const table of this.selectedTables) {
-            if (table.group && !groups.some((one) => one.isEqual(table.group))) {
-                groups.push(table.group);
-            }
-        }
-
-        for (const group of groups) {
-            if (group.canvasTables.every((table) => this.isSelected(table))) {
-                this.selectedGroups.push(group.select());
-            }
-        }
-    }
-
-    /**
-     * Marks the selected Tables
-     * @returns {Void}
-     */
-    markSelection() {
-        // Disable all the Tables
-        for (const otherTable of Object.values(this.#tables)) {
-            otherTable.disable();
-            otherTable.removeColors();
-        }
-
-        // Disable all the Links
-        for (const link of this.#links) {
-            link.disable();
-        }
-
-        // Add colors to the Links and Fields
-        let   lastColor = 0;
-        const colors    = {};
-        for (const link of this.#links) {
-            for (const selectedTable of this.selectedTables) {
-                if (link.isLinkedTo(selectedTable)) {
-                    const field = link.getFieldName(selectedTable);
-                    if (!colors[field]) {
-                        colors[field] = lastColor + 1;
-                        lastColor     = (lastColor + 1) % Options.COLOR_AMOUNT;
-                    }
-                    link.toTable.unselect();
-                    link.fromTable.unselect();
-                    link.fromField.setColor(colors[field]);
-                    link.toField.setColor(colors[field]);
-                    link.setColor(colors[field]);
-                }
-            }
-        }
-
-        // Select the Table
-        for (const selectedTable of this.selectedTables) {
-            selectedTable.select();
-        }
-        this.markListSelection();
-    }
-
-    /**
-     * Unselects the selected Tables/Group
-     * @returns {Void}
-     */
-    unselect() {
-        if (this.listTable) {
-            this.listTable.unselect();
-            this.listTable = null;
-            for (const table of Object.values(this.#tables)) {
-                table.unselect();
-            }
-        }
-        if (!this.hasSelection) {
-            this.markListSelection();
-            return;
-        }
-        for (const table of Object.values(this.#tables)) {
-            table.unselect();
-            table.removeColors();
-        }
-        for (const link of this.#links) {
-            link.unselect();
-        }
-        this.selection = {};
-        this.unselectGroup();
-        this.markListSelection();
-    }
-
-    /**
-     * Unselects the selected Group
-     * @returns {Void}
-     */
-    unselectGroup() {
-        for (const group of this.selectedGroups) {
-            group.unselect();
-        }
-        this.selectedGroups = [];
-    }
-
-
-
-    /**
-     * Picks the Selector
-     * @param {MouseEvent} event
-     * @returns {Void}
-     */
-    pickSelector(event) {
-        if (this.isScrolling || this.isSelecting || this.isDragging) {
-            return;
-        }
-        this.isSelecting = true;
-        this.isMoving    = false;
-        this.startMouse  = Utils.getMousePos(event);
-    }
-
-    /**
-     * Drags the Selector
-     * @param {MouseEvent} event
-     * @returns {Boolean}
-     */
-    dragSelector(event) {
-        if (!this.isSelecting) {
-            return false;
-        }
-        const currMouse = Utils.getMousePos(event);
-        if (!this.isMoving) {
-            if (Utils.dist(this.startMouse, currMouse) < 20) {
-                return true;
-            }
-            this.isMoving = true;
-            this.#selector.style.display = "block";
-        }
-        const bounds = Utils.createBounds(this.startMouse, currMouse);
-        this.#selector.style.top    = `${bounds.top}px`;
-        this.#selector.style.left   = `${bounds.left}px`;
-        this.#selector.style.width  = `${bounds.width}px`;
-        this.#selector.style.height = `${bounds.height}px`;
-        return true;
-    }
-
-    /**
-     * Drops the Selector
-     * @param {MouseEvent} event
-     * @returns {Boolean}
-     */
-    dropSelector(event) {
-        if (!this.isSelecting) {
-            return false;
-        }
-        this.isSelecting = false;
-        if (!this.isMoving) {
-            return false;
-        }
-
-        this.isMoving = false;
-        this.#selector.style.display = "none";
-
-        const currMouse = Utils.getMousePos(event);
-        const bounds    = Utils.createBounds(this.startMouse, currMouse);
-
-        this.unselect();
-        for (const table of Object.values(this.#tables)) {
-            if (Utils.intersectsBounds(bounds, table.bounds)) {
-                this.selection[table.name] = table;
-            }
-        }
-        if (this.hasSelection) {
-            this.stopUnselect();
-            this.trySelectGroup();
-            this.markSelection();
-        }
-        return true;
-    }
-
-
-
-    /**
-     * Picks a Table
-     * @param {MouseEvent} event
-     * @param {Table}      table
-     * @param {Boolean=}   addToSelection
-     * @returns {Void}
-     */
-    pickTable(event, table, addToSelection = false) {
-        if (this.isScrolling || this.isSelecting || this.isDragging) {
-            return;
-        }
-        if (addToSelection && this.isSelected(table)) {
-            this.#unselectTable(table);
-            return;
-        }
-        // Picking one Table of a selected Group narrows the selection down to
-        // it, the whole Group being what its own header is there to pick
-        if (!this.isSelected(table) || this.selectedGroups.length) {
-            this.scrollToList(table);
-            this.#selectTable(table, addToSelection);
-        }
-        this.startDrag(event);
-    }
-
-    /**
-     * Picks a Group
-     * @param {MouseEvent} event
-     * @param {Group}      group
-     * @param {Boolean=}   addToSelection
-     * @returns {Void}
-     */
-    pickGroup(event, group, addToSelection = false) {
-        if (this.isScrolling || this.isSelecting || this.isDragging) {
-            return;
-        }
-        group.pick();
-        this.scrollToList(group);
-        this.selectGroup(group, addToSelection);
-        this.startDrag(event);
-    }
-
-    /**
-     * Starts the Drag
-     * @param {MouseEvent} event
-     * @returns {Void}
-     */
-    startDrag(event) {
-        this.stopUnselect();
-        this.isDragging = true;
-        this.startMouse = Utils.getMousePos(event);
-        this.startPos   = {};
-        for (const selectedTable of this.selectedTables) {
-            this.startPos[selectedTable.name] = selectedTable.pos;
-            selectedTable.pick();
-        }
-    }
-
-    /**
-     * Drags the Table
-     * @param {MouseEvent} event
-     * @returns {Boolean}
-     */
-    dragTable(event) {
-        if (!this.isDragging) {
-            return false;
-        }
-
-        const scale     = this.zoom.scale;
-        const currMouse = Utils.getMousePos(event);
-
-        for (const selectedTable of this.selectedTables) {
-            const startPos = this.startPos[selectedTable.name];
-            selectedTable.translate({
-                top  : startPos.top  + (currMouse.top  - this.startMouse.top)  / scale,
-                left : startPos.left + (currMouse.left - this.startMouse.left) / scale,
-            });
-            this.reconnect(selectedTable);
-            if (selectedTable.group) {
-                selectedTable.group.position();
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Drops the Table
-     * @returns {Boolean}
-     */
-    dropTable() {
-        if (!this.isDragging) {
-            return false;
-        }
-        for (const selectedTable of this.selectedTables) {
-            selectedTable.drop();
-            this.reconnect(selectedTable);
-        }
-        for (const group of this.selectedGroups) {
-            group.drop();
-        }
-        this.isDragging = false;
-        return true;
     }
 }

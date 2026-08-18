@@ -11,8 +11,6 @@ export default class Zoom {
 
     /** @type {HTMLElement} */
     #canvas;
-    /** @type {HTMLElement} */
-    #main;
 
     /** @type {HTMLElement} */
     #text;
@@ -28,7 +26,6 @@ export default class Zoom {
      */
     constructor(canvas) {
         this.#canvas = canvas;
-        this.#main   = document.querySelector("main");
         this.#text   = document.querySelector(".zoom-percent");
         this.#inBtn  = document.querySelector(".zoom-in");
         this.#outBtn = document.querySelector(".zoom-out");
