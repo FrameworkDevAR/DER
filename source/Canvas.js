@@ -58,12 +58,12 @@ export default class Canvas {
         this.isScrolling   = false;
 
         // Selection
-        this.selection     = {};
-        this.selectedGroup = null;
-        this.listTable     = null;
-        this.isSelecting   = false;
-        this.isDragging    = false;
-        this.isMoving      = false;
+        this.selection      = {};
+        this.selectedGroups = [];
+        this.listTable      = null;
+        this.isSelecting    = false;
+        this.isDragging     = false;
+        this.isMoving       = false;
     }
 
     /**
@@ -150,9 +150,9 @@ export default class Canvas {
 
         // What was selected belongs to the board being thrown away, and its
         // Tables are gone from the list by the time anything unselects them
-        this.selection     = {};
-        this.selectedGroup = null;
-        this.listTable     = null;
+        this.selection      = {};
+        this.selectedGroups = [];
+        this.listTable      = null;
         this.center();
     }
 
@@ -252,9 +252,7 @@ export default class Canvas {
     removeGroup(group) {
         group.removeFromCanvas();
         delete this.#groups[group.id];
-        if (this.selectedGroup && this.selectedGroup.isEqual(group)) {
-            this.selectedGroup = null;
-        }
+        this.selectedGroups = this.selectedGroups.filter((one) => !one.isEqual(group));
     }
 
     /**
@@ -445,8 +443,8 @@ export default class Canvas {
      * @returns {?Group}
      */
     get currentGroup() {
-        if (this.selectedGroup) {
-            return this.selectedGroup;
+        if (this.selectedGroups.length) {
+            return this.selectedGroups[0];
         }
         if (this.hasSelection) {
             for (const table of this.selectedTables) {
@@ -515,7 +513,7 @@ export default class Canvas {
      * @returns {Boolean}
      */
     isGroupSelected(group) {
-        return Boolean(this.selectedGroup) && this.selectedGroup.isEqual(group);
+        return this.selectedGroups.some((one) => one.isEqual(group));
     }
 
     /**
@@ -660,35 +658,39 @@ export default class Canvas {
      */
     selectGroup(group) {
         this.unselect();
-        this.selectedGroup = group.select();
         for (const table of group.tables) {
             if (table.onCanvas) {
                 this.selection[table.name] = table;
             }
         }
+
+        // This Group, and any other the selection already covered whole
+        this.trySelectGroup();
         this.markSelection();
         this.stopUnselect();
     }
 
     /**
-     * Tries to select a group if all the tables are part of it
+     * Selects every Group the selection covers whole, since a Group is picked
+     * by having every one of its Tables on the board picked
      * @returns {Void}
      */
     trySelectGroup() {
         this.unselectGroup();
-        let group;
-        for (const selectedTable of this.selectedTables) {
-            if (!selectedTable.group) {
-                return;
-            }
-            if (!group) {
-                group = selectedTable.group;
-            } else if (!selectedTable.group.isEqual(group)) {
-                return;
+
+        // In the order they were picked, so the first one is the one a Dialog
+        // takes as the Group being edited
+        const groups = [];
+        for (const table of this.selectedTables) {
+            if (table.group && !groups.some((one) => one.isEqual(table.group))) {
+                groups.push(table.group);
             }
         }
-        if (group.canvasTables.length === this.selectedTables.length) {
-            this.selectedGroup = group.select();
+
+        for (const group of groups) {
+            if (group.canvasTables.every((table) => this.isSelected(table))) {
+                this.selectedGroups.push(group.select());
+            }
         }
     }
 
@@ -768,9 +770,10 @@ export default class Canvas {
      * @returns {Void}
      */
     unselectGroup() {
-        if (this.selectedGroup) {
-            this.selectedGroup = this.selectedGroup.unselect();
+        for (const group of this.selectedGroups) {
+            group.unselect();
         }
+        this.selectedGroups = [];
     }
 
 
@@ -867,7 +870,7 @@ export default class Canvas {
         }
         // Picking one Table of a selected Group narrows the selection down to
         // it, the whole Group being what its own header is there to pick
-        if (!this.isSelected(table) || this.selectedGroup) {
+        if (!this.isSelected(table) || this.selectedGroups.length) {
             this.scrollToList(table);
             this.#selectTable(table, addToSelection);
         }
@@ -945,8 +948,8 @@ export default class Canvas {
             selectedTable.drop();
             this.reconnect(selectedTable);
         }
-        if (this.selectedGroup) {
-            this.selectedGroup.drop();
+        for (const group of this.selectedGroups) {
+            group.drop();
         }
         this.isDragging = false;
         return true;
