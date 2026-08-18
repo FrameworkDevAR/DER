@@ -16,6 +16,10 @@ import Table  from "./Table.js";
     /** @type {HTMLElement} */
     #checks;
     /** @type {HTMLElement} */
+    #adding;
+    /** @type {HTMLElement} */
+    #added;
+    /** @type {HTMLElement} */
     #remove;
     /** @type {HTMLButtonElement} */
     #prefix;
@@ -34,6 +38,8 @@ import Table  from "./Table.js";
         this.#empty        = this.groupDialog.getElement(".group-empty");
         this.#content      = this.groupDialog.getElement(".group-content");
         this.#checks       = this.groupDialog.getElement(".group-tables");
+        this.#adding       = this.groupDialog.getElement(".group-adding");
+        this.#added        = this.groupDialog.getElement(".group-added");
         this.#remove       = this.groupDialog.getElement(".group-remove");
         this.#prefix       = this.groupDialog.getElement(".group-prefix");
 
@@ -70,19 +76,39 @@ import Table  from "./Table.js";
         this.#remove.style.display  = this.isEdit ? "block" : "none";
 
         const tables = {};
+        let   adding = 0;
         this.inputs  = [];
         this.#checks.innerHTML = "";
+        this.#added.innerHTML  = "";
+
+        const picked = {};
+        for (const table of selectedTables) {
+            picked[table.name] = true;
+        }
+
         if (this.isEdit) {
+            // Letting go of a Table of the Group is how it is dropped, so one
+            // left out of the selection comes unticked. With the Group not in
+            // the selection at all nothing was let go of, and a Table off the
+            // board could not have been
+            const isPicked = group.tables.some((table) => picked[table.name]);
+
             for (const table of group.tables) {
-                this.createCheckbox(table, true);
+                const isChecked = !isPicked || !table.onCanvas || Boolean(picked[table.name]);
+                this.createCheckbox(this.#checks, table, isChecked);
                 tables[table.name] = true;
             }
         }
+
+        // The selected Tables the Group does not hold are the ones about to
+        // join it, asked for on their own so it is plain what is arriving
         for (const table of selectedTables) {
             if (!tables[table.name]) {
-                this.createCheckbox(table, !this.isEdit);
+                this.createCheckbox(this.isEdit ? this.#added : this.#checks, table, true);
+                adding += 1;
             }
         }
+        this.#adding.style.display = this.isEdit && adding ? "flex" : "none";
 
         this.groupDialog.open();
     }
@@ -119,11 +145,12 @@ import Table  from "./Table.js";
 
     /**
      * Creates a Checkbox Input
-     * @param {Table}   table
-     * @param {Boolean} isChecked
+     * @param {HTMLElement} container
+     * @param {Table}       table
+     * @param {Boolean}     isChecked
      * @returns {Void}
      */
-    createCheckbox(table, isChecked) {
+    createCheckbox(container, table, isChecked) {
         const check = document.createElement("label");
         check.className = "checkbox-input";
 
@@ -138,7 +165,7 @@ import Table  from "./Table.js";
         const div = document.createElement("div");
         div.innerText = table.name;
         check.appendChild(div);
-        this.#checks.appendChild(check);
+        container.appendChild(check);
     }
 
     /**
@@ -157,23 +184,15 @@ import Table  from "./Table.js";
             return null;
         }
 
-        const tableNames  = [];
-        const tableErrors = [];
+        // A Table that is in another Group is not an error, it leaves that one
+        // for this, and the Group it came from is told after
+        const tableNames = [];
         for (const input of this.inputs) {
             if (input.checked && tables[input.value]) {
-                const table = tables[input.value];
-                if (table.group && table.group.id !== this.groupID) {
-                    tableErrors.push(table.name);
-                } else {
-                    tableNames.push(table.name);
-                }
+                tableNames.push(input.value);
             }
         }
-        if (tableErrors.length) {
-            const message = tableErrors.length === 1 ? `The table '${tableErrors[0]}' is in another group.` : `The tables '${tableErrors.join("' , '")}' are in another group.`;
-            this.groupDialog.showError("repeated", message);
-            return null;
-        } else if (!tableNames.length) {
+        if (!tableNames.length) {
             this.groupDialog.showError("table");
             return null;
         }

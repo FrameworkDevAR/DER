@@ -439,26 +439,23 @@ export default class Canvas {
     }
 
     /**
-     * Returns the Selected Group or the Group of the selected Tables
+     * Returns the Selected Group, or the Group the selection starts in. The
+     * first one picked is the one being edited, and Tables from another Group
+     * are ones it is about to gain
      * @returns {?Group}
      */
     get currentGroup() {
-        let result = null;
         if (this.selectedGroup) {
             return this.selectedGroup;
         }
         if (this.hasSelection) {
             for (const table of this.selectedTables) {
                 if (table.group) {
-                    if (!result) {
-                        result = table.group;
-                    } else if (!result.isEqual(table.group)) {
-                        return null;
-                    }
+                    return table.group;
                 }
             }
         }
-        return result;
+        return null;
     }
 
     /**

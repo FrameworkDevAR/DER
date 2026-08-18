@@ -28,7 +28,7 @@ export default class Group {
     /** @type {HTMLElement} */
     #listTables;
 
-    /** @type {HTMLElement} */
+    /** @type {?HTMLElement} */
     #canvasElem;
     /** @type {HTMLElement} */
     #canvasHeader;

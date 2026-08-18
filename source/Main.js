@@ -443,6 +443,53 @@ function groupByPrefix() {
 }
 
 /**
+ * Adds or edits a Group with the Tables the Dialog gives it
+ * @param {Object} data
+ * @returns {Void}
+ */
+function updateGroup(data) {
+    // A Table can only be in one Group, so the ones it is taking are asked to
+    // leave the Group they are in first, since a Group that is left with
+    // nothing goes away and the Tables it still holds have to be told
+    for (const old of losingGroups(data)) {
+        const tables = old.tables.filter((table) => !data.tables.includes(table.name));
+        if (tables.length) {
+            old.update(old.name, tables);
+            storage.setGroup(old);
+        } else {
+            schema.removeGroup(old);
+            canvas.removeGroup(old);
+            storage.removeGroup(old.id);
+        }
+    }
+
+    const group = schema.setGroup(data);
+    canvas.addGroup(group);
+    canvas.selectGroup(group);
+    storage.setGroup(group);
+    if (!data.isEdit) {
+        storage.addGroup(group);
+    }
+    updateBoard();
+}
+
+/**
+ * Returns the Groups the given one takes a Table from, each of them once
+ * @param {Object} data
+ * @returns {Group[]}
+ */
+function losingGroups(data) {
+    const groups = {};
+    for (const name of data.tables) {
+        const table = schema.tables[name];
+        if (table && table.group && table.group.id !== data.id) {
+            groups[table.group.id] = table.group;
+        }
+    }
+    return Object.values(groups);
+}
+
+/**
  * Opens the Group Dialog
  * @param {Group?} group
  * @returns {Void}
@@ -581,13 +628,7 @@ document.addEventListener("click", (e) => {
     case "update-group":
         const data = grouper.updateGroup(schema.tables);
         if (data) {
-            const group = schema.setGroup(data);
-            canvas.addGroup(group);
-            canvas.selectGroup(group);
-            storage.setGroup(group);
-            if (!data.isEdit) {
-                storage.addGroup(group);
-            }
+            updateGroup(data);
         }
         break;
     case "open-remove":
