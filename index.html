@@ -22,7 +22,7 @@
                         <span class="aside-title">DER</span>
                         <i class="aside-caret arrow"></i>
                     </h1>
-                    <div class="aside-arrow arrow" data-action="toggle-aside" title="Collapse the panel"></div>
+                    <div class="aside-arrow arrow" data-action="toggle-aside" data-tip="Collapse the panel" data-tip-top aria-label="Collapse the panel"></div>
                 </header>
 
                 <section class="schema-filter">
@@ -90,18 +90,17 @@
 
         <aside class="views">
             <ol></ol>
-            <button class="btn btn-small views-add" data-action="open-view" title="Add a View">+</button>
+            <button class="btn btn-small views-add" data-action="open-view" data-tip="Add a view" data-tip-top aria-label="Add a view">+</button>
         </aside>
 
         <div class="selector"></div>
         <div class="toast"></div>
+        <div class="tooltip" popover="manual"></div>
 
         <aside class="summary">
             <div class="summary-text"></div>
             <button class="btn btn-small" data-action="open-group">Create group</button>
-            <span class="summary-clear" data-tip="Clear selection" data-tip-top>
-                <a href="#" class="close" data-action="clear-selection" aria-label="Clear selection"></a>
-            </span>
+            <a href="#" class="close" data-action="clear-selection" data-tip="Clear selection" data-tip-top aria-label="Clear selection"></a>
         </aside>
 
 

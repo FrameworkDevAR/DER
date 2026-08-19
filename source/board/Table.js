@@ -250,6 +250,11 @@ export default class Table {
 
         this.#listButton.className      = "btn btn-small";
         this.#listButton.dataset.table  = this.name;
+        this.#listButton.dataset.tipTop = "";
+
+        // The row tells what the Table is about in a title of its own, which
+        // would show through the button on top of the tip the button has
+        this.#listButton.title          = "";
 
         this.#listInner.dataset.action = "select-list-table";
         this.setListButton();
@@ -268,7 +273,7 @@ export default class Table {
     setListButton() {
         const title = this.onCanvas ? "Remove from board" : "Add to board";
 
-        this.#listButton.title          = title;
+        this.#listButton.dataset.tip    = title;
         this.#listButton.ariaLabel      = title;
         this.#listButton.dataset.action = this.onCanvas ? "remove-table" : "add-table";
         this.#listButton.classList.toggle("btn-placed", this.onCanvas);

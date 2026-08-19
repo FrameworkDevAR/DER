@@ -19,6 +19,8 @@ export default class Aside {
     #list;
     /** @type {HTMLElement} */
     #toggle;
+    /** @type {HTMLElement} */
+    #arrow;
 
 
     /**
@@ -31,6 +33,7 @@ export default class Aside {
         this.#clear   = document.querySelector("[data-action='clear-board']");
         this.#list    = document.querySelector(".schema-list");
         this.#toggle  = document.querySelector(".schema-toggle");
+        this.#arrow   = document.querySelector(".aside-arrow");
         this.width    = Options.INITIAL_WIDTH;
 
         // The fade follows the height of the list as much as the scroll, and
@@ -83,8 +86,12 @@ export default class Aside {
      * @returns {Void}
      */
     setCollapsed(isCollapsed) {
+        const tip = isCollapsed ? "Open the panel" : "Collapse the panel";
+
         this.isCollapsed = isCollapsed;
         this.#aside.classList.toggle("aside-collapsed", isCollapsed);
+        this.#arrow.dataset.tip = tip;
+        this.#arrow.setAttribute("aria-label", tip);
         this.setCenter();
     }
 

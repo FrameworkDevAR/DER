@@ -308,6 +308,7 @@ document.querySelector(".schema-filter input").addEventListener("input", () => {
  */
 document.querySelector(".schema-list").addEventListener("scroll", () => {
     App.aside.setListFade();
+    App.tooltip.hide();
 });
 
 /**
@@ -323,9 +324,18 @@ document.querySelector("main").addEventListener("scroll", () => {
 });
 
 /**
+ * The Tooltip Event Handler
+ */
+document.addEventListener("mouseover", (e) => {
+    App.tooltip.follow(e);
+});
+
+/**
  * The Pick Event Handler
  */
 document.addEventListener("mousedown", (e) => {
+    App.tooltip.hide();
+
     const target     = Utils.getTarget(e);
     const action     = target.dataset.action;
     const specialKey = e.ctrlKey || e.metaKey || e.shiftKey;

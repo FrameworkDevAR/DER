@@ -234,12 +234,15 @@ export default class Group {
 
         this.#listEdit.href             = "#";
         this.#listEdit.className        = "btn btn-small schema-edit";
-        this.#listEdit.title            = "Edit the group";
+        this.#listEdit.ariaLabel        = "Edit the group";
+        this.#listEdit.dataset.tip      = "Edit the group";
+        this.#listEdit.dataset.tipTop   = "";
         this.#listEdit.dataset.action   = "edit-group";
         this.#listEdit.dataset.group    = String(this.id);
 
         this.#listButton.className      = "btn btn-small";
         this.#listButton.dataset.group  = String(this.id);
+        this.#listButton.dataset.tipTop = "";
 
         this.setListAction();
         this.setListButton();
@@ -289,7 +292,7 @@ export default class Group {
         const isPlaced = this.isFullInCanvas;
         const title    = isPlaced ? "Remove from the board" : "Add to the board";
 
-        this.#listButton.title          = title;
+        this.#listButton.dataset.tip    = title;
         this.#listButton.ariaLabel      = title;
         this.#listButton.dataset.action = isPlaced ? "remove-group-tables" : "add-group-tables";
         this.#listButton.classList.toggle("btn-placed", isPlaced);
