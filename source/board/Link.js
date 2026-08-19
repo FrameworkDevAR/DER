@@ -142,10 +142,27 @@ export default class Link {
 
 
     /**
+     * Returns true if the Link has a Group at one end that the other is not in
+     * @returns {Boolean}
+     */
+    get isCrossing() {
+        const from = this.fromTable.group;
+        const to   = this.toTable.group;
+        if (!from && !to) {
+            return false;
+        }
+        return !from || !to || !from.isEqual(to);
+    }
+
+    /**
      * Connects the Tables
      * @returns {Void}
      */
     connect() {
+        // A Link that leaves the Group it starts in is drawn softer, so what
+        // holds a Group together reads before what only passes between them
+        this.element.classList.toggle("crossing", this.isCrossing);
+
         const fromFieldIndex = this.fromTable.getFieldIndex(this.fromField.name);
         const toFieldIndex   = this.toTable.getFieldIndex(this.toField.name);
 

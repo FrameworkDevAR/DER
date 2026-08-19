@@ -100,6 +100,7 @@ export default class Zoom {
     #setValue() {
         this.#text.innerHTML     = `${this.#value}%`;
         this.#canvas.style.scale = String(this.scale);
+        this.#canvas.style.setProperty("--zoom", String(this.scale));
 
         this.#inBtn.classList.toggle("zoom-disabled",  this.#value === Options.MAX_ZOOM);
         this.#outBtn.classList.toggle("zoom-disabled", this.#value === Options.MIN_ZOOM);

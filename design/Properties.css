@@ -48,6 +48,8 @@
     --table-width: 234px;
     --table-header: 34px;
     --table-row: 25px;
+    --table-font: 12px;
+    --table-small: 10px;
 
     --dialog-close: 0.2s;
 
@@ -62,8 +64,9 @@
     --z-link-normal: 4;
     --z-table-disabled: 5;
     --z-table-normal: 6;
-    --z-table-selected: 7;
-    --z-table-dragging: 8;
+    --z-group-selected: 7;
+    --z-table-selected: 8;
+    --z-table-dragging: 9;
 
     --z-aside: 1;
     --z-resizer: 97;
@@ -94,6 +97,7 @@ body {
     --border-color: #e5e5e8;
     --input-color: #e5e5e8;
     --grid-color: #dedee2;
+    --link-soft-color: hsl(240, 4%, 86%);
 
     --accent-color: oklch(0.55 0.16 276);
     --accent-soft: oklch(0.55 0.16 276 / 0.09);
@@ -114,6 +118,7 @@ body {
     --border-color: #2a2a30;
     --input-color: #2a2a30;
     --grid-color: #232329;
+    --link-soft-color: hsl(240, 5%, 26%);
 
     --accent-color: oklch(0.72 0.15 276);
     --accent-soft: oklch(0.72 0.15 276 / 0.13);
