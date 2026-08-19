@@ -234,7 +234,10 @@ export default class Schema {
         const value = String(this.#input.value).toLocaleLowerCase();
         let   count = 0;
         for (const table of Object.values(this.tables)) {
-            if (value && !table.name.includes(value)) {
+            // The name of a Group is worth as much as the name of a Table, so
+            // one that is looked for brings the whole of what it gathers
+            const inGroup = Boolean(table.group) && table.group.name.toLocaleLowerCase().includes(value);
+            if (value && !inGroup && !table.name.toLocaleLowerCase().includes(value)) {
                 table.hideInList();
             } else {
                 table.showInList();
