@@ -140,7 +140,14 @@ export function updateGroup(data) {
     }
 
     const group = App.schema.setGroup(data);
-    App.canvas.addGroup(group);
+
+    // A Group of Tables that are all off the board has no rectangle to draw,
+    // and one that is left with none loses the rectangle it had
+    if (group.isEmptyInCanvas) {
+        App.canvas.removeGroup(group);
+    } else {
+        App.canvas.addGroup(group);
+    }
     App.canvas.picker.selectGroup(group);
     App.storage.setGroup(group);
     if (!data.isEdit) {
