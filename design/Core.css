@@ -448,3 +448,30 @@ input[role="switch"]:disabled {
     mask-size: var(--icon-size);
     transition: background-color 0.2s;
 }
+
+
+
+/**
+ * Toast
+ */
+.toast {
+    position: fixed;
+    top: var(--menu-position);
+    left: 50%;
+    translate: -50% -16px;
+    padding: 8px 16px;
+    border-radius: var(--pill-radius);
+    background-color: var(--main-color);
+    box-shadow: var(--pill-shadow);
+    color: var(--card-color);
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    z-index: var(--z-mode);
+    transition: opacity 0.25s, translate 0.25s;
+}
+.toast.visible {
+    translate: -50% 0;
+    opacity: 1;
+}

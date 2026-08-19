@@ -61,25 +61,28 @@
         </div>
 
         <ol class="mode">
-            <li class="mode-light selected" data-action="mode-light">
+            <li class="mode-light selected" data-action="mode-light" data-tip="Light mode" aria-label="Light mode">
                 <i class="svg-icon"></i>
             </li>
-            <li class="mode-dark" data-action="mode-dark">
+            <li class="mode-dark" data-action="mode-dark" data-tip="Dark mode" aria-label="Dark mode">
                 <i class="svg-icon"></i>
             </li>
         </ol>
 
         <aside class="menu">
             <ol class="zoom">
-                <li class="zoom-in" data-action="zoom-in">+</li>
-                <li class="zoom-percent" data-action="reset-zoom">100%</li>
-                <li class="zoom-out" data-action="zoom-out">−</li>
+                <li class="zoom-in" data-action="zoom-in" data-tip="Zoom in" aria-label="Zoom in">+</li>
+                <li class="zoom-percent" data-action="reset-zoom" data-tip="Reset the zoom" aria-label="Reset the zoom">100%</li>
+                <li class="zoom-out" data-action="zoom-out" data-tip="Zoom out" aria-label="Zoom out">−</li>
             </ol>
-            <div class="icon" data-action="open-group">
-                <div>
+            <ol class="icons">
+                <li class="icon-group" data-action="open-group" data-tip="Group the selected tables" aria-label="Group the selected tables">
                     <i class="svg-icon"></i>
-                </div>
-            </div>
+                </li>
+                <li class="icon-tidy" data-action="tidy-board" data-tip="Tidy the board" aria-label="Tidy the board">
+                    <i class="svg-icon"></i>
+                </li>
+            </ol>
         </aside>
 
         <aside class="views">
@@ -88,6 +91,7 @@
         </aside>
 
         <div class="selector"></div>
+        <div class="toast"></div>
 
 
         <section>

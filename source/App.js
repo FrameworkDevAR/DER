@@ -7,6 +7,7 @@ import Schema    from "./panel/Schema.js";
 import Canvas    from "./board/Canvas.js";
 import Storage   from "./core/Storage.js";
 import Mode      from "./core/Mode.js";
+import Toast     from "./core/Toast.js";
 
 
 
@@ -19,6 +20,7 @@ export const grouper   = new Grouper();
 export const welcome   = new Welcome();
 export const aside     = new Aside();
 export const views     = new Views();
+export const toast     = new Toast();
 
 // The Schema being looked at, which changes as one is picked. It is exported
 // as a binding rather than a value, so whoever imports it sees the new one

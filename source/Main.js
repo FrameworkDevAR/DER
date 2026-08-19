@@ -161,6 +161,9 @@ document.addEventListener("click", (e) => {
     case "add-all-tables":
         Tables.addAllTables();
         break;
+    case "tidy-board":
+        Tables.tidyBoard();
+        break;
     case "clear-board":
         Tables.clearBoard();
         break;
