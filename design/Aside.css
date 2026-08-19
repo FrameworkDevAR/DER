@@ -167,10 +167,19 @@
  * List
  */
 .schema-list {
+    --list-fade: 20px;
+
     flex: 1;
     min-height: 0;
     padding: 0 2px 12px 2px;
     overflow-y: auto;
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        #000 min(var(--list-fade), var(--fade-above, 0px)),
+        #000 calc(100% - min(var(--list-fade), var(--fade-below, 0px))),
+        transparent 100%
+    );
 }
 .schema-list ol {
     margin: 0;

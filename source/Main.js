@@ -300,6 +300,13 @@ document.querySelector(".schema-filter input").addEventListener("input", () => {
 });
 
 /**
+ * The List Scroll Event Handler
+ */
+document.querySelector(".schema-list").addEventListener("scroll", () => {
+    App.aside.setListFade();
+});
+
+/**
  * The Scroll Event Handler
  */
 document.querySelector("main").addEventListener("scroll", () => {

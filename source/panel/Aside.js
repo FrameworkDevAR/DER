@@ -15,6 +15,8 @@ export default class Aside {
     #addAll;
     /** @type {HTMLButtonElement} */
     #clear;
+    /** @type {HTMLElement} */
+    #list;
 
 
     /**
@@ -25,7 +27,14 @@ export default class Aside {
         this.#status  = document.querySelector(".aside-status");
         this.#addAll  = document.querySelector("[data-action='add-all-tables'].btn-tiny");
         this.#clear   = document.querySelector("[data-action='clear-board']");
+        this.#list    = document.querySelector(".schema-list");
         this.width    = Options.INITIAL_WIDTH;
+
+        // The fade follows the height of the list as much as the scroll, and
+        // the list grows and shrinks with the filter, the Groups and the panel
+        const observer = new ResizeObserver(() => this.setListFade());
+        observer.observe(this.#list);
+        observer.observe(this.#list.querySelector("ol"));
 
         this.isCollapsed = false;
         this.isResizing  = false;
@@ -99,6 +108,22 @@ export default class Aside {
         const offset = parseFloat(getComputedStyle(document.body).getPropertyValue("--menu-position")) || 0;
         const edge   = this.isCollapsed ? 0 : offset + this.width;
         document.body.style.setProperty("--aside-current", `${edge}px`);
+    }
+
+    /**
+     * Fades the end of the list that runs past the panel
+     * @returns {Void}
+     */
+    setListFade() {
+        // The rows read as going under the filter and the footer rather than
+        // as being cut by them, so each end fades by as much as it hides and
+        // never deeper: an end with nothing past it is not faded at all, and a
+        // list a few pixels too tall gets those few pixels of it
+        const above = Math.max(this.#list.scrollTop, 0);
+        const below = Math.max(this.#list.scrollHeight - this.#list.clientHeight - above, 0);
+
+        this.#list.style.setProperty("--fade-above", `${above}px`);
+        this.#list.style.setProperty("--fade-below", `${below}px`);
     }
 
     /**
