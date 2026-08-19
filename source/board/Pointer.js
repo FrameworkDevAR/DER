@@ -170,9 +170,9 @@ export default class Pointer {
             this.#picker.unselectTable(table);
             return;
         }
-        // Picking one Table of a selected Group narrows the selection down to
-        // it, the whole Group being what its own header is there to pick
-        if (!this.#picker.isSelected(table) || this.#picker.selectedGroups.length) {
+        // One that is already picked keeps the selection it is part of, so
+        // dragging it drags the rest along, its whole Group included
+        if (!this.#picker.isSelected(table)) {
             this.#canvas.scrollToList(table);
             this.#picker.selectTable(table, addToSelection);
         }
@@ -190,9 +190,12 @@ export default class Pointer {
         if (this.isScrolling || this.isSelecting || this.isDragging) {
             return;
         }
-        group.pick();
+        // A Group that is already picked keeps the others picked with it, so
+        // several of them drag at once
+        if (!this.#picker.isGroupSelected(group)) {
+            this.#picker.selectGroup(group, addToSelection);
+        }
         this.#canvas.scrollToList(group);
-        this.#picker.selectGroup(group, addToSelection);
         this.startDrag(event);
     }
 
@@ -209,6 +212,9 @@ export default class Pointer {
         for (const selectedTable of this.#picker.selectedTables) {
             this.startPos[selectedTable.name] = selectedTable.pos;
             selectedTable.pick();
+        }
+        for (const group of this.#picker.selectedGroups) {
+            group.pick();
         }
     }
 
