@@ -1,5 +1,6 @@
 import * as App    from "../App.js";
 import * as Groups from "./Groups.js";
+import Group       from "../board/Group.js";
 import Table       from "../board/Table.js";
 import Utils       from "../core/Utils.js";
 
@@ -32,6 +33,64 @@ export function expandTable(table) {
     // A Table inside a Group is only on screen once the Group is open
     if (table.isExpanded) {
         Groups.openGroupOf(table);
+    }
+}
+
+/**
+ * Opens the whole List, or closes it when anything in it is open
+ * @returns {Void}
+ */
+export function toggleList() {
+    if (!App.schema) {
+        return;
+    }
+
+    const isOpen = Object.values(App.schema.groups).some((group) => group.isExpanded)
+        || Object.values(App.schema.tables).some((table) => table.isExpanded);
+    if (isOpen) {
+        collapseList();
+    } else {
+        expandList();
+    }
+}
+
+/**
+ * Opens every Group of the List at once
+ * @returns {Void}
+ */
+export function expandList() {
+    if (!App.schema) {
+        return;
+    }
+
+    // Only the Groups, since opening every Table would put a few hundred
+    // fields in a list that is read to find one of them
+    for (const group of Object.values(App.schema.groups)) {
+        if (!group.isExpanded) {
+            Groups.toggleGroup(group);
+        }
+    }
+}
+
+/**
+ * Closes every Table and Group the List has open
+ * @returns {Void}
+ */
+export function collapseList() {
+    if (!App.schema) {
+        return;
+    }
+
+    for (const table of Object.values(App.schema.tables)) {
+        if (table.isExpanded) {
+            table.toggleExpand();
+            App.storage.setTable(table);
+        }
+    }
+    for (const group of Object.values(App.schema.groups)) {
+        if (group.isExpanded) {
+            Groups.toggleGroup(group);
+        }
     }
 }
 

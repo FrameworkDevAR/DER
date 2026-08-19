@@ -17,6 +17,8 @@ export default class Aside {
     #clear;
     /** @type {HTMLElement} */
     #list;
+    /** @type {HTMLElement} */
+    #toggle;
 
 
     /**
@@ -28,6 +30,7 @@ export default class Aside {
         this.#addAll  = document.querySelector("[data-action='add-all-tables'].btn-tiny");
         this.#clear   = document.querySelector("[data-action='clear-board']");
         this.#list    = document.querySelector(".schema-list");
+        this.#toggle  = document.querySelector(".schema-toggle");
         this.width    = Options.INITIAL_WIDTH;
 
         // The fade follows the height of the list as much as the scroll, and
@@ -35,6 +38,12 @@ export default class Aside {
         const observer = new ResizeObserver(() => this.setListFade());
         observer.observe(this.#list);
         observer.observe(this.#list.querySelector("ol"));
+
+        // What the one button of the filter row would do is the list's own to
+        // know, and it changes with a row opening, with the filter, and with
+        // the whole list being built again for a Group
+        const changes = new MutationObserver(() => this.setListToggle());
+        changes.observe(this.#list, { subtree : true, childList : true, attributeFilter : [ "class" ] });
 
         this.isCollapsed = false;
         this.isResizing  = false;
@@ -108,6 +117,20 @@ export default class Aside {
         const offset = parseFloat(getComputedStyle(document.body).getPropertyValue("--menu-position")) || 0;
         const edge   = this.isCollapsed ? 0 : offset + this.width;
         document.body.style.setProperty("--aside-current", `${edge}px`);
+    }
+
+    /**
+     * Says what the one button of the filter row would do to the list
+     * @returns {Void}
+     */
+    setListToggle() {
+        // It closes the list while anything in it is open, and opens it once
+        // there is nothing left open to close
+        const isOpen = Boolean(this.#list.querySelector(".expanded"));
+        const tip    = isOpen ? "Close the open rows" : "Open every group";
+
+        this.#toggle.dataset.tip = tip;
+        this.#toggle.setAttribute("aria-label", tip);
     }
 
     /**

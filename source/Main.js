@@ -174,6 +174,10 @@ document.addEventListener("click", (e) => {
         App.aside.toggleCollapse();
         App.storage.setCollapsed(App.aside.isCollapsed);
         break;
+    case "toggle-list":
+        Tables.toggleList();
+        Utils.unselect();
+        break;
     case "clear-filter":
         if (App.schema) {
             App.schema.clearFilter();
