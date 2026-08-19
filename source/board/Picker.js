@@ -39,6 +39,7 @@ export default class Picker {
      */
     constructor(canvas) {
         this.#canvas = canvas;
+        this.onChange = null;
         this.reset();
     }
 
@@ -74,6 +75,12 @@ export default class Picker {
         for (const table of Object.values(this.#schemaTables)) {
             const isLinked = !selected.length || selected.some((one) => one.isLinkedTo(table));
             table.dimInList(!isLinked);
+        }
+
+        // Every path that picks or lets go ends here, so it is where whoever
+        // shows what is picked hears about it
+        if (this.onChange) {
+            this.onChange();
         }
     }
 

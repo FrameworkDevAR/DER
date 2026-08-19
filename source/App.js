@@ -3,6 +3,7 @@ import Grouper   from "./dialogs/Grouper.js";
 import Welcome   from "./dialogs/Welcome.js";
 import Aside     from "./panel/Aside.js";
 import Views     from "./panel/Views.js";
+import Summary   from "./panel/Summary.js";
 import Schema    from "./panel/Schema.js";
 import Canvas    from "./board/Canvas.js";
 import Storage   from "./core/Storage.js";
@@ -21,6 +22,16 @@ export const welcome   = new Welcome();
 export const aside     = new Aside();
 export const views     = new Views();
 export const toast     = new Toast();
+export const summary   = new Summary();
+
+// What the board picks is said in the Summary, from the one place every way of
+// picking and letting go passes through
+canvas.picker.onChange = () => summary.update(
+    canvas.picker.selectedTables,
+    canvas.picker.selectedGroups,
+    canvas.picker.currentGroup,
+    canvas.picker.pickedInList,
+);
 
 // The Schema being looked at, which changes as one is picked. It is exported
 // as a binding rather than a value, so whoever imports it sees the new one

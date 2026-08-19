@@ -161,6 +161,9 @@ document.addEventListener("click", (e) => {
     case "add-all-tables":
         Tables.addAllTables();
         break;
+    case "clear-selection":
+        App.canvas.picker.unselect();
+        break;
     case "tidy-board":
         Tables.tidyBoard();
         break;
