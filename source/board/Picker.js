@@ -7,8 +7,10 @@ import Utils   from "../core/Utils.js";
 
 
 /**
- * What the board has picked: the Tables, the Groups they add up to, and the
- * one Table of the list that is looked at without being on the board
+ * What is picked: the Tables, the Groups they add up to, and the one Table of
+ * the list that is looked at without being on the board. A Table is picked
+ * from the list as much as from the board, and it is remembered which of the
+ * two it came from
  */
 export default class Picker {
 
@@ -26,6 +28,9 @@ export default class Picker {
 
     /** @type {?Table} */
     listTable;
+
+    /** @type {Boolean} */
+    pickedInList;
 
 
     /**
@@ -46,6 +51,7 @@ export default class Picker {
         this.selectedGroups = [];
         this.listTable      = null;
         this.dontUnselect   = false;
+        this.pickedInList   = false;
     }
 
     /**
@@ -106,6 +112,16 @@ export default class Picker {
     }
 
     /**
+     * Returns the Selected Tables that are on the board
+     * @returns {Table[]}
+     */
+    get canvasTables() {
+        // The ones picked from the list have no card to drag, to move, or to
+        // keep the place of
+        return this.selectedTables.filter((table) => table.onCanvas);
+    }
+
+    /**
      * Returns the Selected Group, or the Group the selection starts in. The
      * first one picked is the one being edited, and Tables from another Group
      * are ones it is about to gain
@@ -154,16 +170,25 @@ export default class Picker {
     }
 
     /**
-     * Selects the given Table from the List
-     * @param {Table} table
+     * Selects the given Table from the List, on the board or not
+     * @param {Table}    table
+     * @param {Boolean=} addToSelection
      * @returns {Void}
      */
     selectTableFromList(table, addToSelection = false) {
+        // A Table is picked to be gathered into a Group as much as to be
+        // looked at, so one with no card of its own is picked all the same
+        this.pickedInList = true;
         if (addToSelection && this.isSelected(table)) {
             this.unselectTable(table);
             return;
         }
-        this.#canvas.scrollToTable(table);
+
+        // Adding to the selection leaves the board where it is, since what is
+        // being picked is right under the pointer already
+        if (table.onCanvas && !addToSelection) {
+            this.#canvas.scrollToTable(table);
+        }
         this.selectTable(table, addToSelection);
     }
 
@@ -212,6 +237,7 @@ export default class Picker {
      * @returns {Void}
      */
     selectTableFromCanvas(table, addToSelection = false) {
+        this.pickedInList = false;
         if (addToSelection && this.isSelected(table)) {
             this.unselectTable(table);
             return;
@@ -219,7 +245,9 @@ export default class Picker {
 
         // The Group it belongs to is opened by whoever asked for the selection,
         // so the row is on screen and there is no need to mark the Group instead
-        this.#canvas.scrollToList(table);
+        if (!addToSelection) {
+            this.#canvas.scrollToList(table);
+        }
         this.selectTable(table, addToSelection);
     }
 
@@ -269,13 +297,16 @@ export default class Picker {
      * @returns {Void}
      */
     selectGroup(group, addToSelection = false) {
+        // One that is picked already is let go of instead, the way a Table is
+        if (addToSelection && this.isGroupSelected(group)) {
+            this.unselectGroupTables(group);
+            return;
+        }
         if (!addToSelection) {
             this.unselect();
         }
         for (const table of group.tables) {
-            if (table.onCanvas) {
-                this.selection[table.name] = table;
-            }
+            this.selection[table.name] = table;
         }
 
         // This Group, and any other the selection already covered whole
@@ -285,8 +316,34 @@ export default class Picker {
     }
 
     /**
+     * Takes the Tables of the given Group out of the selection, leaving the
+     * rest of what is picked alone
+     * @param {Group} group
+     * @returns {Void}
+     */
+    unselectGroupTables(group) {
+        this.stopUnselect();
+
+        // The last ones out take the whole selection with them, so that
+        // nothing is left dimmed with no Table selected
+        const rest = this.selectedTables.filter((table) => !group.contains(table));
+        if (!rest.length) {
+            this.unselect();
+            return;
+        }
+
+        for (const table of group.tables) {
+            delete this.selection[table.name];
+            table.unselect();
+            table.removeColors();
+        }
+        this.trySelectGroup();
+        this.markSelection();
+    }
+
+    /**
      * Selects every Group the selection covers whole, since a Group is picked
-     * by having every one of its Tables on the board picked
+     * by having every one of its Tables picked, on the board or not
      * @returns {Void}
      */
     trySelectGroup() {
@@ -302,7 +359,7 @@ export default class Picker {
         }
 
         for (const group of groups) {
-            if (group.canvasTables.every((table) => this.isSelected(table))) {
+            if (group.tables.every((table) => this.isSelected(table))) {
                 this.selectedGroups.push(group.select());
             }
         }
@@ -373,6 +430,11 @@ export default class Picker {
         }
         for (const link of this.#canvas.links) {
             link.unselect();
+        }
+
+        // The ones picked from the list are not among the Tables of the board
+        for (const table of this.selectedTables) {
+            table.unselect();
         }
         this.selection = {};
         this.unselectGroup();

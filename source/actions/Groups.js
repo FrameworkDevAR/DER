@@ -241,5 +241,6 @@ export function showGroup(group, specialKey) {
     if (!specialKey && App.canvas.picker.isGroupSelected(group)) {
         toggleGroup(group);
     }
+    App.canvas.picker.pickedInList = true;
     App.canvas.showGroup(group, specialKey);
 }

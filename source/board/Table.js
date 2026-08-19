@@ -576,7 +576,11 @@ export default class Table {
      */
     select() {
         this.unselect();
-        this.#canvasElem.classList.add("selected");
+
+        // One picked from the list without being on the board has only its row
+        if (this.#canvasElem) {
+            this.#canvasElem.classList.add("selected");
+        }
         this.#listElem.classList.add("selected");
     }
 
@@ -627,6 +631,10 @@ export default class Table {
      * @returns {Void}
      */
     removeColors() {
+        // Only the fields of a Table on the board are drawn, and colored
+        if (!this.onCanvas) {
+            return;
+        }
         for (const field of this.#fields) {
             field.removeColor();
         }

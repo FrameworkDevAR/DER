@@ -142,6 +142,7 @@ export default class Pointer {
         const bounds    = Utils.createBounds(this.startMouse, currMouse);
 
         this.#picker.unselect();
+        this.#picker.pickedInList = false;
         for (const table of Object.values(this.#canvas.tables)) {
             if (Utils.intersectsBounds(bounds, table.bounds)) {
                 this.#picker.add(table);
@@ -166,6 +167,7 @@ export default class Pointer {
         if (this.isScrolling || this.isSelecting || this.isDragging) {
             return;
         }
+        this.#picker.pickedInList = false;
         if (addToSelection && this.#picker.isSelected(table)) {
             this.#picker.unselectTable(table);
             return;
@@ -173,7 +175,9 @@ export default class Pointer {
         // One that is already picked keeps the selection it is part of, so
         // dragging it drags the rest along, its whole Group included
         if (!this.#picker.isSelected(table)) {
-            this.#canvas.scrollToList(table);
+            if (!addToSelection) {
+                this.#canvas.scrollToList(table);
+            }
             this.#picker.selectTable(table, addToSelection);
         }
         this.startDrag(event);
@@ -190,12 +194,20 @@ export default class Pointer {
         if (this.isScrolling || this.isSelecting || this.isDragging) {
             return;
         }
+        this.#picker.pickedInList = false;
+        if (addToSelection && this.#picker.isGroupSelected(group)) {
+            this.#picker.unselectGroupTables(group);
+            return;
+        }
+
         // A Group that is already picked keeps the others picked with it, so
         // several of them drag at once
         if (!this.#picker.isGroupSelected(group)) {
             this.#picker.selectGroup(group, addToSelection);
         }
-        this.#canvas.scrollToList(group);
+        if (!addToSelection) {
+            this.#canvas.scrollToList(group);
+        }
         this.startDrag(event);
     }
 
@@ -209,7 +221,7 @@ export default class Pointer {
         this.isDragging = true;
         this.startMouse = Utils.getMousePos(event);
         this.startPos   = {};
-        for (const selectedTable of this.#picker.selectedTables) {
+        for (const selectedTable of this.#picker.canvasTables) {
             this.startPos[selectedTable.name] = selectedTable.pos;
             selectedTable.pick();
         }
@@ -231,7 +243,7 @@ export default class Pointer {
         const scale     = this.#canvas.zoom.scale;
         const currMouse = Utils.getMousePos(event);
 
-        for (const selectedTable of this.#picker.selectedTables) {
+        for (const selectedTable of this.#picker.canvasTables) {
             const startPos = this.startPos[selectedTable.name];
             selectedTable.translate({
                 top  : startPos.top  + (currMouse.top  - this.startMouse.top)  / scale,
@@ -253,7 +265,7 @@ export default class Pointer {
         if (!this.isDragging) {
             return false;
         }
-        for (const selectedTable of this.#picker.selectedTables) {
+        for (const selectedTable of this.#picker.canvasTables) {
             selectedTable.drop();
             this.#canvas.reconnect(selectedTable);
         }

@@ -89,12 +89,11 @@ import Table  from "../board/Table.js";
         if (this.isEdit) {
             // Letting go of a Table of the Group is how it is dropped, so one
             // left out of the selection comes unticked. With the Group not in
-            // the selection at all nothing was let go of, and a Table off the
-            // board could not have been
+            // the selection at all nothing was let go of
             const isPicked = group.tables.some((table) => picked[table.name]);
 
             for (const table of group.tables) {
-                const isChecked = !isPicked || !table.onCanvas || Boolean(picked[table.name]);
+                const isChecked = !isPicked || Boolean(picked[table.name]);
                 this.createCheckbox(this.#checks, table, isChecked);
                 tables[table.name] = true;
             }

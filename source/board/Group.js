@@ -92,8 +92,6 @@ export default class Group {
      * @returns {Table[]}
      */
     static sortTables(tables) {
-        // A Group is read as a list, and the order they were picked in says
-        // nothing to whoever reads it after
         return [ ...tables ].sort((one, other) => one.name.localeCompare(other.name));
     }
 
@@ -268,13 +266,14 @@ export default class Group {
     }
 
     /**
-     * Sets what a click on the row does, since a Group that is not on the
-     * board has nothing to show there and just opens to let its Tables be seen
+     * Sets what a click on the row does
      * @returns {Void}
      */
     setListAction() {
+        // A Group off the board is picked the same as one on it, so the arrow
+        // is all that is left to open it with
         if (this.#listInner) {
-            this.#listInner.dataset.action = this.onCanvas ? "show-group" : "expand-group";
+            this.#listInner.dataset.action = "show-group";
         }
     }
 
@@ -414,25 +413,26 @@ export default class Group {
     }
 
     /**
-     * Scrolls the Canvas into view
-     * @returns {Void}
-     */
-    /**
-     * Selects the Canvas Element
+     * Selects the Group
      * @returns {Group}
      */
     select() {
-        this.#canvasElem.classList.add("selected");
+        // One with nothing on the board has only its row to mark
+        if (this.#canvasElem) {
+            this.#canvasElem.classList.add("selected");
+        }
         this.#listElem.classList.add("selected");
         return this;
     }
 
     /**
-     * Unselects the Canvas Element
+     * Unselects the Group
      * @returns {Null}
      */
     unselect() {
-        this.#canvasElem.classList.remove("selected");
+        if (this.#canvasElem) {
+            this.#canvasElem.classList.remove("selected");
+        }
         this.#listElem.classList.remove("selected");
         return null;
     }

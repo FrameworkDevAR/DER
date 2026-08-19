@@ -391,7 +391,11 @@ export default class Canvas {
      * @returns {Void}
      */
     showGroup(group, addToSelection = false) {
-        this.scrollToGroup(group);
+        // Adding to the selection leaves the board where it is, and a Group
+        // with nothing on the board has nowhere to scroll to
+        if (!addToSelection && !group.isEmptyInCanvas) {
+            this.scrollToGroup(group);
+        }
         this.picker.selectGroup(group, addToSelection);
     }
 

@@ -113,18 +113,19 @@ export function layoutTables(tables, columnGap = 40) {
 }
 
 /**
- * Picks the given Table from the list. One that is not on the board has
- * nothing to show there, so it only opens, the way a Group off the board does
+ * Picks the given Table from the list, on the board or not
  * @param {Table}   table
  * @param {Boolean} specialKey
  * @returns {Void}
  */
 export function selectFromList(table, specialKey) {
-    if (!table.onCanvas) {
+    // With no card to look at, the click that finds one already picked is the
+    // one that opens it, the way a Group does
+    if (!specialKey && !table.onCanvas && App.canvas.picker.isSelected(table)) {
         expandTable(table);
-    } else {
-        App.canvas.picker.selectTableFromList(table, specialKey);
+        return;
     }
+    App.canvas.picker.selectTableFromList(table, specialKey);
 }
 
 /**
@@ -139,7 +140,9 @@ export function selectFromCanvas(table, specialKey) {
     App.canvas.picker.selectTableFromCanvas(table, specialKey);
     if (App.canvas.picker.isSelected(table)) {
         Groups.openGroupOf(table);
-        App.canvas.scrollToList(table);
+        if (!specialKey) {
+            App.canvas.scrollToList(table);
+        }
     }
 }
 
@@ -150,7 +153,14 @@ export function selectFromCanvas(table, specialKey) {
  */
 export function addTable(table) {
     App.canvas.addTable(table);
-    App.canvas.picker.selectTableFromList(table);
+
+    // One that was picked from the list keeps its place in the selection,
+    // rather than taking it over now that it has a card of its own
+    if (App.canvas.picker.isSelected(table)) {
+        App.canvas.picker.markSelection();
+    } else {
+        App.canvas.picker.selectTableFromList(table);
+    }
     App.storage.setTable(table);
     App.updateBoard();
     pushApart();

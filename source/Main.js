@@ -326,7 +326,9 @@ document.addEventListener("mousedown", (e) => {
             App.canvas.pointer.pickTable(e, table, specialKey);
             if (App.canvas.picker.isSelected(table)) {
                 Groups.openGroupOf(table);
-                App.canvas.scrollToList(table);
+                if (!specialKey) {
+                    App.canvas.scrollToList(table);
+                }
             }
             e.preventDefault();
         }
@@ -391,7 +393,7 @@ document.addEventListener("mouseup", (e) => {
         } else if (App.canvas.pointer.dropSelector(e)) {
             e.preventDefault();
         } else if (App.canvas.pointer.dropTable()) {
-            for (const selectedTable of App.canvas.picker.selectedTables) {
+            for (const selectedTable of App.canvas.picker.canvasTables) {
                 App.storage.setTable(selectedTable);
             }
             e.preventDefault();
