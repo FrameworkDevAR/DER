@@ -121,11 +121,28 @@ export default class Schema {
             table.removeFromList();
         }
 
-        for (const table of Object.values(this.tables)) {
-            if (table.group) {
-                table.group.addToList(this.#list);
+        // A Group takes its place by its own name, rather than by the first
+        // Table it gathers, so the rows read in one order however they are
+        // grouped and a Group does not move when it gains a Table
+        const rows = [];
+        for (const group of Object.values(this.groups)) {
+            if (!group.isEmpty) {
+                rows.push({ name : group.name, group, table : null });
             }
-            table.addToList(this.#list);
+        }
+        for (const table of Object.values(this.tables)) {
+            if (!table.group) {
+                rows.push({ name : table.name, group : null, table });
+            }
+        }
+        rows.sort((one, other) => one.name.localeCompare(other.name));
+
+        for (const row of rows) {
+            if (row.group) {
+                row.group.addToList(this.#list);
+            } else {
+                row.table.addToList(this.#list);
+            }
         }
     }
 

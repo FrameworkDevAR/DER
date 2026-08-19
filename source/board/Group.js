@@ -45,7 +45,7 @@ export default class Group {
     constructor(id, name, tables, isExpanded = true) {
         this.id         = id;
         this.name       = name;
-        this.tables     = tables;
+        this.tables     = Group.sortTables(tables);
         this.padding    = 20;
 
         this.#onList    = false;
@@ -65,7 +65,7 @@ export default class Group {
         this.setGroup(null);
 
         this.name   = name;
-        this.tables = tables;
+        this.tables = Group.sortTables(tables);
 
         this.setGroup(this);
         this.setListButton();
@@ -84,6 +84,17 @@ export default class Group {
         this.setGroup(null);
         this.removeFromCanvas();
         this.removeFromList();
+    }
+
+    /**
+     * Sorts the given Tables by name
+     * @param {Table[]} tables
+     * @returns {Table[]}
+     */
+    static sortTables(tables) {
+        // A Group is read as a list, and the order they were picked in says
+        // nothing to whoever reads it after
+        return [ ...tables ].sort((one, other) => one.name.localeCompare(other.name));
     }
 
     /**

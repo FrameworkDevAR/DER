@@ -256,6 +256,7 @@
 }
 .schema-group > .schema-item > .schema-text {
     color: var(--accent-color);
+    font-weight: 600;
 }
 .schema-item .arrow {
     --arrow-color: var(--lighter-color);
