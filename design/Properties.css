@@ -85,12 +85,12 @@
 }
 
 body {
-    --box-shadow: 0 10px 26px -20px rgba(0, 0, 0, 0.5);
-    --panel-shadow: 0 10px 30px -20px rgba(0, 0, 0, 0.45);
-    --pill-shadow: 0 6px 20px -14px rgba(0, 0, 0, 0.5);
-    --card-shadow: 0 10px 26px -20px rgba(0, 0, 0, 0.5);
-    --card-shadow-on: 0 0 0 3px var(--accent-soft), 0 18px 36px -20px rgba(0, 0, 0, 0.55);
-    --dialog-shadow: 0 40px 80px -32px rgba(0, 0, 0, 0.5);
+    --box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.06), 0 12px 26px -18px rgba(0, 0, 0, 0.26);
+    --panel-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.06), 0 12px 30px -18px rgba(0, 0, 0, 0.28);
+    --pill-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.06), 0 8px 20px -14px rgba(0, 0, 0, 0.26);
+    --card-shadow: 0 1px 3px -1px rgba(0, 0, 0, 0.05), 0 10px 24px -18px rgba(0, 0, 0, 0.26);
+    --card-shadow-on: 0 0 0 3px var(--accent-soft), 0 16px 36px -20px rgba(0, 0, 0, 0.4);
+    --dialog-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.12), 0 40px 84px -34px rgba(0, 0, 0, 0.45);
 }
 
 .light-mode {
@@ -142,4 +142,11 @@ body {
     --dark-color: hsl(240, 7%, 78%);
     --light-color: hsl(240, 7%, 60%);
     --lighter-color: hsl(240, 5%, 51%);
+
+    --box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.5), 0 16px 34px -10px rgba(0, 0, 0, 0.7);
+    --panel-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.55), 0 20px 44px -10px rgba(0, 0, 0, 0.75);
+    --pill-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.5), 0 12px 28px -8px rgba(0, 0, 0, 0.7);
+    --card-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.5), 0 14px 30px -12px rgba(0, 0, 0, 0.68);
+    --card-shadow-on: 0 0 0 3px var(--accent-soft), 0 22px 48px -12px rgba(0, 0, 0, 0.8);
+    --dialog-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.55), 0 48px 96px -24px rgba(0, 0, 0, 0.85);
 }
