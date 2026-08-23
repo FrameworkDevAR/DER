@@ -3,6 +3,7 @@ import * as Schemas from "./actions/Schemas.js";
 import * as Views   from "./actions/Views.js";
 import * as Groups  from "./actions/Groups.js";
 import * as Tables  from "./actions/Tables.js";
+import * as Context from "./actions/Context.js";
 import Utils        from "./core/Utils.js";
 
 
@@ -34,6 +35,8 @@ async function start() {
  * The Click Event Handler
  */
 document.addEventListener("click", (e) => {
+    App.context.close();
+
     const target     = Utils.getTarget(e);
     const action     = target.dataset.action;
     const schemaID   = Number(target.dataset.schema);
@@ -124,7 +127,7 @@ document.addEventListener("click", (e) => {
         dontStop = true;
         break;
     case "open-remove-view":
-        App.views.openRemove();
+        App.views.openRemove(Number(target.dataset.view));
         break;
     case "close-remove-view":
         App.views.closeRemove();
@@ -309,12 +312,14 @@ document.querySelector(".schema-filter input").addEventListener("input", () => {
 document.querySelector(".schema-list").addEventListener("scroll", () => {
     App.aside.setListFade();
     App.tooltip.hide();
+    App.context.close();
 });
 
 /**
  * The Scroll Event Handler
  */
 document.querySelector("main").addEventListener("scroll", () => {
+    App.context.close();
     if (timer) {
         window.clearTimeout(timer);
     }
@@ -335,6 +340,9 @@ document.addEventListener("mouseover", (e) => {
  */
 document.addEventListener("mousedown", (e) => {
     App.tooltip.hide();
+    if (!App.context.contains(e.target)) {
+        App.context.close();
+    }
 
     const target     = Utils.getTarget(e);
     const action     = target.dataset.action;
@@ -382,10 +390,24 @@ document.addEventListener("mousedown", (e) => {
  * The Context Menu Event Handler
  */
 document.addEventListener("contextmenu", (e) => {
+    if (Context.openMenu(e)) {
+        e.preventDefault();
+        return;
+    }
+
     // @ts-ignore
     if (e.target.classList.contains("main")) {
         App.canvas.pointer.pickScroll(e);
         e.preventDefault();
+    }
+});
+
+/**
+ * The Key Event Handler
+ */
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        App.context.close();
     }
 });
 

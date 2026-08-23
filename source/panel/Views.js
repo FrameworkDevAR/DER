@@ -179,10 +179,14 @@ export default class Views {
 
 
     /**
-     * Opens the Remove Dialog
+     * Opens the Remove Dialog, for the given View or the one being edited
+     * @param {Number=} viewID
      * @returns {Void}
      */
-    openRemove() {
+    openRemove(viewID = 0) {
+        if (viewID) {
+            this.viewID = viewID;
+        }
         this.#viewDialog.close();
         this.#removeDialog.open();
     }

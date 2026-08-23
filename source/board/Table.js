@@ -366,6 +366,14 @@ export default class Table {
     }
 
     /**
+     * Returns true if the Table keeps fields back behind its button
+     * @returns {Boolean}
+     */
+    get hasHiddenFields() {
+        return this.#fields.length > this.maxFields;
+    }
+
+    /**
      * Returns the text of the line that hides the rest of the fields
      * @returns {String}
      */

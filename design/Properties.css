@@ -28,6 +28,12 @@
     --tidy-icon: url("../icons/tidy.svg");
     --edit-icon: url("../icons/edit.svg");
     --collapse-icon: url("../icons/collapse.svg");
+    --add-icon: url("../icons/add.svg");
+    --remove-icon: url("../icons/remove.svg");
+    --delete-icon: url("../icons/delete.svg");
+    --fields-icon: url("../icons/fields.svg");
+    --unfold-icon: url("../icons/unfold.svg");
+    --view-icon: url("../icons/view.svg");
 
     --aside-width: 288px;
     --header-height: 70px;
@@ -75,6 +81,7 @@
     --z-menu: 99;
     --z-dialog: 100;
     --z-mode: 200;
+    --z-context: 300;
 }
 
 body {
@@ -93,6 +100,7 @@ body {
     --background-color: #f2f2f3;
     --backdrop-color: rgba(9, 9, 11, 0.42);
     --card-color: #ffffff;
+    --glass-color: rgba(255, 255, 255, 0.3);
     --sunk-color: #fafafa;
     --hover-color: rgb(233, 234, 245);
     --border-color: #e5e5e8;
@@ -102,6 +110,9 @@ body {
 
     --accent-color: oklch(0.55 0.16 276);
     --accent-soft: oklch(0.55 0.16 276 / 0.09);
+
+    --red-color: oklch(0.55 0.19 25);
+    --red-soft: oklch(0.55 0.19 25 / 0.09);
 
     --dark-color: hsl(240, 5%, 26%);
     --light-color: hsl(240, 5%, 38%);
@@ -114,6 +125,7 @@ body {
     --background-color: #101012;
     --backdrop-color: rgba(9, 9, 11, 0.62);
     --card-color: #18181b;
+    --glass-color: rgba(24, 24, 27, 0.6);
     --sunk-color: #1f1f23;
     --hover-color: #26262c;
     --border-color: #2a2a30;
@@ -123,6 +135,9 @@ body {
 
     --accent-color: oklch(0.72 0.15 276);
     --accent-soft: oklch(0.72 0.15 276 / 0.13);
+
+    --red-color: oklch(0.72 0.17 25);
+    --red-soft: oklch(0.72 0.17 25 / 0.13);
 
     --dark-color: hsl(240, 7%, 78%);
     --light-color: hsl(240, 7%, 60%);

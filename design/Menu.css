@@ -49,6 +49,92 @@
 
 
 /**
+ * Context menu
+ */
+.context {
+    position: fixed;
+    display: none;
+    top: var(--context-top, 0);
+    left: var(--context-left, 0);
+    width: max-content;
+    min-width: 168px;
+    margin: 0;
+    padding: 4px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background-color: var(--glass-color);
+    box-shadow: var(--panel-shadow);
+    backdrop-filter: blur(10px) saturate(180%);
+    overflow: visible;
+    z-index: var(--z-context);
+}
+.context.visible {
+    display: block;
+    animation: der-pop 0.16s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+.context-title {
+    max-width: 240px;
+    margin-bottom: 4px;
+    padding: 6px 10px 8px 10px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--main-color);
+    font-family: var(--main-font);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.context hr {
+    height: 1px;
+    margin: 4px 8px;
+    border: none;
+    background-color: var(--border-color);
+}
+.context-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    color: var(--light-color);
+    font-family: var(--main-font);
+    font-size: 13px;
+    line-height: 1.4;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+.context-item .svg-icon {
+    --icon-color: var(--dark-color);
+
+    width: 15px;
+    height: 15px;
+}
+.context-item:hover {
+    background-color: var(--accent-soft);
+    color: var(--accent-color);
+}
+.context-item:hover .svg-icon {
+    --icon-color: var(--accent-color);
+}
+
+.context-remove {
+    color: var(--red-color);
+}
+.context-remove .svg-icon,
+.context-remove:hover .svg-icon {
+    --icon-color: var(--red-color);
+}
+.context-remove:hover {
+    background-color: var(--red-soft);
+    color: var(--red-color);
+}
+
+
+
+/**
  * Mode
  */
 .mode {

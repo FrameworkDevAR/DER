@@ -355,7 +355,8 @@ export default class Group {
      */
     createCanvasElem() {
         this.#canvasElem = document.createElement("div");
-        this.#canvasElem.className = "group";
+        this.#canvasElem.className     = "group";
+        this.#canvasElem.dataset.group = String(this.id);
 
         this.#canvasHeader = document.createElement("header");
         this.#canvasHeader.innerHTML      = this.name;

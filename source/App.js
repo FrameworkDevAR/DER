@@ -10,6 +10,7 @@ import Storage   from "./core/Storage.js";
 import Mode      from "./core/Mode.js";
 import Toast     from "./core/Toast.js";
 import Tooltip   from "./core/Tooltip.js";
+import Context   from "./core/Context.js";
 
 
 
@@ -24,6 +25,7 @@ export const aside     = new Aside();
 export const views     = new Views();
 export const toast     = new Toast();
 export const tooltip   = new Tooltip();
+export const context   = new Context();
 export const summary   = new Summary();
 
 // What the board picks is said in the Summary, from the one place every way of
