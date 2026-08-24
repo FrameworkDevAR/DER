@@ -117,7 +117,7 @@ export function addAllTables() {
         App.storage.setTable(table);
     }
     App.updateBoard();
-    pushApart();
+    tidyOnAdd();
 }
 
 /**
@@ -219,7 +219,7 @@ export function addTable(table) {
     }
     App.storage.setTable(table);
     App.updateBoard();
-    pushApart();
+    tidyOnAdd();
 }
 
 /**
@@ -260,6 +260,17 @@ export function tidyBoard() {
         return;
     }
     App.toast.show(moved === 1 ? "One table moved" : `${moved} tables moved`);
+}
+
+/**
+ * Pushes the board apart after something was added, unless the Settings say
+ * that a board is arranged by whoever arranged it
+ * @returns {Void}
+ */
+export function tidyOnAdd() {
+    if (App.configs.get("tidyOnAdd")) {
+        pushApart();
+    }
 }
 
 /**

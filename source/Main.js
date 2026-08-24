@@ -1,10 +1,11 @@
-import * as App     from "./App.js";
-import * as Schemas from "./actions/Schemas.js";
-import * as Views   from "./actions/Views.js";
-import * as Groups  from "./actions/Groups.js";
-import * as Tables  from "./actions/Tables.js";
-import * as Context from "./actions/Context.js";
-import Utils        from "./core/Utils.js";
+import * as App      from "./App.js";
+import * as Schemas  from "./actions/Schemas.js";
+import * as Views    from "./actions/Views.js";
+import * as Groups   from "./actions/Groups.js";
+import * as Tables   from "./actions/Tables.js";
+import * as Context  from "./actions/Context.js";
+import * as Settings from "./actions/Settings.js";
+import Utils         from "./core/Utils.js";
 
 
 
@@ -25,7 +26,8 @@ async function start() {
     } else {
         App.welcome.open();
     }
-    App.mode.restore(App.storage.getMode());
+    App.configs.apply();
+    Settings.restoreTheme();
     App.updateBoard();
 }
 
@@ -167,6 +169,15 @@ document.addEventListener("click", (e) => {
     case "clear-selection":
         App.canvas.picker.unselect();
         break;
+    case "open-settings":
+        App.settings.open();
+        break;
+    case "close-settings":
+        App.settings.close();
+        break;
+    case "save-settings":
+        Settings.saveSettings();
+        break;
     case "tidy-board":
         Tables.tidyBoard();
         break;
@@ -190,12 +201,13 @@ document.addEventListener("click", (e) => {
 
     // Mode Actions
     case "mode-light":
-        App.storage.setLightMode();
-        App.mode.setLight();
+        Settings.setMode("light");
+        break;
+    case "mode-system":
+        Settings.setMode("system");
         break;
     case "mode-dark":
-        App.storage.setDarkMode();
-        App.mode.setDark();
+        Settings.setMode("dark");
         break;
 
     // Zoom Actions

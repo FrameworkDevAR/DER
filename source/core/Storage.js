@@ -546,6 +546,23 @@ export default class Storage {
 
 
     /**
+     * Returns the Settings, if any were ever saved
+     * @returns {Object?}
+     */
+    getSettings() {
+        return this.getData("settings");
+    }
+
+    /**
+     * Saves the Settings, which are of the app and not of a Schema
+     * @param {Object} settings
+     * @returns {Void}
+     */
+    setSettings(settings) {
+        this.setData("settings", settings);
+    }
+
+    /**
      * Returns the Mode
      * @returns {String}
      */
@@ -554,19 +571,12 @@ export default class Storage {
     }
 
     /**
-     * Sets the Dark Mode
+     * Sets the Mode, which is the light, the dark or the one of the system
+     * @param {String} mode
      * @returns {Void}
      */
-    setDarkMode() {
-        this.setString("mode", "dark");
-    }
-
-    /**
-     * Sets the Light Mode
-     * @returns {Void}
-     */
-    setLightMode() {
-        this.setString("mode", "light");
+    setMode(mode) {
+        this.setString("mode", mode);
     }
 
 

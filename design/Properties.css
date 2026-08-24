@@ -24,8 +24,10 @@
     --search-icon: url("../icons/search.svg");
     --light-icon: url("../icons/light.svg");
     --dark-icon: url("../icons/dark.svg");
+    --system-icon: url("../icons/system.svg");
     --group-icon: url("../icons/group.svg");
     --tidy-icon: url("../icons/tidy.svg");
+    --settings-icon: url("../icons/settings.svg");
     --edit-icon: url("../icons/edit.svg");
     --collapse-icon: url("../icons/collapse.svg");
     --add-icon: url("../icons/add.svg");

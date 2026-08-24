@@ -71,6 +71,9 @@
             <li class="mode-light selected" data-action="mode-light" data-tip="Light mode" aria-label="Light mode">
                 <i class="svg-icon"></i>
             </li>
+            <li class="mode-system" data-action="mode-system" data-tip="Follow the system" aria-label="Follow the system">
+                <i class="svg-icon"></i>
+            </li>
             <li class="mode-dark" data-action="mode-dark" data-tip="Dark mode" aria-label="Dark mode">
                 <i class="svg-icon"></i>
             </li>
@@ -87,6 +90,9 @@
                     <i class="svg-icon"></i>
                 </li>
                 <li class="icon-tidy" data-action="tidy-board" data-tip="Tidy the board" aria-label="Tidy the board">
+                    <i class="svg-icon"></i>
+                </li>
+                <li class="icon-settings" data-action="open-settings" data-tip="Settings" aria-label="Settings">
                     <i class="svg-icon"></i>
                 </li>
             </ol>
@@ -278,6 +284,70 @@
                         </footer>
                     </form>
                     <a href="#" class="close" data-action="close-view"></a>
+                </dialog>
+            </div>
+
+
+            <div class="backdrop settings-dialog" data-dialog="settings">
+                <dialog open>
+                    <h2>Settings</h2>
+                    <form>
+                        <h3>Board</h3>
+                        <label class="toggle-input" data-field="showGrid">
+                            <input type="checkbox" role="switch" name="showGrid" value="1" />
+                            <div>Show the dots behind the board</div>
+                        </label>
+                        <label class="toggle-input" data-field="snapToGrid">
+                            <input type="checkbox" role="switch" name="snapToGrid" value="1" />
+                            <div>Snap a Table to the dots as it is dragged</div>
+                        </label>
+                        <label class="toggle-input" data-field="tidyOnAdd">
+                            <input type="checkbox" role="switch" name="tidyOnAdd" value="1" />
+                            <div>Push the board apart when a Table is added</div>
+                        </label>
+
+                        <h3>Tables</h3>
+                        <label class="toggle-input" data-field="showDescriptions">
+                            <input type="checkbox" role="switch" name="showDescriptions" value="1" />
+                            <div>Show the table description</div>
+                        </label>
+                        <label class="toggle-input" data-field="showTypes">
+                            <input type="checkbox" role="switch" name="showTypes" value="1" />
+                            <div>Show the type of each field</div>
+                        </label>
+                        <label class="toggle-input" data-field="onlyKeys">
+                            <input type="checkbox" role="switch" name="onlyKeys" value="1" />
+                            <div>Show only the fields that are keys</div>
+                        </label>
+                        <label class="toggle-input" data-field="showAudit">
+                            <input type="checkbox" role="switch" name="showAudit" value="1" />
+                            <div>Show the created, modified and status columns</div>
+                        </label>
+                        <label class="toggle-input" data-field="keysFirst">
+                            <input type="checkbox" role="switch" name="keysFirst" value="1" />
+                            <div>Put the keys before the other fields</div>
+                        </label>
+                        <label class="toggle-input" data-field="showAllFields">
+                            <input type="checkbox" role="switch" name="showAllFields" value="1" />
+                            <div>Show every field, with none kept back</div>
+                        </label>
+
+                        <h3>Links</h3>
+                        <label class="toggle-input" data-field="isStraight">
+                            <input type="checkbox" role="switch" name="isStraight" value="1" />
+                            <div>Draw them straight rather than curved</div>
+                        </label>
+                        <label class="toggle-input" data-field="showDots">
+                            <input type="checkbox" role="switch" name="showDots" value="1" />
+                            <div>End them in dots rather than in crow's feet</div>
+                        </label>
+
+                        <footer>
+                            <button class="btn btn-fill" data-action="save-settings">Save settings</button>
+                            <button class="btn" data-action="close-settings">Cancel</button>
+                        </footer>
+                    </form>
+                    <a href="#" class="close" data-action="close-settings"></a>
                 </dialog>
             </div>
 

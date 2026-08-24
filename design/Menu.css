@@ -179,6 +179,9 @@
 .mode-light .svg-icon {
     --icon-image: var(--light-icon);
 }
+.mode-system .svg-icon {
+    --icon-image: var(--system-icon);
+}
 .mode-dark .svg-icon {
     --icon-image: var(--dark-icon);
 }
@@ -294,6 +297,10 @@
 }
 .icon-tidy .svg-icon {
     --icon-image: var(--tidy-icon);
+}
+.icon-settings .svg-icon {
+    --icon-image: var(--settings-icon);
+    --icon-size: 17px;
 }
 
 

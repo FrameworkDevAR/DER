@@ -76,7 +76,7 @@ export function addGroupTables(group) {
     expandGroup(group);
     App.canvas.showGroup(group);
     App.updateBoard();
-    Tables.pushApart();
+    Tables.tidyOnAdd();
 }
 
 /**

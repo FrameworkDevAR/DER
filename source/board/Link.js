@@ -10,6 +10,11 @@ import Utils   from "../core/Utils.js";
  */
 export default class Link {
 
+    // What the Settings say about every Link there is
+    static isStraight = false;
+    static showDots   = false;
+
+
     /**
      * Link constructor
      * @param {String}  fromTableName
@@ -376,8 +381,17 @@ export default class Link {
     setPath(startX, startY, BX, BY, CX, CY, DX, DY, EX, EY, endX, endY) {
         const x = this.left;
         const y = this.top;
+
+        // A straight Link turns square corners: out of the card, across at the
+        // one x both ends share, and in again
+        const corner = CX === DX ? CX : (BX + EX) / 2;
+        const middle = Link.isStraight
+            ? `L${corner + x},${BY + y} L${corner + x},${EY + y} L${EX + x},${EY + y}`
+            : `C${CX + x},${CY + y} ${DX + x},${DY + y} ${EX + x},${EY + y}`;
+
         const path = `M${startX + x},${startY + y} L${BX + x},${BY + y} `
-            + `C${CX + x},${CY + y} ${DX + x},${DY + y} ${EX + x},${EY + y} L${endX + x},${endY + y}`;
+            + `${middle} L${endX + x},${endY + y}`;
+
         this.draw(this.path, path);
     }
 
@@ -410,8 +424,28 @@ export default class Link {
         // primary of the other Table, so that end is always the one row
         const isOne = this.fromTable.isOneRow(this.fromField);
 
+        // The dots say which way the Link points and no more, which is what
+        // the board looked like before it said how many rows meet at an end
+        if (Link.showDots) {
+            this.draw(this.from, this.dotPath(from, 3));
+            this.draw(this.to, this.dotPath(to, 3.5));
+            return;
+        }
         this.draw(this.from, isOne ? this.onePath(from) : this.manyPath(from));
         this.draw(this.to, this.onePath(to));
+    }
+
+    /**
+     * Returns the mark of an end that only says the Link reaches it
+     * @param {{x: Number, y: Number, dir: Number}} end
+     * @param {Number}                              radius
+     * @returns {String}
+     */
+    dotPath(end, radius) {
+        const x = this.left + end.x;
+        const y = this.top + end.y;
+        return `M${x - radius},${y} a${radius},${radius} 0 1,0 ${radius * 2},0 `
+            + `a${radius},${radius} 0 1,0 ${-radius * 2},0`;
     }
 
     /**

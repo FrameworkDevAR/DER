@@ -59,14 +59,18 @@ export default class Table {
         this.data        = data;
         this.description = data.description || "";
 
-        this.#onList    = false;
-        this.showOnList = false;
-        this.isExpanded = false;
+        this.#onList     = false;
+        this.showOnList  = false;
+        this.isExpanded  = false;
 
-        this.onCanvas   = false;
-        this.top        = 0;
-        this.left       = 0;
+        this.onCanvas    = false;
+        this.top         = 0;
+        this.left        = 0;
         this.maxFields   = 15;
+        this.onlyKeys    = false;
+        this.noAudit     = false;
+        this.keysFirst   = false;
+        this.allFields   = false;
         this.showAll     = false;
         this.showAllList = false;
         this.fieldsTop   = Options.HEADER_HEIGHT;
@@ -90,10 +94,14 @@ export default class Table {
      * @returns {Void}
      */
     reset() {
-        this.onCanvas  = false;
-        this.top       = 0;
-        this.left      = 0;
+        this.onCanvas    = false;
+        this.top         = 0;
+        this.left        = 0;
         this.maxFields   = 15;
+        this.onlyKeys    = false;
+        this.noAudit     = false;
+        this.keysFirst   = false;
+        this.allFields   = false;
         this.showAll     = false;
         this.showAllList = false;
         this.fieldsTop   = Options.HEADER_HEIGHT;
@@ -144,8 +152,17 @@ export default class Table {
      * @returns {Number}
      */
     getFieldIndex(name) {
-        const index = this.#fields.findIndex((field) => field.name === name);
-        return (index > this.maxFields && !this.showAll) ? this.maxFields : index;
+        // A Link lands on the row of its Field as the card draws it, which is
+        // not where the Schema put it once the Settings have had their say
+        const shown = this.shownFields;
+        const index = shown.findIndex((field) => field.name === name);
+        if (index < 0) {
+            return 0;
+        }
+        if (!this.allFields && !this.showAll && index >= this.maxFields) {
+            return this.maxFields;
+        }
+        return index;
     }
 
 
@@ -509,21 +526,95 @@ export default class Table {
             this.#canvasElem.appendChild(description);
         }
 
-        const list = document.createElement("ol");
-        this.#canvasList = list;
-        for (const [ index, field ] of this.#fields.entries()) {
-            field.createCanvasElem(list, !this.showAll && index >= this.maxFields);
+        const list = this.createFieldList();
+
+        this.#canvasElem.appendChild(list);
+    }
+
+    /**
+     * Creates the list of Fields of the card, which is only as much of the
+     * Table as there is room for: the keys alone when that is what is asked
+     * of it, and never more rows than the Settings allow before the button
+     * @returns {HTMLElement}
+     */
+    createFieldList() {
+        const list  = document.createElement("ol");
+        const shown = this.shownFields;
+        const keeps = !this.allFields && !this.showAll;
+        this.#canvasList   = list;
+        this.#hiddenElem   = null;
+        this.#hiddenFields = this.allFields ? 0 : Math.max(shown.length - this.maxFields, 0);
+
+        for (const field of shown) {
+            field.createCanvasElem(list, keeps && shown.indexOf(field) >= this.maxFields);
+        }
+        for (const field of this.#fields) {
+            if (!shown.includes(field)) {
+                field.createCanvasElem(list, true);
+            }
         }
 
-        if (this.#fields.length > this.maxFields) {
-            this.#hiddenFields = this.#fields.length - this.maxFields;
-
+        if (this.#hiddenFields > 0) {
             const text = this.showAll ? "Hide fields" : `+${this.#hiddenFields} hidden fields`;
             this.#hiddenElem = this.createHiddenButton("toggle-fields", text);
             list.appendChild(this.#hiddenElem.parentElement);
         }
+        return list;
+    }
 
-        this.#canvasElem.appendChild(list);
+    /**
+     * Returns the Fields the card draws, in the order it draws them
+     * @returns {Field[]}
+     */
+    get shownFields() {
+        return this.sortFields(this.#fields.filter((field) => this.isShown(field)));
+    }
+
+    /**
+     * Returns the given Fields with the keys at the top, which is what a Link
+     * lands on and so what the card is read for, in their order otherwise
+     * @param {Field[]} fields
+     * @returns {Field[]}
+     */
+    sortFields(fields) {
+        if (!this.keysFirst) {
+            return fields;
+        }
+        return [
+            ...fields.filter((field) => field.isAKey),
+            ...fields.filter((field) => !field.isAKey),
+        ];
+    }
+
+    /**
+     * Returns true if the given Field is one the card has room for
+     * @param {Field} field
+     * @returns {Boolean}
+     */
+    isShown(field) {
+        if (this.onlyKeys && !field.isAKey) {
+            return false;
+        }
+        return !this.noAudit || !field.isAudit;
+    }
+
+    /**
+     * Draws the Fields of the card again, for the Settings that say how much
+     * of the Table there is to see
+     * @param {Object} settings
+     * @returns {Void}
+     */
+    setFieldsShown(settings) {
+        if (!this.onCanvas) {
+            return;
+        }
+
+        this.onlyKeys  = settings.onlyKeys;
+        this.noAudit   = !settings.showAudit;
+        this.keysFirst = settings.keysFirst;
+        this.allFields = settings.showAllFields;
+        this.#canvasList.replaceWith(this.createFieldList());
+        this.setBounds();
     }
 
     /**
@@ -531,21 +622,8 @@ export default class Table {
      * @returns {Void}
      */
     toggleFields() {
-        if (!this.showAll) {
-            for (const field of this.#fields) {
-                field.toggleVisibility(false);
-            }
-            this.#hiddenElem.innerHTML = "Hide fields";
-            this.showAll = true;
-        } else {
-            for (const [ index, field ] of this.#fields.entries()) {
-                if (index >= this.maxFields) {
-                    field.toggleVisibility(true);
-                }
-            }
-            this.#hiddenElem.innerHTML = `+${this.#hiddenFields} hidden fields`;
-            this.showAll = false;
-        }
+        this.showAll = !this.showAll;
+        this.#canvasList.replaceWith(this.createFieldList());
         this.setBounds();
     }
 

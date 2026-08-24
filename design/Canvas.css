@@ -15,6 +15,14 @@ main {
     background-size: var(--grid-size) var(--grid-size);
     background-position: center center;
 }
+.no-grid main {
+    background-image: none;
+}
+.no-descs .table-description,
+.no-types .field-type {
+    display: none;
+}
+
 .canvas {
     width: 1000vw;
     height: 1000vh;

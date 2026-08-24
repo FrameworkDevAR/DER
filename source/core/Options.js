@@ -8,6 +8,9 @@ const COLOR_AMOUNT  = 8;
 const HEADER_HEIGHT = 41;
 const ROW_HEIGHT    = 25;
 
+// Board
+const GRID_SIZE     = 22;
+
 // Links
 const LINK_SIZE     = 70;
 const END_SIZE      = 11;
@@ -31,6 +34,8 @@ export default {
     COLOR_AMOUNT,
     HEADER_HEIGHT,
     ROW_HEIGHT,
+
+    GRID_SIZE,
 
     LINK_SIZE,
     END_SIZE,

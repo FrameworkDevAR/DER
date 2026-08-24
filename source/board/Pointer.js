@@ -2,6 +2,7 @@ import Canvas  from "./Canvas.js";
 import Picker  from "./Picker.js";
 import Table   from "./Table.js";
 import Group   from "./Group.js";
+import Options from "../core/Options.js";
 import Utils   from "../core/Utils.js";
 
 
@@ -11,6 +12,10 @@ import Utils   from "../core/Utils.js";
  * dragging what is picked. Only one of the three runs at a time
  */
 export default class Pointer {
+
+    // What the Settings say about dragging
+    static snapToGrid = false;
+
 
     /** @type {Canvas} */
     #canvas;
@@ -246,8 +251,8 @@ export default class Pointer {
         for (const selectedTable of this.#picker.canvasTables) {
             const startPos = this.startPos[selectedTable.name];
             selectedTable.translate({
-                top  : startPos.top  + (currMouse.top  - this.startMouse.top)  / scale,
-                left : startPos.left + (currMouse.left - this.startMouse.left) / scale,
+                top  : this.toGrid(startPos.top  + (currMouse.top  - this.startMouse.top)  / scale),
+                left : this.toGrid(startPos.left + (currMouse.left - this.startMouse.left) / scale),
             });
             this.#canvas.reconnect(selectedTable);
             if (selectedTable.group) {
@@ -255,6 +260,19 @@ export default class Pointer {
             }
         }
         return true;
+    }
+
+    /**
+     * Returns the given position, on the dots of the board when the Settings
+     * ask for it, so what is dragged lands where the next one will
+     * @param {Number} value
+     * @returns {Number}
+     */
+    toGrid(value) {
+        if (!Pointer.snapToGrid) {
+            return value;
+        }
+        return Math.round(value / Options.GRID_SIZE) * Options.GRID_SIZE;
     }
 
     /**

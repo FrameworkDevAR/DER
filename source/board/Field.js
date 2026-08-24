@@ -1,3 +1,11 @@
+// The columns the Framework adds to a Model, which are the same everywhere and
+// so say nothing about the Table they are on
+const AUDIT_FIELDS = [
+    "status", "createdTime", "createdUser", "modifiedTime", "modifiedUser", "isDeleted",
+];
+
+
+
 /**
  * The Table Field
  */
@@ -33,6 +41,22 @@ export default class Field {
 
 
     /**
+     * Returns true if the Field is one the Framework adds to every Model
+     * @returns {Boolean}
+     */
+    get isAudit() {
+        return AUDIT_FIELDS.includes(this.name);
+    }
+
+    /**
+     * Returns true if the Field is a key of its Table or of another
+     * @returns {Boolean}
+     */
+    get isAKey() {
+        return this.isPrimary || this.isKey || this.hasLink;
+    }
+
+    /**
      * Returns the Element Tag depending on the Properties
      * @returns {String}
      */
@@ -66,6 +90,8 @@ export default class Field {
 
         name.className  = "field-name";
         name.innerHTML  = this.name;
+
+        type.className  = "field-type";
         type.innerHTML  = this.type;
 
         return [ badge, name, type ];

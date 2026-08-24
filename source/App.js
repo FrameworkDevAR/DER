@@ -1,12 +1,14 @@
 import Selection from "./dialogs/Selection.js";
 import Grouper   from "./dialogs/Grouper.js";
 import Welcome   from "./dialogs/Welcome.js";
+import Settings  from "./dialogs/Settings.js";
 import Aside     from "./panel/Aside.js";
 import Views     from "./panel/Views.js";
 import Summary   from "./panel/Summary.js";
 import Schema    from "./panel/Schema.js";
 import Canvas    from "./board/Canvas.js";
 import Storage   from "./core/Storage.js";
+import Configs   from "./core/Configs.js";
 import Mode      from "./core/Mode.js";
 import Toast     from "./core/Toast.js";
 import Tooltip   from "./core/Tooltip.js";
@@ -17,10 +19,12 @@ import Context   from "./core/Context.js";
 // The one of each the app is made of, which every action reaches for
 export const selection = new Selection();
 export const storage   = new Storage();
+export const configs   = new Configs(storage);
 export const canvas    = new Canvas();
 export const mode      = new Mode();
 export const grouper   = new Grouper();
 export const welcome   = new Welcome();
+export const settings  = new Settings(configs);
 export const aside     = new Aside();
 export const views     = new Views();
 export const toast     = new Toast();

@@ -35,6 +35,28 @@ dialog {
     animation: der-pop 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) both;
 }
 
+.settings-dialog dialog {
+    max-height: calc(100vh - 48px);
+    overflow: hidden;
+}
+.settings-dialog form {
+    min-height: 0;
+    overflow-y: auto;
+}
+.settings-dialog h3 {
+    margin: 8px 0 0 0;
+    color: var(--lighter-color);
+    font-family: var(--main-font);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    text-transform: uppercase;
+}
+.settings-dialog .toggle-input {
+    justify-content: flex-start;
+    text-align: left;
+}
+
 .backdrop.closing {
     animation: der-fade-out var(--dialog-close) ease both;
 }
