@@ -65,7 +65,7 @@ export default class Zoom {
         if (this.#value >= Options.MAX_ZOOM) {
             return this.#value;
         }
-        this.#value += Options.ZOOM_INTERVAL;
+        this.#value = this.#inBounds(this.#value + Options.ZOOM_INTERVAL);
         this.#setValue();
         return this.#value;
     }
@@ -78,7 +78,20 @@ export default class Zoom {
         if (this.#value <= Options.MIN_ZOOM) {
             return this.#value;
         }
-        this.#value -= Options.ZOOM_INTERVAL;
+        this.#value = this.#inBounds(this.#value - Options.ZOOM_INTERVAL);
+        this.#setValue();
+        return this.#value;
+    }
+
+    /**
+     * Takes the given Zoom, on a step of its own and inside its bounds
+     * @param {Number} value
+     * @returns {Number}
+     */
+    setValue(value) {
+        // Whole percents rather than the steps the buttons take, or a board
+        // that fits at 39 would be shown at 30 and a quarter of the room lost
+        this.#value = this.#inBounds(Math.floor(value));
         this.#setValue();
         return this.#value;
     }
@@ -91,6 +104,15 @@ export default class Zoom {
         this.#value = Options.DEFAULT_ZOOM;
         this.#setValue();
         return this.#value;
+    }
+
+    /**
+     * Returns the given Zoom, kept between the least and the most there is
+     * @param {Number} value
+     * @returns {Number}
+     */
+    #inBounds(value) {
+        return Math.min(Math.max(value, Options.MIN_ZOOM), Options.MAX_ZOOM);
     }
 
     /**

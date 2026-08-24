@@ -4,6 +4,7 @@ import Group   from "./Group.js";
 import Picker  from "./Picker.js";
 import Pointer from "./Pointer.js";
 import Zoom    from "./Zoom.js";
+import Options from "../core/Options.js";
 
 
 
@@ -320,6 +321,55 @@ export default class Canvas {
             (this.#canvas.offsetWidth  - this.#container.clientWidth)  / 2,
             (this.#canvas.offsetHeight - this.#container.clientHeight) / 2,
         );
+    }
+
+    /**
+     * Returns the box every Table and Group of the board sits in, in the
+     * coordinates of the Canvas, or null when there is nothing on it
+     * @returns {Object?}
+     */
+    get boardBounds() {
+        const items = [ ...Object.values(this.#tables), ...Object.values(this.#groups) ];
+        if (!items.length) {
+            return null;
+        }
+
+        const top    = Math.min(...items.map((item) => item.top));
+        const left   = Math.min(...items.map((item) => item.left));
+        const bottom = Math.max(...items.map((item) => item.bottom));
+        const right  = Math.max(...items.map((item) => item.right));
+        return { top, left, width : right - left, height : bottom - top };
+    }
+
+    /**
+     * Zooms out until the whole board is on screen, and puts it in the middle
+     * of what the Aside leaves free. It never zooms past its own size, since
+     * a board of two Tables blown up says no more than one that is not
+     * @returns {Number}
+     */
+    fitBoard() {
+        const gap    = 60;
+        const bounds = this.boardBounds;
+        if (!bounds) {
+            return this.zoom.percent * Options.DEFAULT_ZOOM;
+        }
+
+        const freeWidth = this.#container.clientWidth - this.asideWidth;
+        const height    = this.#container.clientHeight;
+        const value     = Math.min(
+            (freeWidth - gap) / bounds.width,
+            (height - gap) / bounds.height,
+            1,
+        ) * Options.DEFAULT_ZOOM;
+
+        const result = this.zoom.setValue(value);
+        const scale  = this.zoom.scale;
+        this.#container.scrollTo({
+            left     : (bounds.left + bounds.width  / 2) * scale - this.asideWidth - freeWidth / 2,
+            top      : (bounds.top  + bounds.height / 2) * scale - height / 2,
+            behavior : "smooth",
+        });
+        return result;
     }
 
     /**

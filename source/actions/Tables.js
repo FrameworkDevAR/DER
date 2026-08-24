@@ -273,6 +273,21 @@ export function toggleFields(table, specialKey) {
 }
 
 /**
+ * Shows the whole board at once, and says when there is none to show
+ * @returns {Void}
+ */
+export function fitBoard() {
+    if (!App.canvas.tableCount) {
+        App.toast.show("The board is empty");
+        return;
+    }
+
+    // The scroll of the board is written by the handler that watches it, once
+    // it has finished sliding, so writing it here would write where it was
+    App.storage.setZoom(App.canvas.fitBoard());
+}
+
+/**
  * Tidies the board and says what came of it. Only what is asked for tells,
  * since a tidy after adding is not worth a word
  * @returns {Void}

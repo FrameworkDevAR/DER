@@ -169,6 +169,9 @@ document.addEventListener("click", (e) => {
     case "clear-selection":
         App.canvas.picker.unselect();
         break;
+    case "fit-board":
+        Tables.fitBoard();
+        break;
     case "open-settings":
         App.settings.open();
         break;

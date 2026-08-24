@@ -298,6 +298,10 @@
 .icon-tidy .svg-icon {
     --icon-image: var(--tidy-icon);
 }
+.icon-fit .svg-icon {
+    --icon-image: var(--fit-icon);
+    --icon-size: 18px;
+}
 .icon-settings .svg-icon {
     --icon-image: var(--settings-icon);
     --icon-size: 17px;
