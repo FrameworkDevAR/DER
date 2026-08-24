@@ -377,6 +377,20 @@ export default class Picker {
      * @returns {Void}
      */
     markSelection() {
+        // Dimming what the selection does not reach only says something when
+        // there is a selection, so nothing picked leaves the board alone
+        if (!this.hasSelection) {
+            for (const table of Object.values(this.#canvas.tables)) {
+                table.unselect();
+                table.removeColors();
+            }
+            for (const link of this.#canvas.links) {
+                link.unselect();
+            }
+            this.markListSelection();
+            return;
+        }
+
         // What every Table and Link ends up as is worked out first and written
         // once, since a card set dim and lit again in one go still flashes
         const lit    = new Set();
