@@ -282,7 +282,7 @@
 }
 .icons li:hover {
     border-color: var(--accent-color);
-    background-color: var(--accent-soft);
+    background-color: var(--hover-color);
     color: var(--accent-color);
 }
 .icons .svg-icon {

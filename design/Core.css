@@ -79,10 +79,9 @@ svg {
     color: var(--card-color);
 }
 .btn-fill:hover {
-    border-color: var(--main-color);
-    background-color: var(--main-color);
-    color: var(--card-color);
-    opacity: 0.86;
+    border-color: var(--accent-color);
+    background-color: var(--accent-color);
+    color: var(--white-color);
 }
 
 .btn-small {
@@ -127,6 +126,7 @@ input {
 input:focus {
     outline: none;
     border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .field {
@@ -146,6 +146,7 @@ input:focus {
 }
 .field:focus-within {
     border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .field > label,
@@ -300,6 +301,7 @@ input:focus {
 .checkbox-input input[type="checkbox"]:focus {
     border-color: var(--accent-color);
     outline: none;
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 
