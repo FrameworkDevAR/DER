@@ -314,10 +314,11 @@ export default class Canvas {
      * @returns {Void}
      */
     center() {
-        const scale = this.zoom.scale;
+        // The Canvas is as wide as it is drawn, so its own size is the whole
+        // of what there is to scroll through
         this.#container.scrollTo(
-            (this.#canvas.offsetWidth  * scale - this.#container.clientWidth)  / 2,
-            (this.#canvas.offsetHeight * scale - this.#container.clientHeight) / 2,
+            (this.#canvas.offsetWidth  - this.#container.clientWidth)  / 2,
+            (this.#canvas.offsetHeight - this.#container.clientHeight) / 2,
         );
     }
 

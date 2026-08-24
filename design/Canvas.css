@@ -24,8 +24,8 @@ main {
 }
 
 .canvas {
-    width: 1000vw;
-    height: 1000vh;
+    width: calc(1000vw * var(--zoom, 1));
+    height: calc(1000vh * var(--zoom, 1));
     transform-origin: 0 0;
 }
 .canvas-links {
