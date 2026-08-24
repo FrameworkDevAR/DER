@@ -358,9 +358,6 @@ document.addEventListener("mousedown", (e) => {
             App.canvas.pointer.pickTable(e, table, specialKey);
             if (App.canvas.picker.isSelected(table)) {
                 Groups.openGroupOf(table);
-                if (!specialKey) {
-                    App.canvas.scrollToList(table);
-                }
             }
             e.preventDefault();
         }

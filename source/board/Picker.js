@@ -377,38 +377,49 @@ export default class Picker {
      * @returns {Void}
      */
     markSelection() {
-        // Disable all the Tables
-        for (const otherTable of Object.values(this.#canvas.tables)) {
-            otherTable.disable();
-            otherTable.removeColors();
-        }
+        // What every Table and Link ends up as is worked out first and written
+        // once, since a card set dim and lit again in one go still flashes
+        const lit    = new Set();
+        const colors = {};
+        const shades = new Map();
+        let   last   = 0;
 
-        // Disable all the Links
-        for (const link of this.#canvas.links) {
-            link.disable();
-        }
-
-        // Add colors to the Links and Fields
-        let   lastColor = 0;
-        const colors    = {};
         for (const link of this.#canvas.links) {
             for (const selectedTable of this.selectedTables) {
                 if (link.isLinkedTo(selectedTable)) {
                     const field = link.getFieldName(selectedTable);
                     if (!colors[field]) {
-                        colors[field] = lastColor + 1;
-                        lastColor     = (lastColor + 1) % Options.COLOR_AMOUNT;
+                        colors[field] = last + 1;
+                        last          = (last + 1) % Options.COLOR_AMOUNT;
                     }
-                    link.toTable.unselect();
-                    link.fromTable.unselect();
-                    link.fromField.setColor(colors[field]);
-                    link.toField.setColor(colors[field]);
-                    link.setColor(colors[field]);
+                    shades.set(link, colors[field]);
+                    lit.add(link.fromTable);
+                    lit.add(link.toTable);
                 }
             }
         }
 
-        // Select the Table
+        for (const table of Object.values(this.#canvas.tables)) {
+            table.removeColors();
+            if (this.isSelected(table)) {
+                continue;
+            }
+            if (lit.has(table)) {
+                table.unselect();
+            } else {
+                table.disable();
+            }
+        }
+        for (const link of this.#canvas.links) {
+            const color = shades.get(link);
+            if (color) {
+                link.setColor(color);
+                link.fromField.setColor(color);
+                link.toField.setColor(color);
+            } else {
+                link.disable();
+            }
+        }
         for (const selectedTable of this.selectedTables) {
             selectedTable.select();
         }

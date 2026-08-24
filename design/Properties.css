@@ -67,9 +67,7 @@
     --grid-size: 22px;
 
     --z-group: 2;
-    --z-link-disabled: 3;
     --z-link-normal: 4;
-    --z-table-disabled: 5;
     --z-table-normal: 6;
     --z-group-selected: 7;
     --z-table-selected: 8;

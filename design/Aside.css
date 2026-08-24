@@ -203,13 +203,13 @@
 /**
  * List
  */
-.schema-list {
+.schema-scroll {
     --list-fade: 20px;
 
+    display: flex;
     flex: 1;
+    flex-direction: column;
     min-height: 0;
-    padding: 0 2px 12px 2px;
-    overflow-y: auto;
     mask-image: linear-gradient(
         to bottom,
         transparent 0,
@@ -217,6 +217,12 @@
         #000 calc(100% - min(var(--list-fade), var(--fade-below, 0px))),
         transparent 100%
     );
+}
+.schema-list {
+    flex: 1;
+    min-height: 0;
+    padding: 0 2px 12px 2px;
+    overflow-y: auto;
 }
 .schema-list ol {
     margin: 0;

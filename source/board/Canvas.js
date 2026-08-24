@@ -33,6 +33,8 @@ export default class Canvas {
     /** @type {HTMLElement} */
     #canvas;
     /** @type {HTMLElement} */
+    #linkLayer;
+    /** @type {HTMLElement} */
     #container;
 
     /** @type {DOMRect} */
@@ -44,6 +46,7 @@ export default class Canvas {
      */
     constructor() {
         this.#canvas    = document.querySelector(".canvas");
+        this.#linkLayer = this.#canvas.querySelector(".canvas-links");
         this.#container = this.#canvas.parentElement;
         this.#bounds    = this.#container.getBoundingClientRect();
 
@@ -179,7 +182,7 @@ export default class Canvas {
                 if ((toTable.name === table.name && this.#tables[link.toTableName]) || link.toTableName === table.name) {
                     link.create(this.#tables[link.fromTableName], this.#tables[link.toTableName]);
                     this.#links.push(link);
-                    this.#canvas.appendChild(link.element);
+                    this.#linkLayer.appendChild(link.element);
                 }
             }
         }

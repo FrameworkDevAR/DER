@@ -199,9 +199,6 @@ export function selectFromCanvas(table, specialKey) {
     App.canvas.picker.selectTableFromCanvas(table, specialKey);
     if (App.canvas.picker.isSelected(table)) {
         Groups.openGroupOf(table);
-        if (!specialKey) {
-            App.canvas.scrollToList(table);
-        }
     }
 }
 

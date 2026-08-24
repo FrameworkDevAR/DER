@@ -16,11 +16,16 @@ export default class Aside {
     /** @type {HTMLButtonElement} */
     #clear;
     /** @type {HTMLElement} */
+    #scroll;
+    /** @type {HTMLElement} */
     #list;
     /** @type {HTMLElement} */
     #toggle;
     /** @type {HTMLElement} */
     #arrow;
+
+    #fadeAbove = -1;
+    #fadeBelow = -1;
 
 
     /**
@@ -31,6 +36,7 @@ export default class Aside {
         this.#status  = document.querySelector(".aside-status");
         this.#addAll  = document.querySelector("[data-action='add-all-tables'].btn-tiny");
         this.#clear   = document.querySelector("[data-action='clear-board']");
+        this.#scroll  = document.querySelector(".schema-scroll");
         this.#list    = document.querySelector(".schema-list");
         this.#toggle  = document.querySelector(".schema-toggle");
         this.#arrow   = document.querySelector(".aside-arrow");
@@ -149,11 +155,22 @@ export default class Aside {
         // as being cut by them, so each end fades by as much as it hides and
         // never deeper: an end with nothing past it is not faded at all, and a
         // list a few pixels too tall gets those few pixels of it
-        const above = Math.max(this.#list.scrollTop, 0);
-        const below = Math.max(this.#list.scrollHeight - this.#list.clientHeight - above, 0);
+        const depth  = 20;
+        const scroll = Math.max(this.#list.scrollTop, 0);
+        const rest   = Math.max(this.#list.scrollHeight - this.#list.clientHeight - scroll, 0);
+        const above  = Math.min(scroll, depth);
+        const below  = Math.min(rest, depth);
 
-        this.#list.style.setProperty("--fade-above", `${above}px`);
-        this.#list.style.setProperty("--fade-below", `${below}px`);
+        // The mask is only worth writing when it changes, which is at the ends
+        // of the list and not on every frame of a scroll through the middle
+        if (above !== this.#fadeAbove) {
+            this.#fadeAbove = above;
+            this.#scroll.style.setProperty("--fade-above", `${above}px`);
+        }
+        if (below !== this.#fadeBelow) {
+            this.#fadeBelow = below;
+            this.#scroll.style.setProperty("--fade-below", `${below}px`);
+        }
     }
 
     /**

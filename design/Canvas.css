@@ -20,6 +20,15 @@ main {
     height: 1000vh;
     transform-origin: 0 0;
 }
+.canvas-links {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: var(--z-link-normal);
+    pointer-events: none;
+}
 
 
 
@@ -41,8 +50,8 @@ main {
     box-shadow: var(--card-shadow);
     overflow: hidden;
     z-index: var(--z-table-normal);
-    animation: der-pop 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) both;
-    transition: box-shadow 0.15s, border-color 0.15s, filter 0.15s;
+    animation: der-pop 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+    transition: box-shadow 0.15s, border-color 0.15s;
 }
 .canvas-table header {
     display: flex;
@@ -158,8 +167,7 @@ main {
     color: var(--accent-color);
 }
 .canvas-table.disabled {
-    filter: opacity(0.50);
-    z-index: var(--z-table-disabled);
+    opacity: 0.5;
 }
 
 .canvas-table.dragging {
@@ -180,15 +188,16 @@ main {
     position: absolute;
     top: 0;
     left: 0;
+    width: 1px;
+    height: 1px;
+    overflow: visible;
     pointer-events: none;
-    z-index: var(--z-link-normal);
     animation: der-draw 0.3s ease 0.14s both;
 }
 .schema-link path {
     fill: none;
     stroke: var(--bg-color);
     stroke-width: 1.5;
-    transition: stroke 0.15s;
 }
 .schema-link .link-from,
 .schema-link .link-to {
@@ -201,7 +210,6 @@ main {
 
 .schema-link.disabled.disabled {
     --bg-color: var(--border-color);
-    z-index: var(--z-link-disabled);
 }
 
 
