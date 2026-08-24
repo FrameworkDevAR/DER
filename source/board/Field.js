@@ -26,7 +26,7 @@ export default class Field {
         this.type      = type;
         this.length    = length;
         this.isPrimary = isPrimary;
-        this.isKey     = isKey
+        this.isKey     = isKey;
         this.hasLink   = false;
     }
 

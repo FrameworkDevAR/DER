@@ -365,6 +365,17 @@ export default class Table {
         return button;
     }
 
+
+    /**
+     * Returns true if the given Field alone tells one row of the Table from
+     * another, which is what makes the Table hold one row of what it points at
+     * @param {Field} field
+     * @returns {Boolean}
+     */
+    isOneRow(field) {
+        return field.isPrimary && this.#fields.filter((one) => one.isPrimary).length === 1;
+    }
+
     /**
      * Returns true if the Table keeps fields back behind its button
      * @returns {Boolean}

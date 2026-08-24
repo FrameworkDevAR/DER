@@ -10,6 +10,8 @@ const ROW_HEIGHT    = 25;
 
 // Links
 const LINK_SIZE     = 70;
+const END_SIZE      = 11;
+const END_SPREAD    = 5;
 
 // Zoom
 const MIN_ZOOM      = 20;
@@ -31,6 +33,8 @@ export default {
     ROW_HEIGHT,
 
     LINK_SIZE,
+    END_SIZE,
+    END_SPREAD,
 
     MIN_ZOOM,
     DEFAULT_ZOOM,

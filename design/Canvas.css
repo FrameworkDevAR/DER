@@ -190,16 +190,9 @@ main {
     stroke-width: 1.5;
     transition: stroke 0.15s;
 }
-.schema-link .link-from {
-    fill: var(--bg-color);
-    stroke: none;
-    transition: fill 0.15s;
-}
+.schema-link .link-from,
 .schema-link .link-to {
-    fill: var(--card-color);
-    stroke: var(--bg-color);
-    stroke-width: 1.5;
-    transition: stroke 0.15s;
+    stroke-linecap: round;
 }
 
 .schema-link.crossing {

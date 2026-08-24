@@ -12,10 +12,10 @@ export default class Link {
 
     /**
      * Link constructor
-     * @param {String} fromTableName
-     * @param {String} fromFieldName
-     * @param {String} toTableName
-     * @param {String} toFieldName
+     * @param {String}  fromTableName
+     * @param {String}  fromFieldName
+     * @param {String}  toTableName
+     * @param {String}  toFieldName
      */
     constructor(fromTableName, fromFieldName, toTableName, toFieldName) {
         this.fromTableName = fromTableName;
@@ -43,17 +43,13 @@ export default class Link {
 
         this.element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.element.classList.add("schema-link");
-        this.element.setAttribute("width", "100%");
-        this.element.setAttribute("height", "100%");
 
         this.path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        this.from = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        this.to   = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        this.from = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        this.to   = document.createElementNS("http://www.w3.org/2000/svg", "path");
 
         this.from.classList.add("link-from");
-        this.from.setAttribute("r", "3");
         this.to.classList.add("link-to");
-        this.to.setAttribute("r", "3.5");
 
         this.element.appendChild(this.path);
         this.element.appendChild(this.from);
@@ -242,7 +238,7 @@ export default class Link {
 
         this.setBounds(left, top, width, height);
         this.setPath(startX, startY, BX, BY, CX, CY, DX, DY, EX, EY, endX, endY);
-        this.setEnds(startX, startY, endX, endY, true);
+        this.setEnds({ x : startX, y : startY, dir : 1 }, { x : endX, y : endY, dir : 1 }, true);
     }
 
     /**
@@ -274,7 +270,7 @@ export default class Link {
 
         this.setBounds(left, top, width, height);
         this.setPath(startX, startY, BX, BY, CX, CY, DX, DY, EX, EY, endX, endY);
-        this.setEnds(startX, startY, endX, endY, toEnd);
+        this.setEnds({ x : startX, y : startY, dir : -1 }, { x : endX, y : endY, dir : -1 }, toEnd);
     }
 
     /**
@@ -306,7 +302,7 @@ export default class Link {
 
         this.setBounds(left, top, width, height);
         this.setPath(startX, startY, BX, BY, CX, CY, DX, DY, EX, EY, endX, endY);
-        this.setEnds(startX, startY, endX, endY, toEnd);
+        this.setEnds({ x : startX, y : startY, dir : 1 }, { x : endX, y : endY, dir : 1 }, toEnd);
     }
 
     /**
@@ -338,7 +334,7 @@ export default class Link {
 
         this.setBounds(left, top, width, height);
         this.setPath(startX, startY, BX, BY, CX, CY, DX, DY, EX, EY, endX, endY);
-        this.setEnds(startX, startY, endX, endY, toEnd);
+        this.setEnds({ x : startX, y : startY, dir : 1 }, { x : endX, y : endY, dir : -1 }, toEnd);
     }
 
 
@@ -352,18 +348,13 @@ export default class Link {
      * @returns {Void}
      */
     setBounds(left, top, width, height) {
-        if (this.left === left && this.top === top && this.width === width && this.height === height) {
-            return;
-        }
-
+        // The drawing is never moved or sized: every path is written in the
+        // coordinates of the board, so an end that stands still while the
+        // other one drags is a mark that is not drawn again
         this.left   = left;
         this.top    = top;
         this.width  = width;
         this.height = height;
-
-        this.element.style.transform = `translate(${this.left}px, ${this.top}px)`;
-        this.element.style.width     = `${this.width}px`;
-        this.element.style.height    = `${this.height}px`;
     }
 
     /**
@@ -383,27 +374,67 @@ export default class Link {
      * @returns {Void}
      */
     setPath(startX, startY, BX, BY, CX, CY, DX, DY, EX, EY, endX, endY) {
-        const path = `M${startX},${startY} L${BX},${BY} C${CX},${CY} ${DX},${DY} ${EX},${EY} L${endX},${endY}`;
-        this.path.setAttribute("d", path);
+        const x = this.left;
+        const y = this.top;
+        const path = `M${startX + x},${startY + y} L${BX + x},${BY + y} `
+            + `C${CX + x},${CY + y} ${DX + x},${DY + y} ${EX + x},${EY + y} L${endX + x},${endY + y}`;
+        this.draw(this.path, path);
     }
 
     /**
-     * Sets the Ends of the Link: a dot where it starts and a ring where it
-     * lands, which is the mark the design uses instead of an arrow
-     * @param {Number}  startX
-     * @param {Number}  startY
-     * @param {Number}  endX
-     * @param {Number}  endY
-     * @param {Boolean} toEnd
+     * Writes a path only when it is not the one drawn already, since a path
+     * written again is drawn again, still or not
+     * @param {SVGElement} element
+     * @param {String}     path
      * @returns {Void}
      */
-    setEnds(startX, startY, endX, endY, toEnd) {
-        const from = toEnd ? { x : startX, y : startY } : { x : endX,   y : endY   };
-        const to   = toEnd ? { x : endX,   y : endY   } : { x : startX, y : startY };
+    draw(element, path) {
+        if (element.getAttribute("d") !== path) {
+            element.setAttribute("d", path);
+        }
+    }
 
-        this.from.setAttribute("cx", String(from.x));
-        this.from.setAttribute("cy", String(from.y));
-        this.to.setAttribute("cx", String(to.x));
-        this.to.setAttribute("cy", String(to.y));
+    /**
+     * Sets the Ends of the Link, which say how many rows meet at each of them
+     * @param {{x: Number, y: Number, dir: Number}} start
+     * @param {{x: Number, y: Number, dir: Number}} end
+     * @param {Boolean}                             toEnd
+     * @returns {Void}
+     */
+    setEnds(start, end, toEnd) {
+        const from = toEnd ? start : end;
+        const to   = toEnd ? end   : start;
+
+        // Any amount of rows may hold the same Key, unless that Key is the one
+        // thing that tells a row of its Table from another. The Key names the
+        // primary of the other Table, so that end is always the one row
+        const isOne = this.fromTable.isOneRow(this.fromField);
+
+        this.draw(this.from, isOne ? this.onePath(from) : this.manyPath(from));
+        this.draw(this.to, this.onePath(to));
+    }
+
+    /**
+     * Returns the mark of an end that one row meets: a bar across the line
+     * @param {{x: Number, y: Number, dir: Number}} end
+     * @returns {String}
+     */
+    onePath(end) {
+        const at = this.left + end.x + Options.END_SIZE * 0.7 * end.dir;
+        const y  = this.top + end.y;
+        return `M${at},${y - Options.END_SPREAD} L${at},${y + Options.END_SPREAD}`;
+    }
+
+    /**
+     * Returns the mark of an end that many rows meet: the foot they spread
+     * into, which opens against the Table it belongs to
+     * @param {{x: Number, y: Number, dir: Number}} end
+     * @returns {String}
+     */
+    manyPath(end) {
+        const x  = this.left + end.x;
+        const y  = this.top + end.y;
+        const at = x + Options.END_SIZE * end.dir;
+        return `M${at},${y} L${x},${y - Options.END_SPREAD} M${at},${y} L${x},${y + Options.END_SPREAD}`;
     }
 }
