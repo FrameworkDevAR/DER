@@ -35,7 +35,7 @@ export default class Aside {
         this.#aside   = document.querySelector(".aside");
         this.#status  = document.querySelector(".aside-status");
         this.#addAll  = document.querySelector("[data-action='add-all-tables'].btn-tiny");
-        this.#clear   = document.querySelector("[data-action='clear-board']");
+        this.#clear   = document.querySelector("[data-action='open-clear']");
         this.#scroll  = document.querySelector(".schema-scroll");
         this.#list    = document.querySelector(".schema-list");
         this.#toggle  = document.querySelector(".schema-toggle");

@@ -45,7 +45,7 @@
                     <div class="aside-status"></div>
                     <div class="aside-actions">
                         <button class="btn btn-tiny" data-action="add-all-tables">Add all</button>
-                        <button class="btn btn-tiny" data-action="clear-board">Clear</button>
+                        <button class="btn btn-tiny" data-action="open-clear">Clear</button>
                     </div>
                 </footer>
             </div>
@@ -284,6 +284,19 @@
                         </footer>
                     </form>
                     <a href="#" class="close" data-action="close-view"></a>
+                </dialog>
+            </div>
+
+
+            <div class="backdrop" data-dialog="clear-board">
+                <dialog open>
+                    <h2>Clear the board</h2>
+                    <p>Do you really want to take every Table off the board? Where each one sits is lost.</p>
+                    <footer>
+                        <button class="btn btn-fill" data-action="clear-board">Clear the board</button>
+                        <button class="btn" data-action="close-clear">Cancel</button>
+                    </footer>
+                    <a href="#" class="close" data-action="close-clear"></a>
                 </dialog>
             </div>
 

@@ -1,10 +1,14 @@
 import * as App    from "../App.js";
 import * as Groups from "./Groups.js";
 import Group       from "../board/Group.js";
+import Dialog      from "../dialogs/Dialog.js";
 import Table       from "../board/Table.js";
 import Utils       from "../core/Utils.js";
 
 
+
+// The one that asks before a board is thrown away
+const clearDialog = new Dialog("clear-board");
 
 // What the tidy leaves between two Tables of one Group, sideways and down. The
 // Links run across rather than down, which is what the wider one is for
@@ -121,6 +125,24 @@ export function addAllTables() {
 }
 
 /**
+ * Asks first, since a board is an arrangement and there is no way back to one
+ * @returns {Void}
+ */
+export function openClearBoard() {
+    if (App.canvas.tableCount) {
+        clearDialog.open();
+    }
+}
+
+/**
+ * Closes the Dialog that asks, leaving the board as it is
+ * @returns {Void}
+ */
+export function closeClearBoard() {
+    clearDialog.close();
+}
+
+/**
  * Takes every Table off the board
  * @returns {Void}
  */
@@ -128,6 +150,8 @@ export function clearBoard() {
     if (!App.schema) {
         return;
     }
+
+    clearDialog.close();
 
     App.canvas.picker.unselect();
     for (const table of Object.values(App.schema.tables)) {

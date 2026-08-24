@@ -181,6 +181,12 @@ document.addEventListener("click", (e) => {
     case "tidy-board":
         Tables.tidyBoard();
         break;
+    case "open-clear":
+        Tables.openClearBoard();
+        break;
+    case "close-clear":
+        Tables.closeClearBoard();
+        break;
     case "clear-board":
         Tables.clearBoard();
         break;
