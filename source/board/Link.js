@@ -232,13 +232,13 @@ export default class Link {
         const startX = 0;
         const endX   = 0;
 
-        const BX = width * 0.05 + startX;
+        const BX = Options.END_STEM + startX;
         const BY = startY;
         const CX = width + startX;
         const CY = startY;
         const DX = width + startX;
         const DY = endY;
-        const EX = width * 0.05 + endX;
+        const EX = Options.END_STEM + endX;
         const EY = endY;
 
         this.setBounds(left, top, width, height);
@@ -264,13 +264,13 @@ export default class Link {
         const startX = leftTable.left - left;
         const endX   = width;
 
-        const BX = - Options.LINK_SIZE * 0.05 + startX;
+        const BX = - Options.END_STEM + startX;
         const BY = startY;
         const CX = - Options.LINK_SIZE + startX;
         const CY = startY;
         const DX = - Options.LINK_SIZE + startX;
         const DY = endY;
-        const EX = - Options.LINK_SIZE * 0.05 + endX;
+        const EX = - Options.END_STEM + endX;
         const EY = endY;
 
         this.setBounds(left, top, width, height);
@@ -296,13 +296,13 @@ export default class Link {
         const startX = leftTable.right - left;
         const endX   = rightTable.right - left;
 
-        const BX = Options.LINK_SIZE * 0.05 + startX;
+        const BX = Options.END_STEM + startX;
         const BY = startY;
         const CX = Options.LINK_SIZE + endX;
         const CY = startY;
         const DX = Options.LINK_SIZE + endX;
         const DY = endY;
-        const EX = Options.LINK_SIZE * 0.05 + endX;
+        const EX = Options.END_STEM + endX;
         const EY = endY;
 
         this.setBounds(left, top, width, height);
@@ -328,13 +328,13 @@ export default class Link {
         const startX = 0;
         const endX   = width;
 
-        const BX = width * 0.05 + startX;
+        const BX = Options.END_STEM + startX;
         const BY = startY;
         const CX = width * 0.66 + startX;
         const CY = startY;
         const DX = width * 0.33 + startX;
         const DY = endY;
-        const EX = width * -0.05 + endX;
+        const EX = - Options.END_STEM + endX;
         const EY = endY;
 
         this.setBounds(left, top, width, height);

@@ -16,6 +16,10 @@ const LINK_SIZE     = 70;
 const END_SIZE      = 11;
 const END_SPREAD    = 5;
 
+// How far a Link leaves its Table before it starts to curve, which is what
+// the mark of the end stands on
+const END_STEM      = 15;
+
 // Zoom
 const MIN_ZOOM      = 20;
 const DEFAULT_ZOOM  = 100;
@@ -40,6 +44,7 @@ export default {
     LINK_SIZE,
     END_SIZE,
     END_SPREAD,
+    END_STEM,
 
     MIN_ZOOM,
     DEFAULT_ZOOM,
