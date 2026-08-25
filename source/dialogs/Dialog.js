@@ -62,6 +62,14 @@ export default class Dialog {
         this.#isOpen = false;
         this.hideErrors();
 
+        // A field of a Dialog that is gone keeps whatever is typed from
+        // reaching the board
+        if (this.#container.contains(document.activeElement) &&
+            document.activeElement instanceof HTMLElement
+        ) {
+            document.activeElement.blur();
+        }
+
         // Nothing to take away from a Dialog that is not on screen, and one
         // already on its way out is left to finish
         if (getComputedStyle(this.#container).display === "none") {

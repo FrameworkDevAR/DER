@@ -112,6 +112,8 @@ body {
     --accent-color: oklch(0.55 0.16 276);
     --accent-soft: oklch(0.55 0.16 276 / 0.09);
 
+    --tip-key-color: rgba(255, 255, 255, 0.16);
+
     --red-color: oklch(0.55 0.19 25);
     --red-soft: oklch(0.55 0.19 25 / 0.09);
 
@@ -136,6 +138,8 @@ body {
 
     --accent-color: oklch(0.72 0.15 276);
     --accent-soft: oklch(0.72 0.15 276 / 0.13);
+
+    --tip-key-color: rgba(0, 0, 0, 0.12);
 
     --red-color: oklch(0.72 0.17 25);
     --red-soft: oklch(0.72 0.17 25 / 0.13);

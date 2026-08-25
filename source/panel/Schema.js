@@ -299,4 +299,92 @@ export default class Schema {
     blurFilter() {
         this.#input.blur();
     }
+
+    /**
+     * Puts the caret in the Filter, with whatever is in it picked out so that
+     * typing replaces it
+     * @returns {Void}
+     */
+    focusFilter() {
+        this.#input.focus();
+        this.#input.select();
+    }
+
+    /**
+     * Returns the rows of the List that can be seen, which is what the arrows
+     * walk through: a Table inside a Group that is closed is not one of them
+     * @returns {HTMLElement[]}
+     */
+    get shownRows() {
+        const result = [];
+        for (const element of this.#list.querySelectorAll(".schema-table, .schema-group")) {
+            if (element instanceof HTMLElement && element.offsetParent) {
+                result.push(element);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Walks the highlight down or up the List, from the top when there is
+     * none and around the ends
+     * @param {Number} step
+     * @returns {Void}
+     */
+    moveHighlight(step) {
+        const rows = this.shownRows;
+        if (!rows.length) {
+            return;
+        }
+
+        const current = rows.findIndex((row) => row.classList.contains("highlight"));
+        const index   = current < 0 && step < 0 ? rows.length - 1 : (current + step + rows.length) % rows.length;
+
+        // The row stops short of the end of the list, which is faded, by the
+        // scroll margin the stylesheet gives it
+        this.clearHighlight();
+        rows[index].classList.add("highlight");
+        rows[index].scrollIntoView({ block : "nearest" });
+    }
+
+    /**
+     * Returns what the row the arrows landed on is about, if any
+     * @returns {{table: Table?, group: Group?}?}
+     */
+    get highlighted() {
+        const row = this.#list.querySelector(".highlight > .schema-item");
+        if (!(row instanceof HTMLElement)) {
+            return null;
+        }
+        return { table : this.getTable(row), group : this.getGroup(row) };
+    }
+
+    /**
+     * Takes the highlight to the row the mouse is over, so that the arrows go
+     * on from wherever it was last looked at
+     * @param {EventTarget} target
+     * @returns {Void}
+     */
+    highlightHovered(target) {
+        if (!(target instanceof HTMLElement) || !this.#list.contains(target)) {
+            return;
+        }
+
+        const row = target.closest(".schema-table, .schema-group");
+        if (!row || row.classList.contains("highlight")) {
+            return;
+        }
+        this.clearHighlight();
+        row.classList.add("highlight");
+    }
+
+    /**
+     * Takes the highlight off whatever has it
+     * @returns {Void}
+     */
+    clearHighlight() {
+        for (const row of this.#list.querySelectorAll(".highlight")) {
+            row.classList.remove("highlight");
+        }
+    }
 }

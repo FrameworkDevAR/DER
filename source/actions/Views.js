@@ -23,6 +23,18 @@ export async function selectView(viewID) {
 }
 
 /**
+ * Shows the View in the given place of the strip, if there is one there
+ * @param {Number} position
+ * @returns {Promise}
+ */
+export async function selectByPosition(position) {
+    const viewID = App.storage.getViewIDs()[position - 1];
+    if (viewID) {
+        await selectView(viewID);
+    }
+}
+
+/**
  * Opens the Dialog of the given View
  * @param {Number} viewID
  * @returns {Void}

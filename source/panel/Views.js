@@ -1,4 +1,5 @@
-import Dialog from "../dialogs/Dialog.js";
+import Dialog    from "../dialogs/Dialog.js";
+import * as Keys from "../actions/Keys.js";
 
 
 
@@ -47,12 +48,22 @@ export default class Views {
         this.#container.style.display = views.length ? "flex" : "none";
         this.#list.innerHTML = "";
 
-        for (const view of views) {
+        for (const [ index, view ] of views.entries()) {
             const li = document.createElement("li");
-            li.title          = "Double click to edit the View";
-            li.className      = view.isSelected ? "selected" : "";
-            li.dataset.action = "select-view";
-            li.dataset.view   = String(view.id);
+            li.className       = view.isSelected ? "selected" : "";
+            li.dataset.action  = "select-view";
+            li.dataset.view    = String(view.id);
+            li.dataset.tip     = view.isSelected ? "Double click to edit the view" : "Show this view";
+            li.dataset.tipTop  = "";
+
+            // Only the first nine have a number, and a key that reaches them
+            if (index < 9) {
+                const number = document.createElement("span");
+                number.className = "views-number";
+                number.innerHTML = `#${index + 1}`;
+                li.appendChild(number);
+                li.dataset.keys = `${Keys.getModKey()} ${index + 1}`;
+            }
 
             const name = document.createElement("span");
             name.className = "views-name";
@@ -70,7 +81,8 @@ export default class Views {
                 const edit = document.createElement("a");
                 edit.href           = "#";
                 edit.className      = "views-edit";
-                edit.title          = "Edit the View";
+                edit.dataset.tip    = "Edit the view";
+                edit.dataset.tipTop = "";
                 edit.dataset.action = "edit-view";
                 edit.dataset.view   = String(view.id);
                 li.appendChild(edit);

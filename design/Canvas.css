@@ -178,6 +178,13 @@ main {
     opacity: 0.5;
 }
 
+.panning main {
+    cursor: grab;
+}
+.panning main:active {
+    cursor: grabbing;
+}
+
 .canvas-table.dragging {
     z-index: var(--z-table-dragging);
     transition: none;

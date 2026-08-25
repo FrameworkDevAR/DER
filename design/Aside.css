@@ -257,6 +257,12 @@
 .schema-group {
     margin-bottom: 1px;
     border-radius: var(--input-radius);
+    scroll-margin-block: 26px;
+}
+
+.schema-table.highlight > .schema-item,
+.schema-group.highlight > .schema-item {
+    background-color: var(--hover-color);
 }
 
 .schema-table.faded {

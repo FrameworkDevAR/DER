@@ -5,6 +5,8 @@ import * as Groups   from "./actions/Groups.js";
 import * as Tables   from "./actions/Tables.js";
 import * as Context  from "./actions/Context.js";
 import * as Settings from "./actions/Settings.js";
+import * as Keys     from "./actions/Keys.js";
+import * as Aside    from "./actions/Aside.js";
 import Utils         from "./core/Utils.js";
 
 
@@ -27,6 +29,7 @@ async function start() {
         App.welcome.open();
     }
     App.configs.apply();
+    Keys.showKeys();
     Settings.restoreTheme();
     App.updateBoard();
 }
@@ -37,6 +40,10 @@ async function start() {
  * The Click Event Handler
  */
 document.addEventListener("click", (e) => {
+    // A click that ended a pan is not a click on whatever it landed on
+    if (Keys.isPanning()) {
+        return;
+    }
     App.context.close();
 
     const target     = Utils.getTarget(e);
@@ -194,8 +201,7 @@ document.addEventListener("click", (e) => {
         Tables.clearBoard();
         break;
     case "toggle-aside":
-        App.aside.toggleCollapse();
-        App.storage.setCollapsed(App.aside.isCollapsed);
+        Aside.toggleCollapse();
         break;
     case "toggle-list":
         Tables.toggleList();
@@ -221,17 +227,13 @@ document.addEventListener("click", (e) => {
 
     // Zoom Actions
     case "zoom-in":
-        App.storage.setZoom(App.canvas.setZoom("in"));
-        Utils.unselect();
+        Tables.setZoom("in");
         break;
     case "zoom-out":
-        App.storage.setZoom(App.canvas.setZoom("out"));
-        Utils.unselect();
+        Tables.setZoom("out");
         break;
     case "reset-zoom":
-        App.canvas.setZoom("reset");
-        App.storage.removeZoom();
-        Utils.unselect();
+        Tables.setZoom("reset");
         break;
     default:
     }
@@ -323,6 +325,9 @@ document.querySelector(".schema-filter input").addEventListener("input", () => {
     if (!App.schema) {
         return;
     }
+
+    // What was walked to is gone with the rows it was one of
+    App.schema.clearHighlight();
     const value = App.schema.filterList();
     App.storage.setFilter(value);
 });
@@ -354,6 +359,9 @@ document.querySelector("main").addEventListener("scroll", () => {
  */
 document.addEventListener("mouseover", (e) => {
     App.tooltip.follow(e);
+    if (App.schema) {
+        App.schema.highlightHovered(e.target);
+    }
 });
 
 /**
@@ -372,6 +380,15 @@ document.addEventListener("mousedown", (e) => {
     if (e.button !== 0) {
         return;
     }
+
+    // The Space held turns any drag into one that moves the board, so it is
+    // answered before whatever the drag started on
+    if (App.canvas && Keys.isPanning()) {
+        App.canvas.pointer.pickScroll(e);
+        e.preventDefault();
+        return;
+    }
+
     switch (action) {
     case "drag-table":
         const table = App.schema.getTable(target);
@@ -424,9 +441,23 @@ document.addEventListener("contextmenu", (e) => {
  * The Key Event Handler
  */
 document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-        App.context.close();
+    if (Keys.handleKey(e)) {
+        e.preventDefault();
     }
+});
+
+/**
+ * The Key Release Event Handler
+ */
+document.addEventListener("keyup", (e) => {
+    Keys.handleKeyUp(e);
+});
+
+/**
+ * The Blur Event Handler
+ */
+window.addEventListener("blur", () => {
+    Keys.handleKeyUp();
 });
 
 /**

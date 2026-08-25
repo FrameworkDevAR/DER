@@ -329,7 +329,24 @@ export default class Canvas {
      * @returns {Object?}
      */
     get boardBounds() {
-        const items = [ ...Object.values(this.#tables), ...Object.values(this.#groups) ];
+        return this.getBounds([ ...Object.values(this.#tables), ...Object.values(this.#groups) ]);
+    }
+
+    /**
+     * Returns the box what is picked sits in, or null when nothing is
+     * @returns {Object?}
+     */
+    get pickedBounds() {
+        // A Table picked from the list has no card on the board to be shown
+        return this.getBounds([ ...this.picker.canvasTables, ...this.picker.selectedGroups ]);
+    }
+
+    /**
+     * Returns the box the given Tables and Groups sit in
+     * @param {(Table|Group)[]} items
+     * @returns {Object?}
+     */
+    getBounds(items) {
         if (!items.length) {
             return null;
         }
@@ -342,14 +359,14 @@ export default class Canvas {
     }
 
     /**
-     * Zooms out until the whole board is on screen, and puts it in the middle
+     * Zooms out until the given box is on screen, and puts it in the middle
      * of what the Aside leaves free. It never zooms past its own size, since
      * a board of two Tables blown up says no more than one that is not
+     * @param {Object?} bounds
      * @returns {Number}
      */
-    fitBoard() {
-        const gap    = 60;
-        const bounds = this.boardBounds;
+    fitBoard(bounds) {
+        const gap = 60;
         if (!bounds) {
             return this.zoom.percent * Options.DEFAULT_ZOOM;
         }

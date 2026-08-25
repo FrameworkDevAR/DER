@@ -284,7 +284,75 @@ export function fitBoard() {
 
     // The scroll of the board is written by the handler that watches it, once
     // it has finished sliding, so writing it here would write where it was
-    App.storage.setZoom(App.canvas.fitBoard());
+    App.storage.setZoom(App.canvas.fitBoard(App.canvas.boardBounds));
+}
+
+/**
+ * Zooms the board so that what is picked is all of what is on screen
+ * @returns {Void}
+ */
+export function fitPicked() {
+    const bounds = App.canvas.pickedBounds;
+    if (!bounds) {
+        App.toast.show("Nothing is picked");
+        return;
+    }
+    App.storage.setZoom(App.canvas.fitBoard(bounds));
+}
+
+/**
+ * Zooms the board in, out or back to where it started
+ * @param {"in"|"out"|"reset"} action
+ * @returns {Void}
+ */
+export function setZoom(action) {
+    const value = App.canvas.setZoom(action);
+
+    // Back at where it started there is nothing to remember
+    if (action === "reset") {
+        App.storage.removeZoom();
+    } else {
+        App.storage.setZoom(value);
+    }
+    Utils.unselect();
+}
+
+/**
+ * Moves what is picked by the given amount, which is what an arrow does
+ * @param {Number} top
+ * @param {Number} left
+ * @returns {Void}
+ */
+export function nudgeTables(top, left) {
+    const tables = App.canvas.picker.canvasTables;
+    if (!tables.length) {
+        return;
+    }
+
+    for (const table of tables) {
+        table.translate({ top : table.top + top, left : table.left + left });
+        App.canvas.reconnect(table);
+        if (table.group) {
+            table.group.position();
+        }
+        App.storage.setTable(table);
+    }
+}
+
+/**
+ * Takes every Table that is picked off the board
+ * @returns {Void}
+ */
+export function removePicked() {
+    const tables = App.canvas.picker.canvasTables;
+    if (!tables.length) {
+        return;
+    }
+
+    App.canvas.picker.unselect();
+    for (const table of tables) {
+        removeTable(table);
+    }
 }
 
 /**

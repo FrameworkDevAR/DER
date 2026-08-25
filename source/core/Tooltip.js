@@ -50,8 +50,20 @@ export default class Tooltip {
      * @returns {Void}
      */
     show() {
+        const text = document.createElement("span");
+
         this.#timer = 0;
-        this.#element.innerHTML = this.#target.dataset.tip;
+        this.#element.innerHTML = "";
+        text.innerHTML = this.#target.dataset.tip;
+        this.#element.appendChild(text);
+
+        // The keys that do the same are drawn as the keys they are
+        for (const name of (this.#target.dataset.keys || "").split(" ").filter(Boolean)) {
+            const key = document.createElement("b");
+            key.innerHTML = name;
+            this.#element.appendChild(key);
+        }
+
         this.place();
         this.#element.classList.add("visible");
     }
