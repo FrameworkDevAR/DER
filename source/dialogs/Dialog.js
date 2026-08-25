@@ -114,6 +114,15 @@ export default class Dialog {
     }
 
     /**
+     * Returns every Element of the Dialog that answers the given selector
+     * @param {String} selector
+     * @returns {NodeListOf<HTMLElement>}
+     */
+    getElements(selector) {
+        return this.#container.querySelectorAll(selector);
+    }
+
+    /**
      * Set the Dialog title
      * @returns {Void}
      */

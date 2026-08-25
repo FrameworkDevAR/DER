@@ -182,6 +182,9 @@ document.addEventListener("click", (e) => {
     case "open-settings":
         App.settings.open();
         break;
+    case "settings-tab":
+        App.settings.setTab(target);
+        break;
     case "close-settings":
         App.settings.close();
         break;

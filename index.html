@@ -307,6 +307,12 @@
             <div class="backdrop settings-dialog" data-dialog="settings">
                 <dialog open>
                     <h2>Settings</h2>
+                    <nav class="dialog-tabs">
+                        <span class="dialog-tabs-mark"></span>
+                        <a href="#" class="selected" data-action="settings-tab" data-tab="options">Options</a>
+                        <a href="#" data-action="settings-tab" data-tab="keys">Shortcuts</a>
+                    </nav>
+                    <ol class="keys-list"></ol>
                     <form>
                         <h3>Board</h3>
                         <label class="toggle-input" data-field="showGrid">
@@ -357,12 +363,11 @@
                             <input type="checkbox" role="switch" name="showDots" value="1" />
                             <div>End them in dots rather than in crow's feet</div>
                         </label>
-
-                        <footer>
-                            <button class="btn btn-fill" data-action="save-settings">Save settings</button>
-                            <button class="btn" data-action="close-settings">Cancel</button>
-                        </footer>
                     </form>
+                    <footer>
+                        <button class="btn btn-fill" data-action="save-settings">Save settings</button>
+                        <button class="btn" data-action="close-settings">Cancel</button>
+                    </footer>
                     <a href="#" class="close" data-action="close-settings"></a>
                 </dialog>
             </div>
