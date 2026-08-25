@@ -102,7 +102,8 @@ body {
     --backdrop-color: rgba(9, 9, 11, 0.42);
     --card-color: #ffffff;
     --glass-color: rgba(255, 255, 255, 0.3);
-    --sunk-color: #fafafa;
+    --sunk-color: #f1f1f4;
+    --field-color: #fafafa;
     --hover-color: rgb(233, 234, 245);
     --border-color: #e5e5e8;
     --input-color: #e5e5e8;
@@ -129,7 +130,8 @@ body {
     --backdrop-color: rgba(9, 9, 11, 0.62);
     --card-color: #18181b;
     --glass-color: rgba(24, 24, 27, 0.6);
-    --sunk-color: #1f1f23;
+    --sunk-color: #232329;
+    --field-color: #1f1f23;
     --hover-color: #26262c;
     --border-color: #2a2a30;
     --input-color: #2a2a30;

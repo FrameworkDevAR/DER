@@ -112,7 +112,7 @@
     padding: 0 6px 0 10px;
     border: 1px solid var(--border-color);
     border-radius: var(--input-radius);
-    background-color: var(--sunk-color);
+    background-color: var(--field-color);
     transition: border-color 0.2s;
     z-index: 1;
 }
