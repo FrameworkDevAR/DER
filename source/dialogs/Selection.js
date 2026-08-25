@@ -88,6 +88,13 @@ export default class Selection {
             editBtn.dataset.schema = schema.schemaID;
             buttons.appendChild(editBtn);
 
+            const exportBtn = document.createElement("button");
+            exportBtn.innerHTML      = "Export";
+            exportBtn.className      = "btn btn-small";
+            exportBtn.dataset.action = "export-schema";
+            exportBtn.dataset.schema = schema.schemaID;
+            buttons.appendChild(exportBtn);
+
             const removeBtn = document.createElement("button");
             removeBtn.innerHTML      = "Remove";
             removeBtn.className      = "btn btn-small";

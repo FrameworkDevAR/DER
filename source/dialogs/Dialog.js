@@ -1,3 +1,7 @@
+import Utils from "../core/Utils.js";
+
+
+
 /**
  * The Dialog
  */
@@ -189,15 +193,10 @@ export default class Dialog {
      * @returns {Void}
      */
     selectFile(name, onSelect) {
-        const input    = document.createElement("input");
-        input.type     = "file";
-        input.accept   = ".json";
-        input.onchange = () => {
-            const file = input.files[0];
+        Utils.selectFile((file) => {
             this.setInput(name, file.name);
             onSelect(file);
-        };
-        input.click();
+        });
     }
 
     /**

@@ -1,5 +1,6 @@
 import * as App    from "../App.js";
 import Schema      from "../panel/Schema.js";
+import Utils       from "../core/Utils.js";
 
 
 
@@ -118,6 +119,53 @@ export function removeSchema(schemaID) {
     App.views.create(App.storage.getViews());
     App.selection.closeRemove();
     App.selection.open(App.storage.getSchemas());
+}
+
+/**
+ * Writes the given Schema out as a file, with the board of every View
+ * @param {Number} schemaID
+ * @returns {Void}
+ */
+export function exportSchema(schemaID) {
+    const data = App.storage.exportSchema(schemaID);
+    if (!data) {
+        App.toast.show("There is nothing to export");
+        return;
+    }
+
+    const name = data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    Utils.download(`${name}.der.json`, JSON.stringify(data, null, 4));
+    App.toast.show(`Exported "${data.name}"`);
+}
+
+/**
+ * Takes a Schema in from a file, and shows the board it comes with
+ * @returns {Void}
+ */
+export function importSchema() {
+    Utils.selectFile(async (file) => {
+        let data = null;
+        try {
+            data = JSON.parse(await file.text());
+        } catch {
+            data = null;
+        }
+
+        const schemaID = App.storage.importSchema(data);
+        if (!schemaID) {
+            App.toast.show("That file is not a Schema written out by DER");
+            return;
+        }
+
+        await selectSchema(schemaID);
+        App.welcome.close();
+
+        // The Dialog stays put while there is nothing to go back to, and the
+        // Schema that just came in is something to go back to
+        App.selection.canClose = true;
+        App.selection.close();
+        App.toast.show(`Imported "${data.name}"`);
+    });
 }
 
 /**

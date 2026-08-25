@@ -104,6 +104,12 @@ document.addEventListener("click", (e) => {
     case "edit-schema":
         Schemas.editSchema();
         break;
+    case "export-schema":
+        Schemas.exportSchema(schemaID);
+        break;
+    case "import-schema":
+        Schemas.importSchema();
+        break;
     case "open-remove-schema":
         App.selection.openRemove(schemaID);
         break;

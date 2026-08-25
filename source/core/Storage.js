@@ -4,6 +4,12 @@ import Utils from "./Utils.js";
 
 
 
+// What a file written out says it is, so one that is not read as one
+const EXPORT_KEY     = "der";
+const EXPORT_VERSION = 1;
+
+
+
 /**
  * The Storage
  */
@@ -304,6 +310,94 @@ export default class Storage {
         if (this.#currentID === schemaID) {
             this.selectSchema(0);
         }
+    }
+
+
+
+    /**
+     * Returns everything the Schema holds, to be written out as a file
+     * @param {Number} schemaID
+     * @returns {Object?}
+     */
+    exportSchema(schemaID) {
+        const prefix = `${schemaID}-`;
+        const items  = {};
+
+        // Every key of the Schema answers to its ID, from the Schema itself to
+        // the boards of its Views, so the prefix is all there is to gather
+        for (const key of Object.keys(localStorage)) {
+            if (key.startsWith(prefix)) {
+                items[key.slice(prefix.length)] = this.#readValue(localStorage.getItem(key));
+            }
+        }
+        if (!items.data) {
+            return null;
+        }
+        return { [EXPORT_KEY] : EXPORT_VERSION, name : this.getSchemaData(schemaID).name, items };
+    }
+
+    /**
+     * Returns what is stored under a key as the value it holds, so a file
+     * written out reads as what it is and not as text inside text. Only what
+     * was stored as an object or a list is read back, since a string that
+     * looks like a number is a string and has to come back as one
+     * @param {String} value
+     * @returns {*}
+     */
+    #readValue(value) {
+        if (!value.startsWith("{") && !value.startsWith("[")) {
+            return value;
+        }
+        try {
+            return JSON.parse(value);
+        } catch {
+            return value;
+        }
+    }
+
+    /**
+     * Takes a Schema in from a file as a new one, and returns the ID it took,
+     * or nothing when the file is not one that was written out
+     * @param {Object} file
+     * @returns {Number}
+     */
+    importSchema(file) {
+        if (!file || file[EXPORT_KEY] !== EXPORT_VERSION || !file.items) {
+            return 0;
+        }
+
+        // What is written out as a value of its own is stored as the text it
+        // was, which is what everything that reads it after expects
+        const items = {};
+        for (const [ key, value ] of Object.entries(file.items)) {
+            items[key] = typeof value === "string" ? value : JSON.stringify(value);
+        }
+
+        let data = null;
+        try {
+            data = JSON.parse(items.data);
+        } catch {
+            return 0;
+        }
+        if (!data || !data.name) {
+            return 0;
+        }
+
+        const schemaID = this.#nextID;
+        this.#nextID += 1;
+        this.setNumber("nextID", this.#nextID);
+
+        for (const [ key, value ] of Object.entries(items)) {
+            localStorage.setItem(`${schemaID}-${key}`, value);
+        }
+
+        // The Schema names the ID it answers to, and it is not the one it left
+        data.schemaID = schemaID;
+        this.setData(schemaID, "data", data);
+
+        this.#schemas.push(schemaID);
+        this.setData("schemas", this.#schemas);
+        return schemaID;
     }
 
 

@@ -183,6 +183,37 @@ function getMousePos(event, withScroll = true) {
     return { top, left };
 }
 
+
+
+/**
+ * Asks for a json file and hands over the one that is chosen
+ * @param {Function} onSelect
+ * @returns {Void}
+ */
+function selectFile(onSelect) {
+    const input    = document.createElement("input");
+    input.type     = "file";
+    input.accept   = ".json";
+    input.onchange = () => onSelect(input.files[0]);
+    input.click();
+}
+
+/**
+ * Writes the given text out as a file the browser takes away
+ * @param {String} name
+ * @param {String} text
+ * @returns {Void}
+ */
+function download(name, text) {
+    const url  = URL.createObjectURL(new Blob([ text ], { type : "application/json" }));
+    const link = document.createElement("a");
+
+    link.href     = url;
+    link.download = name;
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
 /**
  * Unselects the elements
  * @returns {Void}
@@ -216,5 +247,8 @@ export default {
     intersectsBounds,
     inElement,
     getMousePos,
+
+    selectFile,
+    download,
     unselect,
 };
