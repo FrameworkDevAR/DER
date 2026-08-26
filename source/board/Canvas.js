@@ -324,6 +324,22 @@ export default class Canvas {
     }
 
     /**
+     * Returns the middle of the board, in the coordinates the Tables sit in.
+     * The Canvas is drawn at the size the zoom makes it, and a Table is drawn
+     * at its place times that same zoom, so what a Table can reach is the same
+     * board however far in or out it is seen
+     * @returns {{top: Number, left: Number}}
+     */
+    get middle() {
+        const scale = this.zoom.scale;
+
+        return {
+            top  : this.#canvas.offsetHeight / scale / 2,
+            left : this.#canvas.offsetWidth  / scale / 2,
+        };
+    }
+
+    /**
      * Returns the box every Table and Group of the board sits in, in the
      * coordinates of the Canvas, or null when there is nothing on it
      * @returns {Object?}

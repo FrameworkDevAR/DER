@@ -116,12 +116,23 @@ export function addAllTables() {
         }
     }
 
-    layoutTables(added);
+    // With nothing to add there is nothing to arrange, and the board is only
+    // shown whole
+    if (!added.length) {
+        fitBoard();
+        return;
+    }
+
+    layoutBlocks(added);
     for (const table of added) {
         App.storage.setTable(table);
     }
     App.updateBoard();
-    tidyOnAdd();
+
+    // A board filled in one go is nobody's arrangement, so the Groups are
+    // gathered and the blocks pushed apart whatever the Settings say about
+    // tidying what arrives, and it is shown whole once it stops moving
+    pushApart(fitBoard);
 }
 
 /**
@@ -193,6 +204,90 @@ export function layoutTables(tables, columnGap = 40) {
 
     // The links were drawn where the Tables were dropped, before the layout
     App.canvas.reconnectAll();
+}
+
+/**
+ * Lays the given Tables out a Group at a time, each Group a cluster of its own
+ * and everything with no Group one more, and the clusters in as square a grid
+ * as their amount allows. A board filled in one go then reads the way one
+ * filled a Group at a time does
+ * @param {Table[]} tables
+ * @returns {Void}
+ */
+function layoutBlocks(tables) {
+    const blocks = [];
+    const loose  = [];
+
+    for (const table of tables) {
+        if (!table.group) {
+            loose.push(table);
+            continue;
+        }
+        const block = blocks.find((one) => one.group.isEqual(table.group));
+        if (block) {
+            block.tables.push(table);
+        } else {
+            blocks.push({ group : table.group, tables : [ table ] });
+        }
+    }
+    if (loose.length) {
+        blocks.push({ group : null, tables : loose });
+    }
+    if (blocks.length < 2) {
+        layoutTables(tables);
+        centerTables(tables);
+        return;
+    }
+
+    // A cluster is laid out where it stands, and only then does it know how
+    // much room it takes and can be moved as one to the place it is given
+    const gap = 60;
+    for (const block of blocks) {
+        layoutTables(block.tables, block.group ? 100 : 40);
+        block.bounds = App.canvas.getBounds(block.tables);
+    }
+
+    const columns = Math.ceil(Math.sqrt(blocks.length));
+    const width   = Math.max(...blocks.map((block) => block.bounds.width)) + gap;
+    const bottoms = new Array(columns).fill(0);
+
+    for (const [ index, block ] of blocks.entries()) {
+        const column = index % columns;
+        const toTop  = bottoms[column] - block.bounds.top;
+        const toLeft = column * width  - block.bounds.left;
+
+        for (const table of block.tables) {
+            table.translate({ top : table.top + toTop, left : table.left + toLeft });
+        }
+        bottoms[column] += block.bounds.height + gap;
+    }
+
+    centerTables(tables);
+    for (const block of blocks) {
+        if (block.group) {
+            block.group.position();
+        }
+    }
+
+    // The links were drawn where the Tables were dropped, before the layout
+    App.canvas.reconnectAll();
+}
+
+/**
+ * Moves the given Tables as one, so what they take up ends up around the
+ * middle of the board, wherever the board is scrolled to at the time
+ * @param {Table[]} tables
+ * @returns {Void}
+ */
+function centerTables(tables) {
+    const bounds = App.canvas.getBounds(tables);
+    const middle = App.canvas.middle;
+    const top    = middle.top  - bounds.height / 2 - bounds.top;
+    const left   = middle.left - bounds.width  / 2 - bounds.left;
+
+    for (const table of tables) {
+        table.translate({ top : table.top + top, left : table.left + left });
+    }
 }
 
 /**
@@ -384,11 +479,15 @@ export function tidyOnAdd() {
  * Pulls the board apart until nothing overlaps, moving each Table as little as
  * it can rather than laying the whole thing out again, so a board stays the
  * one that was arranged. The Groups move whole, and what they hold with them
+ * @param {Function=} onSettle
  * @returns {Number}
  */
-export function pushApart() {
+export function pushApart(onSettle = null) {
     const tables = Object.values(App.canvas.tables);
     if (!tables.length) {
+        if (onSettle) {
+            onSettle();
+        }
         return 0;
     }
 
@@ -437,7 +536,7 @@ export function pushApart() {
     }
 
     anchor(tables, spots);
-    return slideTables(spots, groups);
+    return slideTables(spots, groups, onSettle);
 }
 
 /**
@@ -558,11 +657,12 @@ function anchor(tables, spots) {
  * the Groups and the Links along the way so nothing lags behind. A tab that is
  * not being painted gets no frames, so the board is put in place on a timer
  * whatever happens
- * @param {Map}     spots
- * @param {Group[]} groups
+ * @param {Map}       spots
+ * @param {Group[]}   groups
+ * @param {Function=} onSettle
  * @returns {Number}
  */
-function slideTables(spots, groups) {
+function slideTables(spots, groups, onSettle = null) {
     const from  = new Map();
     let   moved = 0;
 
@@ -573,6 +673,9 @@ function slideTables(spots, groups) {
         }
     }
     if (!moved) {
+        if (onSettle) {
+            onSettle();
+        }
         return 0;
     }
 
@@ -591,6 +694,11 @@ function slideTables(spots, groups) {
             App.storage.setTable(table);
         }
         App.updateBoard();
+
+        // Whatever waits on the board standing still waits until here
+        if (onSettle) {
+            onSettle();
+        }
     };
 
     const started = performance.now();
