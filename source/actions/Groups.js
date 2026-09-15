@@ -1,7 +1,8 @@
-import * as App    from "../App.js";
-import * as Tables from "./Tables.js";
-import Group       from "../board/Group.js";
-import Table       from "../board/Table.js";
+import * as App     from "../App.js";
+import * as Tables  from "./Tables.js";
+import * as History from "./History.js";
+import Group        from "../board/Group.js";
+import Table        from "../board/Table.js";
 
 
 
@@ -44,6 +45,7 @@ export function openGroupOf(table) {
  * @returns {Void}
  */
 export function addGroupTables(group) {
+    History.remember();
     const isPlaced = group.onCanvas;
     const top      = isPlaced ? group.bottom + 40 : 0;
     const left     = isPlaced ? group.left + group.width / 2 : 0;
@@ -85,6 +87,7 @@ export function addGroupTables(group) {
  * @returns {Void}
  */
 export function removeGroupTables(group) {
+    History.remember();
     App.canvas.picker.unselect();
     for (const table of group.tables) {
         if (table.onCanvas) {
@@ -105,6 +108,8 @@ export function groupByPrefix() {
         return;
     }
 
+    History.remember();
+
     for (const data of App.schema.getPrefixGroups()) {
         const group = App.schema.setGroup({ id : App.storage.nextGroup, name : data.name, tables : data.tables });
         App.storage.setGroup(group);
@@ -124,6 +129,8 @@ export function groupByPrefix() {
  * @returns {Void}
  */
 export function updateGroup(data) {
+    History.remember();
+
     // A Table can only be in one Group, so the ones it is taking are asked to
     // leave the Group they are in first, since a Group that is left with
     // nothing goes away and the Tables it still holds have to be told
@@ -222,6 +229,8 @@ export function removeGroup() {
     if (!App.grouper.group) {
         return;
     }
+
+    History.remember();
     App.schema.removeGroup(App.grouper.group);
     App.canvas.removeGroup(App.grouper.group);
     App.storage.removeGroup(App.grouper.group.id);

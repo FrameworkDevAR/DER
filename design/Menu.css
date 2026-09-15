@@ -275,6 +275,56 @@
     border-radius: 6px;
 }
 
+.steps {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: var(--menu-padding);
+    border: 1px solid var(--border-color);
+    border-radius: var(--pill-radius);
+    background-color: var(--card-color);
+    box-shadow: var(--pill-shadow);
+    color: var(--main-color);
+    transition: all 300ms ease;
+}
+.steps:hover {
+    border-color: var(--accent-color);
+}
+.steps li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--menu-size);
+    height: var(--menu-size);
+    border-radius: 50%;
+    transition: all 300ms ease;
+    cursor: pointer;
+}
+.steps li:hover {
+    background-color: var(--accent-soft);
+    color: var(--accent-color);
+}
+.steps .svg-icon {
+    width: 16px;
+    height: 16px;
+}
+.icon-undo .svg-icon {
+    --icon-image: var(--undo-icon);
+}
+.icon-redo .svg-icon {
+    --icon-image: var(--redo-icon);
+}
+.icon-disabled.icon-disabled {
+    color: var(--lighter-color);
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.icon-disabled.icon-disabled:hover {
+    background-color: transparent;
+    color: var(--lighter-color);
+}
+
 .icons {
     display: flex;
     flex-direction: column;

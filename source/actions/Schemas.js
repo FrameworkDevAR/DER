@@ -1,6 +1,7 @@
-import * as App    from "../App.js";
-import Schema      from "../panel/Schema.js";
-import Utils       from "../core/Utils.js";
+import * as App     from "../App.js";
+import * as History from "./History.js";
+import Schema       from "../panel/Schema.js";
+import Utils        from "../core/Utils.js";
 
 
 
@@ -80,6 +81,7 @@ export async function selectSchema(schemaID) {
         App.canvas.destroy();
     }
     App.storage.selectSchema(schemaID);
+    History.forget();
     setSchema(data);
     return true;
 }

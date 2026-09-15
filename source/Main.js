@@ -7,6 +7,7 @@ import * as Context  from "./actions/Context.js";
 import * as Settings from "./actions/Settings.js";
 import * as Keys     from "./actions/Keys.js";
 import * as Aside    from "./actions/Aside.js";
+import * as History  from "./actions/History.js";
 import Utils         from "./core/Utils.js";
 
 
@@ -109,6 +110,12 @@ document.addEventListener("click", (e) => {
         break;
     case "import-schema":
         Schemas.importSchema();
+        break;
+    case "undo":
+        History.undo();
+        break;
+    case "redo":
+        History.redo();
         break;
     case "open-remove-schema":
         App.selection.openRemove(schemaID);
@@ -402,6 +409,9 @@ document.addEventListener("mousedown", (e) => {
     case "drag-table":
         const table = App.schema.getTable(target);
         if (table) {
+            // The board is taken as the drag starts, since by the time it is
+            // let go of it has already moved
+            History.remember();
             App.canvas.pointer.pickTable(e, table, specialKey);
             if (App.canvas.picker.isSelected(table)) {
                 Groups.openGroupOf(table);
@@ -412,6 +422,7 @@ document.addEventListener("mousedown", (e) => {
     case "drag-group":
         const group = App.schema.getGroup(target);
         if (group) {
+            History.remember();
             App.canvas.pointer.pickGroup(e, group, specialKey);
             Groups.expandGroup(group);
             e.preventDefault();

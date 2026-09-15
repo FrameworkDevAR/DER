@@ -11,6 +11,11 @@ import Utils   from "../core/Utils.js";
  */
 export default class Table {
 
+    // Whether a card is drawn without the animation that brings it in, which
+    // is what a board being put back the way it was asks for
+    static isQuiet = false;
+
+
     /** @type {Field[]} */
     #fields = [];
 
@@ -497,7 +502,7 @@ export default class Table {
      */
     createCanvasElem() {
         this.#canvasElem = document.createElement("div");
-        this.#canvasElem.className       = "canvas-table";
+        this.#canvasElem.className       = Table.isQuiet ? "canvas-table quiet" : "canvas-table";
         this.#canvasElem.dataset.action  = "select-canvas-table";
         this.#canvasElem.dataset.table   = this.name;
         this.#canvasElem.style.transform = `translate(${this.left}px, ${this.top}px)`;

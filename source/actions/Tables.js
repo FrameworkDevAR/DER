@@ -1,9 +1,10 @@
-import * as App    from "../App.js";
-import * as Groups from "./Groups.js";
-import Group       from "../board/Group.js";
-import Dialog      from "../dialogs/Dialog.js";
-import Table       from "../board/Table.js";
-import Utils       from "../core/Utils.js";
+import * as App     from "../App.js";
+import * as History from "./History.js";
+import * as Groups  from "./Groups.js";
+import Group        from "../board/Group.js";
+import Dialog       from "../dialogs/Dialog.js";
+import Table        from "../board/Table.js";
+import Utils        from "../core/Utils.js";
 
 
 
@@ -107,6 +108,8 @@ export function addAllTables() {
         return;
     }
 
+    History.remember();
+
     App.canvas.picker.unselect();
     const added = [];
     for (const table of Object.values(App.schema.tables)) {
@@ -158,6 +161,7 @@ export function closeClearBoard() {
  * @returns {Void}
  */
 export function clearBoard() {
+    History.remember();
     if (!App.schema) {
         return;
     }
@@ -327,6 +331,7 @@ export function selectFromCanvas(table, specialKey) {
  * @returns {Void}
  */
 export function addTable(table) {
+    History.remember();
     App.canvas.addTable(table);
 
     // One that was picked from the list keeps its place in the selection,
@@ -347,6 +352,7 @@ export function addTable(table) {
  * @returns {Void}
  */
 export function removeTable(table) {
+    History.remember();
     App.canvas.removeTable(table);
     App.canvas.picker.selectTableOffCanvas(table);
     App.storage.setTable(table);
@@ -361,6 +367,7 @@ export function removeTable(table) {
  * @returns {Void}
  */
 export function toggleFields(table, specialKey) {
+    History.remember();
     table.toggleFields();
     App.canvas.resizeTable(table);
     App.canvas.picker.selectTableFromCanvas(table, specialKey);
@@ -424,6 +431,9 @@ export function nudgeTables(top, left) {
         return;
     }
 
+    // An arrow held down is one move, not one for every step it takes
+    History.remember("nudge");
+
     for (const table of tables) {
         table.translate({ top : table.top + top, left : table.left + left });
         App.canvas.reconnect(table);
@@ -444,6 +454,8 @@ export function removePicked() {
         return;
     }
 
+    History.remember();
+
     App.canvas.picker.unselect();
     for (const table of tables) {
         removeTable(table);
@@ -456,6 +468,7 @@ export function removePicked() {
  * @returns {Void}
  */
 export function tidyBoard() {
+    History.remember();
     const moved = pushApart();
     if (!moved) {
         App.toast.show("The board is already tidy");

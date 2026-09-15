@@ -1,8 +1,9 @@
-import * as App    from "../App.js";
-import * as Aside  from "./Aside.js";
-import * as Groups from "./Groups.js";
-import * as Tables from "./Tables.js";
-import * as Views  from "./Views.js";
+import * as App     from "../App.js";
+import * as Aside   from "./Aside.js";
+import * as Groups  from "./Groups.js";
+import * as Tables  from "./Tables.js";
+import * as Views   from "./Views.js";
+import * as History from "./History.js";
 
 
 
@@ -36,6 +37,25 @@ const SHORTCUTS = [
         always : true,
         text   : "Close the menu or a dialog, empty the filter, drop the selection",
         run    : closeSomething,
+    },
+    {
+        names     : [ "Mod", "Z" ],
+        keys      : [ "z" ],
+        withKey   : true,
+        notTyping : true,
+        action    : "undo",
+        text      : "Take a step back",
+        run       : History.undo,
+    },
+    {
+        names     : [ "Mod", "Shift", "Z" ],
+        keys      : [ "z" ],
+        withKey   : true,
+        withShift : true,
+        notTyping : true,
+        action    : "redo",
+        text      : "Take that step again",
+        run       : History.redo,
     },
     {
         names   : [ "Mod", "F" ],
@@ -220,7 +240,8 @@ export function handleKey(event) {
         if (getOpenDialog()) {
             return false;
         }
-        if (!withKey && isTyping()) {
+        // A field takes its own steps back, which are not the board's
+        if ((!withKey || shortcut.notTyping) && isTyping()) {
             return false;
         }
     }

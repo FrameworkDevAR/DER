@@ -324,6 +324,18 @@ export default class Canvas {
     }
 
     /**
+     * Says whether what is drawn from here on is drawn without the animation
+     * that brings it in, which a board being put back the way it was has no
+     * business playing again
+     * @param {Boolean} isQuiet
+     * @returns {Void}
+     */
+    setQuiet(isQuiet) {
+        Table.isQuiet = isQuiet;
+        Link.isQuiet  = isQuiet;
+    }
+
+    /**
      * Returns the middle of the board, in the coordinates the Tables sit in.
      * The Canvas is drawn at the size the zoom makes it, and a Table is drawn
      * at its place times that same zoom, so what a Table can reach is the same

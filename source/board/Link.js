@@ -14,6 +14,9 @@ export default class Link {
     static isStraight = false;
     static showDots   = false;
 
+    // Whether a Link is drawn without the animation that brings it in
+    static isQuiet    = false;
+
 
     /**
      * Link constructor
@@ -48,6 +51,9 @@ export default class Link {
 
         this.element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.element.classList.add("schema-link");
+        if (Link.isQuiet) {
+            this.element.classList.add("quiet");
+        }
 
         this.path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         this.from = document.createElementNS("http://www.w3.org/2000/svg", "path");

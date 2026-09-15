@@ -315,6 +315,58 @@ export default class Storage {
 
 
     /**
+     * Returns what the board of the current View is made of, which is where
+     * each Table sits and the Groups around them, and not where it is looked
+     * at from
+     * @returns {Object}
+     */
+    getBoard() {
+        const prefix = `${this.#currentID}-${this.#viewID}-`;
+        const items  = {};
+
+        for (const key of Object.keys(localStorage)) {
+            if (this.#isBoardKey(key, prefix)) {
+                items[key] = localStorage.getItem(key);
+            }
+        }
+        return items;
+    }
+
+    /**
+     * Puts the board of the current View back the way it is given
+     * @param {Object} items
+     * @returns {Void}
+     */
+    setBoard(items) {
+        const prefix = `${this.#currentID}-${this.#viewID}-`;
+
+        // What came after the board was taken is no part of it, so the board
+        // is cleared before it is written rather than written over
+        for (const key of Object.keys(localStorage)) {
+            if (this.#isBoardKey(key, prefix)) {
+                localStorage.removeItem(key);
+            }
+        }
+        for (const [ key, value ] of Object.entries(items)) {
+            localStorage.setItem(key, value);
+        }
+    }
+
+    /**
+     * Returns true if the key holds part of the board of the given View. The
+     * zoom and the scroll are where it is looked at from, which a step back
+     * has no business moving
+     * @param {String} key
+     * @param {String} prefix
+     * @returns {Boolean}
+     */
+    #isBoardKey(key, prefix) {
+        return key.startsWith(prefix) && !key.endsWith("-zoom") && !key.endsWith("-scroll");
+    }
+
+
+
+    /**
      * Returns everything the Schema holds, to be written out as a file
      * @param {Number} schemaID
      * @returns {Object?}

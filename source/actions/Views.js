@@ -1,5 +1,6 @@
 import * as App     from "../App.js";
 import * as Schemas from "./Schemas.js";
+import * as History from "./History.js";
 
 
 
@@ -19,6 +20,7 @@ export async function selectView(viewID) {
     App.schema.destroy();
     App.canvas.destroy();
     App.storage.selectView(viewID);
+    History.forget();
     Schemas.setSchema(data);
 }
 

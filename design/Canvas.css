@@ -61,6 +61,9 @@ main {
     animation: der-pop 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
     transition: box-shadow 0.15s, border-color 0.15s;
 }
+.canvas-table.quiet {
+    animation: none;
+}
 .canvas-table header {
     display: flex;
     align-items: center;
@@ -208,6 +211,9 @@ main {
     overflow: visible;
     pointer-events: none;
     animation: der-draw 0.3s ease 0.14s both;
+}
+.schema-link.quiet {
+    animation: none;
 }
 .schema-link path {
     fill: none;
