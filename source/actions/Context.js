@@ -103,7 +103,7 @@ function tableItems(table, inList) {
         items.push({
             action : "open-group",
             icon   : "group",
-            text   : "Group what is picked",
+            text   : "Group the selected Tables",
         });
     }
 

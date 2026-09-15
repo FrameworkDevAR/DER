@@ -100,7 +100,7 @@ dialog {
     display: flex;
     gap: 4px;
 }
-.keys-list b {
+.keys-keys b {
     box-sizing: border-box;
     min-width: 24px;
     padding: 2px 6px;
@@ -118,6 +118,10 @@ dialog {
 .keys-list span {
     color: var(--light-color);
     font-size: 13px;
+}
+.keys-list span b {
+    color: var(--main-color);
+    font-weight: 600;
 }
 .settings-dialog dialog.show-keys form {
     display: none;

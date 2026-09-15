@@ -396,7 +396,7 @@ export function fitBoard() {
 export function fitPicked() {
     const bounds = App.canvas.pickedBounds;
     if (!bounds) {
-        App.toast.show("Nothing is picked");
+        App.toast.show("Nothing is selected");
         return;
     }
     App.storage.setZoom(App.canvas.fitBoard(bounds));

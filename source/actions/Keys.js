@@ -35,7 +35,7 @@ const SHORTCUTS = [
         names  : [ "Esc" ],
         keys   : [ "escape" ],
         always : true,
-        text   : "Close the menu or a dialog, empty the filter, drop the selection",
+        text   : "<b>Close</b> the menu or a dialog, <b>empty</b> the filter, <b>drop</b> the selection",
         run    : closeSomething,
     },
     {
@@ -44,7 +44,7 @@ const SHORTCUTS = [
         withKey   : true,
         notTyping : true,
         action    : "undo",
-        text      : "Take a step back",
+        text      : "<b>Undo</b> the last change",
         run       : History.undo,
     },
     {
@@ -54,14 +54,14 @@ const SHORTCUTS = [
         withShift : true,
         notTyping : true,
         action    : "redo",
-        text      : "Take that step again",
+        text      : "<b>Redo</b> the last change",
         run       : History.redo,
     },
     {
         names   : [ "Mod", "F" ],
         keys    : [ "f" ],
         withKey : true,
-        text   : "Type in the filter of the panel",
+        text   : "<b>Filter</b> the Tables of the panel",
         run    : Aside.focusFilter,
     },
     {
@@ -69,7 +69,7 @@ const SHORTCUTS = [
         keys     : [ "arrowup", "arrowdown" ],
         always   : true,
         anyShift : true,
-        text   : "Walk the rows of the panel",
+        text   : "<b>Walk</b> the rows of the panel",
         run    : moveUpDown,
     },
     {
@@ -77,14 +77,14 @@ const SHORTCUTS = [
         keys     : [ "arrowleft", "arrowright" ],
         always   : true,
         anyShift : true,
-        text   : "Open or close the row the arrows are on",
+        text   : "<b>Open</b> or <b>close</b> the row the arrows are on",
         run    : moveLeftRight,
     },
     {
         names  : [ "Enter" ],
         keys   : [ "enter" ],
         always : true,
-        text   : "Pick the row the arrows are on, or let go of it",
+        text   : "<b>Select</b> the row the arrows are on, or let go of it",
         run    : pickHighlighted,
     },
     {
@@ -92,7 +92,7 @@ const SHORTCUTS = [
         keys    : [ "b" ],
         withKey : true,
         action : "toggle-aside",
-        text   : "Collapse the panel, or open it again",
+        text   : "<b>Collapse</b> the panel, or open it again",
         run    : Aside.toggleCollapse,
     },
     {
@@ -100,7 +100,7 @@ const SHORTCUTS = [
         keys    : [ "e" ],
         withKey : true,
         action  : "fit-board",
-        text   : "Show the whole board at once",
+        text   : "Show the <b>whole board</b> at once",
         run    : Tables.fitBoard,
     },
     {
@@ -108,7 +108,7 @@ const SHORTCUTS = [
         keys      : [ "e" ],
         withKey   : true,
         withShift : true,
-        text      : "Show what is picked, as close as it goes",
+        text      : "<b>Zoom in</b> on what is selected",
         run       : Tables.fitPicked,
     },
     {
@@ -116,7 +116,7 @@ const SHORTCUTS = [
         keys    : [ "d" ],
         withKey : true,
         action  : "tidy-board",
-        text   : "Tidy the board",
+        text   : "<b>Tidy</b> the board",
         run    : Tables.tidyBoard,
     },
     {
@@ -124,14 +124,14 @@ const SHORTCUTS = [
         keys    : [ "g" ],
         withKey : true,
         action : "open-group",
-        text   : "Gather what is picked into a Group",
+        text   : "<b>Create a Group</b> with the selected Tables",
         run    : Groups.openGroup,
     },
     {
         names   : [ "Mod", "\u232B" ],
         keys    : [ "delete", "backspace" ],
         withKey : true,
-        text    : "Take what is picked off the board",
+        text    : "<b>Remove</b> the selected Table or Group from the board",
         run  : Tables.removePicked,
     },
     {
@@ -140,7 +140,7 @@ const SHORTCUTS = [
         anyKey   : true,
         anyShift : true,
         action : "zoom-in",
-        text   : "Zoom in",
+        text   : "<b>Zoom in</b>",
         run    : () => Tables.setZoom("in"),
     },
     {
@@ -149,7 +149,7 @@ const SHORTCUTS = [
         anyKey   : true,
         anyShift : true,
         action : "zoom-out",
-        text   : "Zoom out",
+        text   : "<b>Zoom out</b>",
         run    : () => Tables.setZoom("out"),
     },
     {
@@ -157,14 +157,14 @@ const SHORTCUTS = [
         keys   : [ "0" ],
         anyKey : true,
         action : "reset-zoom",
-        text   : "Zoom back to where it started",
+        text   : "<b>Reset the zoom</b>",
         run    : () => Tables.setZoom("reset"),
     },
     {
         names  : [ "Mod", "1 \u2013 9" ],
         keys   : [ "1", "2", "3", "4", "5", "6", "7", "8", "9" ],
         anyKey : true,
-        text   : "Show the View in that place of the strip",
+        text   : "Show the <b>View</b> with that number",
         run    : (event) => Views.selectByPosition(Number(event.key)),
     },
     {
@@ -172,14 +172,14 @@ const SHORTCUTS = [
         keys    : [ "," ],
         withKey : true,
         action  : "open-settings",
-        text    : "Open the Settings",
+        text    : "Open the <b>Settings</b>",
         run     : () => App.settings.open(),
     },
     {
         names    : [ "?" ],
         keys     : [ "?" ],
         anyShift : true,
-        text     : "Show this list of shortcuts",
+        text     : "Show this list of <b>shortcuts</b>",
         run      : () => App.settings.open("keys"),
     },
     {
@@ -187,7 +187,7 @@ const SHORTCUTS = [
         // drag it belongs to begins, so it runs nothing of its own
         names : [ "Space" ],
         keys  : [],
-        text  : "Hold to drag the board from anywhere",
+        text  : "Hold to <b>drag the board</b> from anywhere",
     },
     {
         // Every arrow is answered by the two above, which walk the panel while
@@ -195,7 +195,7 @@ const SHORTCUTS = [
         // one is here to be read, and answers no key of its own
         names : [ "\u2190", "\u2191", "\u2193", "\u2192" ],
         keys  : [],
-        text  : "Move what is picked. Hold Shift to move x10",
+        text  : "<b>Move</b> what is selected. Hold <b>Shift</b> to move by 10 px",
     },
 ];
 
