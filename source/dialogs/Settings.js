@@ -23,6 +23,13 @@ export default class Settings {
     /** @type {Configs} */
     #configs;
 
+    /** @type {HTMLElement} */
+    #scroll;
+    /** @type {HTMLElement} */
+    #form;
+    /** @type {HTMLElement} */
+    #keys;
+
 
     /**
      * Settings Dialog constructor
@@ -32,6 +39,15 @@ export default class Settings {
     constructor(configs, shortcuts) {
         this.#dialog  = new Dialog("settings");
         this.#configs = configs;
+
+        this.#scroll = this.#dialog.getElement(".settings-scroll");
+        this.#form   = this.#dialog.getElement("form");
+        this.#keys   = this.#dialog.getElement(".keys-list");
+
+        // Each list says how much of it is past each end as it is scrolled
+        for (const element of [ this.#form, this.#keys ]) {
+            element.addEventListener("scroll", () => this.setFade());
+        }
 
         const list = this.#dialog.getElement(".keys-list");
         for (const shortcut of shortcuts) {
@@ -74,6 +90,21 @@ export default class Settings {
         }
         this.#dialog.getElement("dialog").classList.toggle("show-keys", tab === "keys");
         this.setMark(withMove);
+        this.setFade();
+    }
+
+    /**
+     * Fades the end of the list that runs past the Dialog by as much as it
+     * hides and never deeper, so an end with nothing past it is not faded
+     * @returns {Void}
+     */
+    setFade() {
+        const depth = 16;
+        const list  = this.#dialog.getElement("dialog").classList.contains("show-keys") ? this.#keys : this.#form;
+        const rest  = list.scrollHeight - list.clientHeight - list.scrollTop;
+
+        this.#scroll.style.setProperty("--fade-above", `${Math.min(Math.max(list.scrollTop, 0), depth)}px`);
+        this.#scroll.style.setProperty("--fade-below", `${Math.min(Math.max(rest, 0), depth)}px`);
     }
 
     /**

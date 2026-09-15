@@ -129,13 +129,32 @@ dialog {
     display: flex;
 }
 
+.settings-scroll {
+    --list-fade: 16px;
+
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        #000 min(var(--list-fade), var(--fade-above, 0px)),
+        #000 calc(100% - min(var(--list-fade), var(--fade-below, 0px))),
+        transparent 100%
+    );
+}
+
 .settings-dialog dialog {
     box-sizing: border-box;
     max-height: min(620px, 100vh - 96px);
     overflow: hidden;
 }
 .settings-dialog form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     min-height: 0;
+    padding-bottom: 8px;
     overflow-y: auto;
 }
 .settings-dialog h3 {
