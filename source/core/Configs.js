@@ -15,6 +15,7 @@ const DEFAULTS = {
     showAllFields    : false,
     isStraight       : false,
     showDots         : false,
+    flowLinks        : false,
     snapToGrid       : false,
     tidyOnAdd        : true,
 };
@@ -71,6 +72,7 @@ export default class Configs {
         this.#body.classList.toggle("no-grid", !this.values.showGrid);
         this.#body.classList.toggle("no-descs", !this.values.showDescriptions);
         this.#body.classList.toggle("no-types", !this.values.showTypes);
+        this.#body.classList.toggle("flow-links", this.values.flowLinks);
 
         // Every Link is drawn the same way, so the Configs sit on the class
         Link.isStraight    = this.values.isStraight;

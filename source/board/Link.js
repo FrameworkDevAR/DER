@@ -59,6 +59,7 @@ export default class Link {
         this.from = document.createElementNS("http://www.w3.org/2000/svg", "path");
         this.to   = document.createElementNS("http://www.w3.org/2000/svg", "path");
 
+        this.path.classList.add("link-line");
         this.from.classList.add("link-from");
         this.to.classList.add("link-to");
 
@@ -122,6 +123,7 @@ export default class Link {
     unselect() {
         this.removeColor();
         this.element.classList.remove("disabled");
+        this.element.classList.remove("lit");
     }
 
     /**
@@ -133,6 +135,7 @@ export default class Link {
         this.unselect();
         this.colorClass = `color${color}`;
         this.element.classList.add(this.colorClass);
+        this.element.classList.add("lit");
     }
 
     /**
@@ -424,6 +427,11 @@ export default class Link {
     setEnds(start, end, toEnd) {
         const from = toEnd ? start : end;
         const to   = toEnd ? end   : start;
+
+        // A Link is drawn from whichever Table is on the left, which is not
+        // always the one the relation starts at, and what runs along it has
+        // to know which way that is
+        this.element.classList.toggle("backwards", !toEnd);
 
         // Any amount of rows may hold the same Key, unless that Key is the one
         // thing that tells a row of its Table from another. The Key names the

@@ -7,7 +7,7 @@ import Configs from "../core/Configs.js";
 const SWITCHES = [
     "showGrid", "snapToGrid", "tidyOnAdd",
     "showDescriptions", "showTypes", "onlyKeys", "showAudit", "keysFirst", "showAllFields",
-    "isStraight", "showDots",
+    "isStraight", "showDots", "flowLinks",
 ];
 
 
