@@ -1,6 +1,7 @@
 import Storage from "./Storage.js";
 import Link    from "../board/Link.js";
 import Pointer from "../board/Pointer.js";
+import Minimap from "../board/Minimap.js";
 
 
 
@@ -18,6 +19,7 @@ const DEFAULTS = {
     flowLinks        : false,
     snapToGrid       : false,
     tidyOnAdd        : true,
+    showMinimap      : false,
 };
 
 
@@ -78,5 +80,6 @@ export default class Configs {
         Link.isStraight    = this.values.isStraight;
         Link.showDots      = this.values.showDots;
         Pointer.snapToGrid = this.values.snapToGrid;
+        Minimap.isShown    = this.values.showMinimap;
     }
 }

@@ -114,6 +114,12 @@
             <button class="btn btn-small views-add" data-action="open-view" data-tip="Add a view" data-tip-top aria-label="Add a view">+</button>
         </aside>
 
+        <aside class="minimap" data-action="drag-minimap">
+            <div class="minimap-board"></div>
+            <div class="minimap-view"></div>
+            <a href="#" class="close" data-action="hide-minimap" data-tip="Hide the map" data-tip-top aria-label="Hide the map"></a>
+        </aside>
+
         <div class="selector"></div>
         <div class="toast"></div>
         <div class="tooltip" popover="manual"></div>
@@ -337,6 +343,10 @@
                             <label class="toggle-input" data-field="tidyOnAdd">
                                 <input type="checkbox" role="switch" name="tidyOnAdd" value="1" />
                                 <div>Push the board apart when a Table is added</div>
+                            </label>
+                            <label class="toggle-input" data-field="showMinimap">
+                                <input type="checkbox" role="switch" name="showMinimap" value="1" />
+                                <div>Show a map of the board in the corner</div>
                             </label>
 
                             <h3>Tables</h3>

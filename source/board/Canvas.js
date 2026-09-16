@@ -3,6 +3,7 @@ import Link    from "./Link.js";
 import Group   from "./Group.js";
 import Picker  from "./Picker.js";
 import Pointer from "./Pointer.js";
+import Minimap from "./Minimap.js";
 import Zoom    from "./Zoom.js";
 import Options from "../core/Options.js";
 
@@ -21,6 +22,9 @@ export default class Canvas {
 
     /** @type {Pointer} */
     pointer;
+
+    /** @type {Minimap} */
+    minimap;
 
     /** @type {Object.<String, Table>} */
     #tables = {};
@@ -54,6 +58,7 @@ export default class Canvas {
         this.zoom       = new Zoom(this.#canvas);
         this.picker     = new Picker(this);
         this.pointer    = new Pointer(this, this.picker);
+        this.minimap    = new Minimap(this);
     }
 
     /**
@@ -132,6 +137,7 @@ export default class Canvas {
      */
     setEmpty(hasSchema) {
         document.body.classList.toggle("canvas-is-empty", hasSchema && !this.tableCount);
+        this.minimap.draw();
     }
 
     /**
@@ -261,6 +267,10 @@ export default class Canvas {
                 link.connect();
             }
         }
+
+        // A Table being dragged reaches here on every frame of it, and only
+        // its own card of the map moves, so the rest of it stands still
+        this.minimap.place(table);
     }
 
     /**
@@ -409,6 +419,8 @@ export default class Canvas {
 
         const result = this.zoom.setValue(value);
         const scale  = this.zoom.scale;
+
+        this.minimap.setView();
         this.#container.scrollTo({
             left     : (bounds.left + bounds.width  / 2) * scale - this.asideWidth - freeWidth / 2,
             top      : (bounds.top  + bounds.height / 2) * scale - height / 2,
@@ -438,6 +450,7 @@ export default class Canvas {
         }
 
         this.keepCenter(oldScale);
+        this.minimap.setView();
         return value;
     }
 

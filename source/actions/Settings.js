@@ -17,6 +17,17 @@ export function saveSettings() {
 }
 
 /**
+ * Takes the map of the board away, which is the Setting that asks for it and
+ * not only the map that is on screen
+ * @returns {Void}
+ */
+export function hideMinimap() {
+    App.configs.set({ showMinimap : false });
+    App.canvas.minimap.draw();
+    App.toast.show("The map is off in the Settings");
+}
+
+/**
  * Takes the Mode that was last picked, of the three there are
  * @returns {Void}
  */
@@ -56,4 +67,8 @@ export function redrawBoard() {
             group.position();
         }
     }
+
+    // The map is drawn from the cards, which are of another height now, and
+    // it is where the Setting that asks for it at all is answered
+    App.canvas.minimap.draw();
 }

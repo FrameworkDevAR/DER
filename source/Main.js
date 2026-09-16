@@ -192,6 +192,9 @@ document.addEventListener("click", (e) => {
     case "fit-board":
         Tables.fitBoard();
         break;
+    case "hide-minimap":
+        Settings.hideMinimap();
+        break;
     case "open-settings":
         App.settings.open();
         break;
@@ -362,6 +365,7 @@ document.querySelector(".schema-list").addEventListener("scroll", () => {
  */
 document.querySelector("main").addEventListener("scroll", () => {
     App.context.close();
+    App.canvas.minimap.setView();
     if (timer) {
         window.clearTimeout(timer);
     }
@@ -432,6 +436,10 @@ document.addEventListener("mousedown", (e) => {
         App.aside.pickResizer(e);
         e.preventDefault();
         break;
+    case "drag-minimap":
+        App.canvas.minimap.pick(e);
+        e.preventDefault();
+        break;
     default:
         // @ts-ignore
         if (e.target.classList.contains("canvas")) {
@@ -493,6 +501,9 @@ document.addEventListener("mousemove", (e) => {
             e.preventDefault();
         }
     }
+    if (App.canvas && App.canvas.minimap.drag(e)) {
+        e.preventDefault();
+    }
     if (App.aside.dragResizer(e)) {
         e.preventDefault();
     }
@@ -511,8 +522,12 @@ document.addEventListener("mouseup", (e) => {
             for (const selectedTable of App.canvas.picker.canvasTables) {
                 App.storage.setTable(selectedTable);
             }
+            App.canvas.minimap.draw();
             e.preventDefault();
         }
+    }
+    if (App.canvas && App.canvas.minimap.drop()) {
+        e.preventDefault();
     }
     if (App.aside.dropResizer()) {
         App.storage.setWidth(App.aside.width);

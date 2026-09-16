@@ -5,7 +5,7 @@ import Configs from "../core/Configs.js";
 
 // What the dialog asks for, and how each answer is read back
 const SWITCHES = [
-    "showGrid", "snapToGrid", "tidyOnAdd",
+    "showGrid", "snapToGrid", "tidyOnAdd", "showMinimap",
     "showDescriptions", "showTypes", "onlyKeys", "showAudit", "keysFirst", "showAllFields",
     "isStraight", "showDots", "flowLinks",
 ];
