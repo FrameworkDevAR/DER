@@ -3,7 +3,7 @@
     "scripts": {
         "start" : {
             "type" : "server",
-            "port" : "3021"
+            "port" : "2001"
         }
     }
 }
