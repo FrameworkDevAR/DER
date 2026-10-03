@@ -713,7 +713,7 @@ export default class Storage {
      * @returns {String}
      */
     getMode() {
-        return this.getString("mode") || "light";
+        return this.getString("mode") || "system";
     }
 
     /**

@@ -12,6 +12,16 @@
         <script type="module" src="source/Main.js"></script>
     </head>
     <body class="light-mode">
+        <script>
+            // The mode is taken before anything is drawn, so a page that opens
+            // dark does not open with a flash of light
+            (() => {
+                const mode   = localStorage.getItem("mode") || "system";
+                const isDark = mode === "dark" || (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+                document.body.classList.toggle("dark-mode", isDark);
+                document.body.classList.toggle("light-mode", !isDark);
+            })();
+        </script>
         <aside class="aside">
             <div class="aside-content">
                 <header>
