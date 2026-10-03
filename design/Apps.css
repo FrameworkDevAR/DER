@@ -1,0 +1,113 @@
+/**
+ * Apps
+ */
+@keyframes apps-pop {
+    from { opacity: 0; scale: 0.96; translate: 0 -4px; }
+    to   { opacity: 1; scale: 1; translate: 0 0; }
+}
+
+.header-logo,
+.aside-logo {
+    cursor: pointer;
+    transition: scale 0.2s;
+}
+.header-logo:hover,
+.aside-logo:hover {
+    scale: 1.08;
+}
+
+.apps {
+    position: fixed;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 260px;
+    padding: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--card-color);
+    z-index: var(--z-mode);
+    animation: apps-pop 0.18s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+.apps.open {
+    display: flex;
+}
+.apps-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px 8px 8px;
+    border-radius: 11px;
+    color: var(--main-color);
+    text-decoration: none;
+    transition: background-color 0.15s;
+}
+a.apps-item:hover {
+    background-color: var(--accent-soft);
+}
+.apps-item.selected {
+    background-color: var(--sunk-color);
+}
+.apps-logo {
+    flex: 0 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+    background-color: black;
+}
+.apps-logo.is-image {
+    border-radius: 0;
+    background-color: transparent;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.apps hr {
+    width: 100%;
+    height: 1px;
+    margin: 4px 0;
+    border: none;
+    background-color: var(--border-color);
+}
+.apps-logo i {
+    width: 17px;
+    height: 17px;
+    background-color: white;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+}
+.apps-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+.apps-text b {
+    font-family: var(--title-font);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.01em;
+}
+.apps-text span {
+    color: var(--lighter-color);
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+.apps-here {
+    flex-shrink: 0;
+    padding: 0 8px;
+    border-radius: var(--pill-radius);
+    background-color: var(--card-color);
+    color: var(--lighter-color);
+    font-family: var(--mono-font);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 18px;
+}
